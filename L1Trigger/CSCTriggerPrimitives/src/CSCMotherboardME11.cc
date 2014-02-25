@@ -553,9 +553,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         else {
           if (print_available_pads) std::cout << "++Not a valid ALCT in BX: " << bx_alct << std::endl;
           // at this point we don't hav a valid ALCT...
-          if (!hasCoPads) continue;
+          if (not hasCoPads) continue;
           // ... but we do have a copad! Try to make an LCT from a CLCT and GEM
-          if (!buildLCTfromCLCTandGEM_ME1b_) continue;
+          if (not buildLCTfromCLCTandGEM_ME1b_) continue;
           // need a function to get the best copad for a CLCT/ALCT
           // now it simply gets the first one in the list 
           ++nSuccesFulGEMMatches;
@@ -757,8 +757,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         }
         else {
           if (print_available_pads) std::cout << "++Not a valid CLCT in BX: " << bx_clct << std::endl;
-          if (buildLCTfromALCTandGEM_ME1b_) continue;
-          if (!hasCoPads) continue;
+          if (not buildLCTfromALCTandGEM_ME1b_) continue;
+          if (not hasCoPads) continue;
           
           // find the best matching copad - first one 
           try {
@@ -842,10 +842,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           }
         else {
           if (print_available_pads) std::cout << "++Not a valid CLCT in BX: " << bx_clct << std::endl;
-          if (buildLCTfromALCTandGEM_overlap_) continue;
+          if (not buildLCTfromALCTandGEM_overlap_) continue;
           // Try to build an ME1/a LCT out of an ALCT and a GEM Co-Pad in the overlap region
           if (10 > alct->bestALCT[bx_alct].getKeyWG() or alct->bestALCT[bx_alct].getKeyWG() > 15) continue;
-          if (!hasCoPads) continue;
+          if (not hasCoPads) continue;
           
           // find the best matching copad - first one 
           try {
