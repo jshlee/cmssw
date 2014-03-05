@@ -235,7 +235,7 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   runGEMCSCILT_ = tmbParams.getUntrackedParameter<bool>("runGEMCSCILT", false);
 
   /// Do GEM matching?
-  do_gem_matching = tmbParams.getUntrackedParameter<bool>("doGemMatching", true);
+  do_gem_matching = tmbParams.getUntrackedParameter<bool>("doGemMatching", false);
   
   /// GEM matching dphi and deta
   gem_match_delta_phi_odd = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
@@ -464,13 +464,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
   // build coincidence pads
   std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
-  bool buildGEMCSCCoPads(true);
+  bool buildGEMCSCCoPads = do_gem_matching;
   if (buildGEMCSCCoPads){
     buildCoincidencePads(gemPads, *pCoPads);
   }
 
   // retrieve pads and copads in a certain BX window for this CSC 
-  bool wrapPads(true);
+  bool wrapPads = do_gem_matching;
   if (wrapPads){
     pads_.clear();
     coPads_.clear();

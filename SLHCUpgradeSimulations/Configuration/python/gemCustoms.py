@@ -55,6 +55,7 @@ def customise_L1Emulator(process, ptdphi = 'pt0'):
     }
 
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    tmb.doGemMatching = cms.untracked.bool(True)
     tmb.printAvailablePads = cms.untracked.bool(False)
     tmb.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(False)
     tmb.buildLCTfromALCTandGEMinME1b = cms.untracked.bool(False) 
