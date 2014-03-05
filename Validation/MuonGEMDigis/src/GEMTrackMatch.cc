@@ -93,7 +93,11 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
   if (t.noVertex())   return false; 
   if (t.noGenpart()) return false;
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
+<<<<<<< HEAD
   if (t.momentum().pt() < minPt_ ) return false;
+=======
+  if (t.momentum().pt() < 5 ) return false;
+>>>>>>> gem-sw/gem-csc-trigger-development
   float eta = fabs(t.momentum().eta());
   if (eta > maxEta_ || eta < minEta_ ) return false; // no GEMs could be in such eta
 
@@ -188,7 +192,11 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //{ printf("skip!!\n"); continue; }
     
     // match hits and digis to this SimTrack
+<<<<<<< HEAD
     SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+=======
+    SimTrackDigiMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+>>>>>>> gem-sw/gem-csc-trigger-development
 
     const SimHitMatcher& match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();

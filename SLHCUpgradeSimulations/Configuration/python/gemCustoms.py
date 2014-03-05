@@ -38,18 +38,36 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
-def customise_L1Emulator(process):
+def customise_L1Emulator(process, ptdphi = 'pt0'):
     process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+
+    dphi_lct_pad98 = {
+        'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
+        'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
+        'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
+        'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
+        'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
+        'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
+        'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
+        'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
+    }
+
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    tmb.printAvailablePads = cms.untracked.bool(False)
+    tmb.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(False)
+    tmb.buildLCTfromALCTandGEMinME1b = cms.untracked.bool(False) 
+    tmb.buildLCTfromALCTandGEMinOverlap = cms.untracked.bool(False)
+    tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
     tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
-    lct_store_gemdphi = True
-    if lct_store_gemdphi:
+    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
+    tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
+    print tmb.gemMatchDeltaPhiOdd, tmb.gemMatchDeltaPhiEven
+    if ptdphi == 'pt0':
         tmb.gemClearNomatchLCTs = cms.untracked.bool(False)
-	tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
-        tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
+        
     return process
 
 def customise_DigiToRaw(process):

@@ -88,6 +88,9 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
 
+  /** SLHC: special switch for OBthe factorized ME1/1 TMB */
+  bool runFactorizedModel_;
+
   int m_minBX, m_maxBX; // min and max BX to sort.
 
   /** Pointers to TMB processors for all possible chambers. */

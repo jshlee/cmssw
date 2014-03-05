@@ -84,8 +84,11 @@
 //
 MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 {
+<<<<<<< HEAD
   hasGEMGeometry_ = false;
 
+=======
+>>>>>>> gem-sw/gem-csc-trigger-development
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
@@ -93,7 +96,11 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
    //now do what ever initialization is needed
   
   std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
+<<<<<<< HEAD
   theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
+=======
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits"),ps.getParameterSet("gemSystemSetting") );
+>>>>>>> gem-sw/gem-csc-trigger-development
   theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
 }
 
@@ -157,6 +164,7 @@ MuonGEMHits::endJob()
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
+<<<<<<< HEAD
  
   try { 
     iSetup.get<MuonGeometryRecord>().get(gem_geom);
@@ -176,6 +184,16 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     theGEMSimTrackMatch->bookHisto();
   }
   
+=======
+
+  iSetup.get<MuonGeometryRecord>().get(gem_geom);
+  gem_geometry_ = &*gem_geom;
+
+
+
+  theGEMHitsValidation->setGeometry(gem_geometry_);
+  theGEMSimTrackMatch->setGeometry(gem_geometry_);
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 
 

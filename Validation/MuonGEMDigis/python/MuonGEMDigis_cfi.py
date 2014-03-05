@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 
 
+<<<<<<< HEAD
+=======
+from Validation.MuonGEMDigis.simTrackMatching_cfi import SimTrackMatching
+>>>>>>> gem-sw/gem-csc-trigger-development
 gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
 	outputFile = cms.string(''),
 	stripLabel= cms.InputTag('simMuonGEMDigis'),
@@ -11,6 +15,7 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
 	minPt = cms.untracked.double(5.),
 	maxEta = cms.untracked.double(2.18),
 	minEta = cms.untracked.double(1.55), 
+<<<<<<< HEAD
         simTrackMatching = cms.PSet(
             # common
             useCSCChamberTypes = cms.untracked.vint32( 2, ), # by default, only use simhits from ME1/b (CSC type == 2)
@@ -33,4 +38,7 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
             gemDigiMaxEta  = cms.untracked.double(2.18),
             gemDigiMinPt = cms.untracked.double(5.0),
             )
+=======
+        simTrackMatching = SimTrackMatching
+>>>>>>> gem-sw/gem-csc-trigger-development
 )

@@ -21,7 +21,11 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 
+<<<<<<< HEAD
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+=======
+#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 
 class GEMTrackMatch 

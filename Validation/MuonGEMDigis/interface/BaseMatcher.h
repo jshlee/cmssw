@@ -28,13 +28,10 @@ class BaseMatcher
 {
 public:
   
-<<<<<<< HEAD
-=======
   /// CSC chamber types, according to CSCDetId::iChamberType()
   enum CSCType {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
       CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
 
->>>>>>> gem-sw/gem-csc-trigger-development
 
   BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
@@ -54,12 +51,9 @@ public:
   const edm::Event& event() const {return ev_;}
   const edm::EventSetup& eventSetup() const {return es_;}
 
-<<<<<<< HEAD
-=======
   /// check if CSC chamber type is in the used list
   bool useCSCChamberType(int csc_type);
   
->>>>>>> gem-sw/gem-csc-trigger-development
   void setVerbose(int v) { verbose_ = v; }
   int verbose() const { return verbose_; }
 
@@ -84,11 +78,8 @@ private:
 
   int verbose_;
 
-<<<<<<< HEAD
-=======
   // list of CSC chamber types to use
   bool useCSCChamberTypes_[11];
->>>>>>> gem-sw/gem-csc-trigger-development
 
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_;

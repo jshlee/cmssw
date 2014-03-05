@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 
+<<<<<<< HEAD
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
@@ -29,6 +30,32 @@ GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
 
    theCSCCoPad_zr_rm1 =  dbe_->book2D("copad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240);
    theCSCCoPad_zr_rp1 =  dbe_->book2D("copad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,55,130,240);
+=======
+const int nPads = 96;
+
+GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
+                                               const edm::InputTag & inputTag)
+:  GEMBaseValidation(dbe, inputTag)
+,  theCSCCoPad_xy_rm1( dbe_->book2D("copad_dg_xy_rm1", "Digi occupancy: region -1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
+,  theCSCCoPad_xy_rp1( dbe_->book2D("copad_dg_xy_rp1", "Digi occupancy: region  1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
+
+,  theCSCCoPad_phipad_rm1( dbe_->book2D("copad_dg_phipad_rm1", "Digi occupancy: region -1; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
+,  theCSCCoPad_phipad_rp1( dbe_->book2D("copad_dg_phipad_rp1", "Digi occupancy: region  1; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
+
+
+,  theCSCCoPad_rm1( dbe_->book1D("copad_dg_rm1", "Digi occupancy per stip number: region -1;pad number; entries", nPads,0.5,nPads+0.5))
+,  theCSCCoPad_rp1( dbe_->book1D("copad_dg_rp1", "Digi occupancy per stip number: region  1;pad number; entries", nPads,0.5,nPads+0.5))
+
+
+,  theCSCCoPad_bx_rm1( dbe_->book1D("copad_dg_bx_rm1", "Bunch crossing: region -1; bunch crossing ; entries", 11,-5.5,5.5))
+,  theCSCCoPad_bx_rp1( dbe_->book1D("copad_dg_bx_rp1", "Bunch crossing: region  1; bunch crossing ; entries", 11,-5.5,5.5))
+
+
+,  theCSCCoPad_zr_rm1( dbe_->book2D("copad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240))
+,  theCSCCoPad_zr_rp1( dbe_->book2D("copad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,55,130,240))
+{
+
+>>>>>>> gem-sw/gem-csc-trigger-development
 }
 
 
@@ -91,20 +118,32 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       if ( region== -1 ) {
                 theCSCCoPad_zr_rm1->Fill(g_z,g_r);
 	        theCSCCoPad_xy_rm1->Fill(g_x,g_y); 
+<<<<<<< HEAD
             theCSCCoPad_phipad_rm1->Fill(g_phi , pad);
+=======
+            theCSCCoPad_phipad_rm1->Fill(pad,g_phi);
+>>>>>>> gem-sw/gem-csc-trigger-development
                    theCSCCoPad_rm1->Fill(pad);
                 theCSCCoPad_bx_rm1->Fill(bx);
       }
       else if ( region == 1 ) {
                 theCSCCoPad_zr_rp1->Fill(g_z,g_r);
                 theCSCCoPad_xy_rp1->Fill(g_x,g_y);
+<<<<<<< HEAD
             theCSCCoPad_phipad_rp1->Fill(g_phi, pad);
+=======
+            theCSCCoPad_phipad_rp1->Fill(pad,g_phi);
+>>>>>>> gem-sw/gem-csc-trigger-development
                    theCSCCoPad_rp1->Fill(pad);
                 theCSCCoPad_bx_rp1->Fill(bx);
 
       }
       else {
+<<<<<<< HEAD
         edm::LogInfo("CSCCOPadDIGIValidation")<<"region : "<<region<<std::endl;
+=======
+        std::cout<<"region : "<<region<<std::endl;
+>>>>>>> gem-sw/gem-csc-trigger-development
       }
    }
   }

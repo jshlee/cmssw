@@ -47,7 +47,11 @@ private:
   edm::ESHandle<GEMGeometry> gem_geom;
 
   const GEMGeometry* gem_geometry_;
+<<<<<<< HEAD
   bool hasGEMGeometry_;
+=======
+
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;

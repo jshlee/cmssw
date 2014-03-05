@@ -35,7 +35,11 @@ public:
   std::pair<int,int> getClosestChambers(int region, float phi);
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
+<<<<<<< HEAD
   void bookHisto();
+=======
+
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 
  private:

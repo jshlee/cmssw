@@ -10,7 +10,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+<<<<<<< HEAD
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
+=======
+#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+>>>>>>> gem-sw/gem-csc-trigger-development
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
@@ -21,6 +25,7 @@ class GEMHitsValidation : public GEMBaseValidation
 {
 public:
   GEMHitsValidation(DQMStore* dbe,
+<<<<<<< HEAD
                          const edm::InputTag & inputTag);
   ~GEMHitsValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
@@ -28,6 +33,18 @@ public:
  private:
 
   MonitorElement* gem_sh_xy[2][3][2][3];
+=======
+                         const edm::InputTag & inputTag, const edm::ParameterSet& cfg);
+  ~GEMHitsValidation();
+  void analyze(const edm::Event& e, const edm::EventSetup&);
+
+ private:
+
+  MonitorElement* gem_sh_xy_rm1_l1[3];
+  MonitorElement* gem_sh_xy_rm1_l2[3];
+  MonitorElement* gem_sh_xy_rp1_l1[3];
+  MonitorElement* gem_sh_xy_rp1_l2[3];
+>>>>>>> gem-sw/gem-csc-trigger-development
 
   MonitorElement* gem_sh_zr_rm1[3];
   MonitorElement* gem_sh_zr_rp1[3];
@@ -44,6 +61,12 @@ public:
   MonitorElement* gem_sh_energyloss[3];
 
   Int_t npart;
+<<<<<<< HEAD
+=======
+  Int_t nlayer;
+  Int_t nregion;
+
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 };
 

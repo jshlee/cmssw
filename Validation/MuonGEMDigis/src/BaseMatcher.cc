@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-#include "Validation/MuonGEMHits/interface/BaseMatcher.h"
-=======
 #include "Validation/MuonGEMDigis/interface/BaseMatcher.h"
->>>>>>> gem-sw/gem-csc-trigger-development
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -14,8 +10,6 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
 : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0)
 {
-<<<<<<< HEAD
-=======
   // list of CSC chamber type numbers to use
   std::vector<int> csc_types = conf().getUntrackedParameter<std::vector<int> >("useCSCChamberTypes", std::vector<int>() );
   for (int i=0; i <= CSC_ME42; ++i) useCSCChamberTypes_[i] = false;
@@ -25,7 +19,6 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
   }
   // empty list means use all the chamber types
   if (csc_types.empty()) useCSCChamberTypes_[CSC_ALL] = 1;
->>>>>>> gem-sw/gem-csc-trigger-development
 
   // Get the magnetic field
   es.get< IdealMagneticFieldRecord >().get(magfield_);
@@ -41,14 +34,11 @@ BaseMatcher::~BaseMatcher()
 }
 
 
-<<<<<<< HEAD
-=======
 bool BaseMatcher::useCSCChamberType(int csc_type)
 {
   if (csc_type < 0 || csc_type > CSC_ME42) return false;
   return useCSCChamberTypes_[csc_type];
 }
->>>>>>> gem-sw/gem-csc-trigger-development
 
 
 GlobalPoint

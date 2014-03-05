@@ -28,7 +28,10 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="Utilities/General"/>
 <use name="DQMServices/Core"/>
+<<<<<<< HEAD
 <use name="Validation/MuonGEMHits"/>
+=======
+>>>>>>> gem-sw/gem-csc-trigger-development
 <export>
   <lib name="1"/>
 </export>

@@ -1,6 +1,7 @@
 #include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+<<<<<<< HEAD
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 
@@ -45,6 +46,27 @@ void GEMHitsValidation::bookHisto() {
 
 
   for( int i=0 ; i <3 ; i++) {
+=======
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include <TMath.h>
+
+GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputTag, const edm::ParameterSet& cfg)
+:  GEMBaseValidation(dbe, inputTag)
+{
+  npart   = cfg.getUntrackedParameter<int>("gemNPart",8);
+  nlayer  = cfg.getUntrackedParameter<int>("gemNLayer",2);
+  nregion = cfg.getUntrackedParameter<int>("gemNRegion",2);
+
+
+  std::string has_muon[3]= { "_Muon","_noMuon","_All"} ;
+
+  for( int i=0 ; i <3 ; i++) {
+    gem_sh_xy_rm1_l1[i] = dbe_->book2D("gem_sh_xy_rm1_l1"+has_muon[i], "SimHit occupancy : region -1, layer1;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
+    gem_sh_xy_rm1_l2[i] = dbe_->book2D("gem_sh_xy_rm1_l2"+has_muon[i], "SimHit occupancy : region -1, layer2;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
+    gem_sh_xy_rp1_l1[i] = dbe_->book2D("gem_sh_xy_rp1_l1"+has_muon[i], "SimHit occupancy : region  1, layer1;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
+    gem_sh_xy_rp1_l2[i] = dbe_->book2D("gem_sh_xy_rp1_l2"+has_muon[i], "SimHit occupancy : region  1, layer2;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
+>>>>>>> gem-sw/gem-csc-trigger-development
  
     gem_sh_zr_rm1[i] =  dbe_->book2D("gem_sh_zr_rm1"+has_muon[i], "SimHit occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,110,130,240);
     gem_sh_zr_rp1[i] =  dbe_->book2D("gem_sh_zr_rp1"+has_muon[i], "SimHit occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,110,130,240);
@@ -63,6 +85,7 @@ void GEMHitsValidation::bookHisto() {
     gem_sh_energyloss[i] = dbe_->book1D("gem_sh_energyloss"+has_muon[i],"SimHit energy loss;Energy loss [eV];entries",60,0.,6000.);
 
   }
+<<<<<<< HEAD
 
   for( unsigned int region_num = 0 ; region_num < region.size() ; region_num++ ) {
     for( unsigned int station_num = 0 ; station_num < station.size() ; station_num++) {
@@ -75,6 +98,8 @@ void GEMHitsValidation::bookHisto() {
       }
     }
   }
+=======
+>>>>>>> gem-sw/gem-csc-trigger-development
 }
 
 
@@ -106,12 +131,19 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     
     Int_t region = id.region();
     //Int_t ring = id.ring();
+<<<<<<< HEAD
     Int_t station = id.station();
+=======
+    //Int_t station = id.station();
+>>>>>>> gem-sw/gem-csc-trigger-development
     Int_t layer = id.layer();
     //Int_t chamber = id.chamber();
     Int_t roll = id.roll();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> gem-sw/gem-csc-trigger-development
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
 
@@ -145,52 +177,99 @@ void GEMHitsValidation::analyze(const edm::Event& e,
       gem_sh_pdgid[muonSel]->Fill(particleType);    
       gem_sh_energyloss[muonSel]->Fill( energyLoss*1.e9);
 
+<<<<<<< HEAD
       gem_sh_xy[(int)(region/2.+0.5)][station-1][layer-1][all]->Fill(g_x,g_y);
       gem_sh_xy[(int)(region/2.+0.5)][station-1][layer-1][muonSel]->Fill(g_x,g_y);
+=======
+>>>>>>> gem-sw/gem-csc-trigger-development
       if ( region== -1 ) {
          gem_sh_zr_rm1[all]->Fill(g_z,g_r);
          gem_sh_zr_rm1[muonSel]->Fill(g_z,g_r);
 	if ( layer == 1 ) {
+<<<<<<< HEAD
           gem_sh_tof_rm1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 0);    // roll + layer + region
 
+=======
+	  gem_sh_xy_rm1_l1[all]->Fill(g_x,g_y); 
+          gem_sh_tof_rm1_l1[all]->Fill(timeOfFlight);
+          gem_sh_global_eta[all]->Fill( roll+ 0 + 0);    // roll + layer + region
+
+	  gem_sh_xy_rm1_l1[muonSel]->Fill(g_x,g_y); 
+>>>>>>> gem-sw/gem-csc-trigger-development
           gem_sh_tof_rm1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 0);    // roll + layer + region
         }
         else if ( layer ==2 ) {
+<<<<<<< HEAD
           gem_sh_tof_rm1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 0);
 
+=======
+          gem_sh_xy_rm1_l2[all]->Fill(g_x,g_y);
+          gem_sh_tof_rm1_l2[all]->Fill(timeOfFlight);
+          gem_sh_global_eta[all]->Fill( roll+ npart + 0);
+
+          gem_sh_xy_rm1_l2[muonSel]->Fill(g_x,g_y);
+>>>>>>> gem-sw/gem-csc-trigger-development
           gem_sh_tof_rm1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 0);
         }
         else {
+<<<<<<< HEAD
           LogDebug("MuonGEMHitsValidation")<<"+++ Error : layer : "<<layer<<std::endl;
+=======
+          //std::cout<<"layer : "<<layer<<std::endl;
+>>>>>>> gem-sw/gem-csc-trigger-development
 	}
       }
       else if ( region == 1 ) {
         gem_sh_zr_rp1[all]->Fill(g_z,g_r);
         gem_sh_zr_rp1[muonSel]->Fill(g_z,g_r);
         if ( layer == 1 ) {
+<<<<<<< HEAD
           gem_sh_tof_rp1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 2*npart );
 
+=======
+          gem_sh_xy_rp1_l1[all]->Fill(g_x,g_y);
+          gem_sh_tof_rp1_l1[all]->Fill(timeOfFlight);
+          gem_sh_global_eta[all]->Fill( roll+ 0 + 2*npart );
+
+          gem_sh_xy_rp1_l1[muonSel]->Fill(g_x,g_y);
+>>>>>>> gem-sw/gem-csc-trigger-development
           gem_sh_tof_rp1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 2*npart );
         }
         else if ( layer == 2 ) {
+<<<<<<< HEAD
           gem_sh_tof_rp1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 2*npart );
 
+=======
+          gem_sh_xy_rp1_l2[all]->Fill(g_x,g_y);
+          gem_sh_tof_rp1_l2[all]->Fill(timeOfFlight);
+          gem_sh_global_eta[all]->Fill( roll+ npart + 2*npart );
+
+          gem_sh_xy_rp1_l2[muonSel]->Fill(g_x,g_y);
+>>>>>>> gem-sw/gem-csc-trigger-development
           gem_sh_tof_rp1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 2*npart );
         }
         else {
+<<<<<<< HEAD
           LogDebug("MuonGEMHitsValidation")<<"+++ Error : layer : "<<layer<<std::endl;
         }
       }
       else {
         LogDebug("MuonGEMHitsValidation")<<"+++ Error : region : "<<region<<std::endl;
+=======
+          //std::cout<<"layer : "<<layer<<std::endl;
+        }
+      }
+      else {
+        //std::cout<<"region : "<<region<<std::endl;
+>>>>>>> gem-sw/gem-csc-trigger-development
       }
    }
 }

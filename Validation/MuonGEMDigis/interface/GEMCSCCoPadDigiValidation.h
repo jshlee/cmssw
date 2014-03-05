@@ -10,7 +10,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+<<<<<<< HEAD
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
+=======
+#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+>>>>>>> gem-sw/gem-csc-trigger-development
 
 
 class GEMCSCCoPadDigiValidation : public GEMBaseValidation

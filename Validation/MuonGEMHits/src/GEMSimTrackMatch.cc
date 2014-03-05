@@ -6,20 +6,35 @@
 #include <TMath.h>
 #include <TH1F.h>
 
+<<<<<<< HEAD
 GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
+=======
+
+
+
+
+
+GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
+{
+   const float PI=TMath::Pi();
+>>>>>>> gem-sw/gem-csc-trigger-development
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
    minPt_  = cfg_.getUntrackedParameter<double>("gemMinPt",5.0);
    minEta_ = cfg_.getUntrackedParameter<double>("gemMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.18);
+<<<<<<< HEAD
 }
 void GEMSimTrackMatch::bookHisto() 
 {
    buildLUT();
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
+=======
+   buildLUT();
+>>>>>>> gem-sw/gem-csc-trigger-development
 
    track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
    track_eta_l1     = dbe_->book1D("track_eta_l1","track_eta_l1",140,1.5,2.2);
@@ -81,7 +96,11 @@ bool GEMSimTrackMatch::isSimTrackGood(const SimTrack &t)
 
 void GEMSimTrackMatch::buildLUT()
 {
+<<<<<<< HEAD
   const int maxChamberId_ = theGEMGeometry->chambers().size()/4;
+=======
+  const int maxChamberId_ = GEMDetId().maxChamberId; 
+>>>>>>> gem-sw/gem-csc-trigger-development
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
 

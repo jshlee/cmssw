@@ -1,5 +1,5 @@
-#ifndef GEMValidation_SimTrackMatchManager_h
-#define GEMValidation_SimTrackMatchManager_h
+#ifndef GEMValidation_SimTrackDigiMatchManager_h
+#define GEMValidation_SimTrackDigiMatchManager_h
 
 /**\class SimTrackMatchManager
 
@@ -12,37 +12,26 @@
 
 */
 
-<<<<<<< HEAD
-#include "Validation/MuonGEMHits/interface/BaseMatcher.h"
-#include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
-#include "Validation/MuonGEMHits/interface/GEMDigiMatcher.h"
-=======
 #include "Validation/MuonGEMDigis/interface/BaseMatcher.h"
 #include "Validation/MuonGEMDigis/interface/SimHitMatcher.h"
->>>>>>> gem-sw/gem-csc-trigger-development
+#include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
-class SimTrackMatchManager
+class SimTrackDigiMatchManager
 {
 public:
   
-  SimTrackMatchManager(const SimTrack& t, const SimVertex& v,
+  SimTrackDigiMatchManager(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
   
-  ~SimTrackMatchManager();
+  ~SimTrackDigiMatchManager();
 
   const SimHitMatcher& simhits() const {return simhits_;}
-<<<<<<< HEAD
   const GEMDigiMatcher& gemDigis() const {return gem_digis_;}
-=======
->>>>>>> gem-sw/gem-csc-trigger-development
   
 private:
 
   SimHitMatcher simhits_;
-<<<<<<< HEAD
   GEMDigiMatcher gem_digis_;
-=======
->>>>>>> gem-sw/gem-csc-trigger-development
 };
 
 #endif
