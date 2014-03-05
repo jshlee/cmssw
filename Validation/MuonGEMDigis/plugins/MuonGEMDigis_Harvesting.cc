@@ -66,14 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-<<<<<<< HEAD
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
-=======
-#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
->>>>>>> gem-sw/gem-csc-trigger-development
-
-
-
 
 //
 // constants, enums and typedefs

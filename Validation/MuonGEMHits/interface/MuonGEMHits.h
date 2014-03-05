@@ -15,9 +15,7 @@
 class MuonGEMHits : public edm::EDAnalyzer
 {
 public:
-  /// constructor
   explicit MuonGEMHits(const edm::ParameterSet&);
-  /// destructor
   ~MuonGEMHits();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
@@ -40,19 +38,10 @@ private:
   GEMSimTrackMatch* theGEMSimTrackMatch;
   
 
-  void buildLUT();
-  std::pair<int,int> getClosestChambers(int region, float phi);
-
-
   edm::ESHandle<GEMGeometry> gem_geom;
 
   const GEMGeometry* gem_geometry_;
-<<<<<<< HEAD
   bool hasGEMGeometry_;
-=======
-
->>>>>>> gem-sw/gem-csc-trigger-development
-
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;

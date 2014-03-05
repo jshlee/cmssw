@@ -10,26 +10,13 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-<<<<<<< HEAD
-=======
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
->>>>>>> gem-sw/gem-csc-trigger-development
 class GEMBaseValidation
 {
 public:
   GEMBaseValidation(DQMStore* dbe,
                          const edm::InputTag & inputTag);
   virtual ~GEMBaseValidation();
-<<<<<<< HEAD
   void setGeometry(const GEMGeometry* geom) { theGEMGeometry = geom; }
-=======
-  //virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0;
-
-  void setGeometry(const GEMGeometry* geom) { theGEMGeometry = geom; }
-  // void set SimHitMap(const PSimHitMap* simHitMap) { theSimHitMap = simHitMap; } 
->>>>>>> gem-sw/gem-csc-trigger-development
 
 
  protected:
