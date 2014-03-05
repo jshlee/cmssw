@@ -142,7 +142,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   int deltaPad(int hs, int pad);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
-                                        bool oldDataFormat = true); 
+                                        bool oldDataFormat = false); 
   
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
                                         bool oldDataFormat = true); 

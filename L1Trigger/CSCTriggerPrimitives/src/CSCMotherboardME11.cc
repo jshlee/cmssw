@@ -1698,9 +1698,10 @@ unsigned int CSCMotherboardME11::encodePatternGEM(const int ptn, const int highP
   return 0;
 }
 
-unsigned int CSCMotherboardME11::findQualityGEM(const CSCALCTDigi& aLCT, const GEMCSCPadDigi& gem)
+unsigned int CSCMotherboardME11::findQualityGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem)
 {
-  return 0;
+  if (alct.getQuality() < 4) return 0;
+  else return 1;
 }
 
 unsigned int CSCMotherboardME11::findQualityGEM(const CSCCLCTDigi& cLCT, const GEMCSCPadDigi& gem)
