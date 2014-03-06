@@ -21,6 +21,12 @@ class GEMSuperChamber;
 
 class CSCMotherboardME21 : public CSCMotherboard
 {
+  typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
+  typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
+  typedef std::vector<GEMPadBX> GEMPadsBX;
+  // roll, pad, isCopad?
+  typedef std::vector<std::tuple<unsigned int, const GEMCSCPadDigi*, bool> > GEMPadsBXGeneral;
+
  public:
   /** Normal constructor. */
   CSCMotherboardME21(unsigned endcap, unsigned station, unsigned sector, 
@@ -40,10 +46,51 @@ class CSCMotherboardME21 : public CSCMotherboard
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
+  void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
+			    GEMCSCPadDigiCollection& out_co_pads);
+
+  void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
+
+  void createGEMPadLUT(bool isEven);
+
+  int assignGEMRoll(double eta);
+  int deltaRoll(int wg, int roll);
+  int deltaPad(int hs, int pad);
+
+  void printGEMTriggerPads(int minBX, int maxBx, bool iscopad = false);
+
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool isCopad = false, bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool isCopad = false, bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool isCopad = false, bool first = true);  
+
  private: 
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
+
+  bool runUpgradeME21_;
+
+  /** whether to not reuse CLCTs that were used by previous matching ALCTs
+      in ALCT-to-CLCT algorithm */
+  bool drop_used_clcts;
+
+  //  deltas used to construct GEM coincidence pads
+  int maxDeltaBXInCoPad_;
+  int maxDeltaRollInCoPad_;
+  int maxDeltaPadInCoPad_;
+
+  //  deltas used to match to GEM pads
+  int maxDeltaBXPad_;
+  int maxDeltaRollPad_;
+  int maxDeltaPadPad_;
+
+  //  deltas used to match to GEM coincidence pads
+  int maxDeltaBXCoPad_;
+  int maxDeltaRollCoPad_;
+  int maxDeltaPadCoPad_;
 
 /*   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, */
 /*                      CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT); */

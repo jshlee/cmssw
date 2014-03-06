@@ -8,87 +8,26 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
   CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
 {
-  // Normal constructor.  -JM
-  // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
-  static bool config_dumped = false;
+  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  
+  if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
+    << "+++ Upgrade CSCMotherboardME21 constructed while isSLHC is not set! +++\n";
+  
+  edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
+  edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
+  edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
 
-  // Some configuration parameters and some details of the emulator
-  // algorithms depend on whether we want to emulate the trigger logic
-  // used in TB/MTCC or its idealized version (the latter was used in MC
-  // studies since early ORCA days until (and including) CMSSW_2_1_X).
-  edm::ParameterSet commonParams =
-    conf.getParameter<edm::ParameterSet>("commonParam");
-  isMTCC = commonParams.getParameter<bool>("isMTCC");
+  // whether to not reuse CLCTs that were used by previous matching ALCTs
+  // in ALCT-to-CLCT algorithm
+  drop_used_clcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedClcts",true);
 
-  // Switch for a new (2007) version of the TMB firmware.
-  isTMB07 = commonParams.getParameter<bool>("isTMB07");
+  //----------------------------------------------------------------------------------------//
 
-  // is it (non-upgrade algorithm) run along with upgrade one?
-  isSLHC = commonParams.getUntrackedParameter<bool>("isSLHC");
+  //       G E M  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
 
-  // Choose the appropriate set of configuration parameters depending on
-  // isTMB07 and isMTCC flags.
-  // Starting with CMSSW_3_1_X, these settings are overwritten by the
-  // ones delivered by the EventSetup mechanism.
-  edm::ParameterSet alctParams, clctParams;
-  if (isTMB07) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
-  }
-  else if (isMTCC) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC");
-  }
-  else {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamOldMC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamOldMC");
-  }
+  //----------------------------------------------------------------------------------------//
 
-  // Motherboard parameters:
-  edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
-
-  if (isSLHC && theStation == 1 &&
-      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-    tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
-  }
-
-  mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
-  alct_trig_enable  = tmbParams.getParameter<unsigned int>("alctTrigEnable");
-  clct_trig_enable  = tmbParams.getParameter<unsigned int>("clctTrigEnable");
-  match_trig_enable = tmbParams.getParameter<unsigned int>("matchTrigEnable");
-  match_trig_window_size =
-    tmbParams.getParameter<unsigned int>("matchTrigWindowSize");
-  tmb_l1a_window_size = // Common to CLCT and TMB
-    tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
-
-  // configuration handle for number of early time bins
-  early_tbins = tmbParams.getUntrackedParameter<int>("tmbEarlyTbins",4);
-
-  // whether to not reuse ALCTs that were used by previous matching CLCTs
-  drop_used_alcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedAlcts",true);
-
-  // whether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams.getUntrackedParameter<bool>("tmbReadoutEarliest2",false);
-
-  infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
-
-  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
-  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
-
-  //if (theStation==1 && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)==2) infoV = 3;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (infoV > 0 && !config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  // test to make sure that what goes into a correlated LCT is also what
-  // comes back out.
-  // testLCT();
+  runUpgradeME21_ = tmbParams.getUntrackedParameter<bool>("runUpgradeME21",false);
 }
 
 CSCMotherboardME21::~CSCMotherboardME21() {
@@ -100,107 +39,106 @@ CSCMotherboardME21::~CSCMotherboardME21() {
 void
 CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc,
-                    const GEMCSCPadDigiCollection* gemPads) {
+                    const GEMCSCPadDigiCollection* gemPads) 
+{
   clear();
-  if (alct && clct) {
-    {
-      std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
-    }
-    {
-      std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
-    }
 
-    int used_alct_mask[20];
-    for (int a=0;a<20;++a) used_alct_mask[a]=0;
+  if (!( alct and clct and runUpgradeME21_))
+  {
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
+      << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    return;
+  }
 
-    int bx_alct_matched = 0; // bx of last matched ALCT
-    for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
-         bx_clct++) {
-      // There should be at least one valid ALCT or CLCT for a
-      // correlated LCT to be formed.  Decision on whether to reject
-      // non-complete LCTs (and if yes of which type) is made further
-      // upstream.
-      if (clct->bestCLCT[bx_clct].isValid()) {
-        // Look for ALCTs within the match-time window.  The window is
-        // centered at the CLCT bx; therefore, we make an assumption
-        // that anode and cathode hits are perfectly synchronized.  This
-        // is always true for MC, but only an approximation when the
-        // data is analyzed (which works fairly good as long as wide
-        // windows are used).  To get rid of this assumption, one would
-        // need to access "full BX" words, which are not readily
-        // available.
-        bool is_matched = false;
-        int bx_alct_start = bx_clct - match_trig_window_size/2;
-        int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-        // Empirical correction to match 2009 collision data (firmware change?)
-        // (but don't do it for SLHC case, assume it would not be there)
-        if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+  std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
+  std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
 
-        for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-          if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
-            continue;
-          // default: do not reuse ALCTs that were used with previous CLCTs
-          if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
-          if (alct->bestALCT[bx_alct].isValid()) {
-            if (infoV > 1) LogTrace("CSCMotherboardME21")
-              << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
-                << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
-                << "]; bx_alct = " << bx_alct;
-            correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-            used_alct_mask[bx_alct] += 1;
-            is_matched = true;
-            bx_alct_matched = bx_alct;
-            break;
-          }
-        }
-        // No ALCT within the match time interval found: report CLCT-only LCT
-        // (use dummy ALCTs).
-        if (!is_matched) {
+  int used_alct_mask[20];
+  for (int a=0;a<20;++a) used_alct_mask[a]=0;
+  
+  int bx_alct_matched = 0; // bx of last matched ALCT
+  for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
+       bx_clct++) {
+    // There should be at least one valid ALCT or CLCT for a
+    // correlated LCT to be formed.  Decision on whether to reject
+    // non-complete LCTs (and if yes of which type) is made further
+    // upstream.
+    if (clct->bestCLCT[bx_clct].isValid()) {
+      // Look for ALCTs within the match-time window.  The window is
+      // centered at the CLCT bx; therefore, we make an assumption
+      // that anode and cathode hits are perfectly synchronized.  This
+      // is always true for MC, but only an approximation when the
+      // data is analyzed (which works fairly good as long as wide
+      // windows are used).  To get rid of this assumption, one would
+      // need to access "full BX" words, which are not readily
+      // available.
+      bool is_matched = false;
+      int bx_alct_start = bx_clct - match_trig_window_size/2;
+      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+      // Empirical correction to match 2009 collision data (firmware change?)
+      // (but don't do it for SLHC case, assume it would not be there)
+      if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+      
+      for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
+        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+          continue;
+        // default: do not reuse ALCTs that were used with previous CLCTs
+        if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
+        if (alct->bestALCT[bx_alct].isValid()) {
           if (infoV > 1) LogTrace("CSCMotherboardME21")
-            << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
-            << bx_clct << "; match window: [" << bx_alct_start
-            << "; " << bx_alct_stop << "]";
-          correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
+            << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
+            << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
+            << "]; bx_alct = " << bx_alct;
+          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
                         clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+          used_alct_mask[bx_alct] += 1;
+          is_matched = true;
+          bx_alct_matched = bx_alct;
+          break;
         }
       }
-      // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
-      // which have zeroth chance to be matched at later cathode times.
-      // (I am not entirely sure this perfectly matches the firmware logic.)
-      // Use dummy CLCTs.
-      else {
-        int bx_alct = bx_clct - match_trig_window_size/2;
-        if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-          if (alct->bestALCT[bx_alct].isValid()) {
-            if (infoV > 1) LogTrace("CSCMotherboardME21")
-              << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
-              << bx_alct;
-            correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-          }
-        }
+      // No ALCT within the match time interval found: report CLCT-only LCT
+      // (use dummy ALCTs).
+      if (!is_matched) {
+        if (infoV > 1) LogTrace("CSCMotherboardME21")
+          << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
+          << bx_clct << "; match window: [" << bx_alct_start
+          << "; " << bx_alct_stop << "]";
+        correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
+                      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
       }
     }
-
-    if (infoV > 0) {
-      for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
-        if (firstLCT[bx].isValid())
-          LogDebug("CSCMotherboardME21") << firstLCT[bx];
-        if (secondLCT[bx].isValid())
-          LogDebug("CSCMotherboardME21") << secondLCT[bx];
+    // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
+    // which have zeroth chance to be matched at later cathode times.
+    // (I am not entirely sure this perfectly matches the firmware logic.)
+    // Use dummy CLCTs.
+    else {
+      int bx_alct = bx_clct - match_trig_window_size/2;
+      if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
+        if (alct->bestALCT[bx_alct].isValid()) {
+          if (infoV > 1) LogTrace("CSCMotherboardME21")
+            << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
+            << bx_alct;
+          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+          }
       }
     }
   }
-  else {
-    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
-      << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+  
+  if (infoV > 0) {
+    for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+      if (firstLCT[bx].isValid())
+        LogDebug("CSCMotherboardME21") << firstLCT[bx];
+      if (secondLCT[bx].isValid())
+        LogDebug("CSCMotherboardME21") << secondLCT[bx];
+    }
   }
 }
 /*
-
+  
 void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
-                                   CSCALCTDigi secondALCT,
+CSCALCTDigi secondALCT,
                                    CSCCLCTDigi bestCLCT,
                                    CSCCLCTDigi secondCLCT) {
 
@@ -298,3 +236,37 @@ unsigned int CSCMotherboardME21::encodePattern(const int ptn,
   return pattern;
 }
 */
+
+
+void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
+{
+  // build coincidences
+  for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
+    const GEMDetId& id = (*det_range).first;
+    
+    // all coincidences detIDs will have layer=1
+    if (id.layer() != 1) continue;
+    
+    // find the corresponding id with layer=2
+    GEMDetId co_id(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
+    
+    auto co_pads_range = out_pads->get(co_id);
+    // empty range = no possible coincidence pads
+    if (co_pads_range.first == co_pads_range.second) continue;
+      
+    // now let's correlate the pads in two layers of this partition
+    const auto& pads_range = (*det_range).second;
+    for (auto p = pads_range.first; p != pads_range.second; ++p) {
+      for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
+        // check the match in pad
+        if (std::abs(p->pad() - co_p->pad()) > maxDeltaPadInCoPad_) continue;
+        // check the match in BX
+        if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
+        
+        // always use layer1 pad's BX as a copad's BX
+        GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
+        out_co_pads.insertDigi(id, co_pad_digi);
+      }
+    }
+  }
+}
