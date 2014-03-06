@@ -47,7 +47,7 @@ class CSCMotherboardME21 : public CSCMotherboard
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
   void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
-			    GEMCSCPadDigiCollection& out_co_pads);
+                            GEMCSCPadDigiCollection& out_co_pads);
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
@@ -73,6 +73,9 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
+
+  // central LCT bx number
+  int lct_central_bx;
 
   bool runUpgradeME21_;
 
@@ -108,5 +111,9 @@ class CSCMotherboardME21 : public CSCMotherboard
 /*   unsigned int encodePattern(const int ptn, const int highPt); */
 
 /*   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT); */
+
+  // map< bx , vector<gemid, pad> >
+  GEMPads pads_;
+  GEMPads coPads_;
 };
 #endif
