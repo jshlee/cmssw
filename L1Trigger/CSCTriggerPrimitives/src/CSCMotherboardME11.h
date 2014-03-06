@@ -84,7 +84,7 @@ class CSCMotherboardME11 : public CSCMotherboard
  private:
 
   /** labels for ME1a and ME1B */
-  enum {ME1B = 1, ME1A=4};
+  enum ME11Part {ME1B = 1, ME1A=4};
 
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
@@ -155,9 +155,12 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   bool isPadInOverlap(int roll);
   
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool first = true, enum ME11Part = ME1B, int deltaPad = 0);  
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool first = true, int deltaRoll = 0);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool first = true, enum ME11Part = ME1B, int deltaPad = 0, int deltaRoll = 0);  
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
@@ -255,8 +258,10 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::map<int,std::pair<int,int>> cscWgToGemRoll_;
 
   // map of pad to HS
-  std::map<int,int> gemPadToCscHs_;
-  std::map<int,std::pair<int,int>> cscHsToGemPad_;
+  std::map<int,int> gemPadToCscHsME1a_;
+  std::map<int,int> gemPadToCscHsME1b_;
+  std::map<int,std::pair<int,int>> cscHsToGemPadME1a_;
+  std::map<int,std::pair<int,int>> cscHsToGemPadME1b_;
 
   // map< bx , vector<gemid, pad> >
   GEMPads pads_;
