@@ -55,13 +55,24 @@ def customise_L1Emulator(process, ptdphi):
     }
 
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    tmb.runGEMCSCILT = cms.untracked.bool(True)
     tmb.printAvailablePads = cms.untracked.bool(False)
-    tmb.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(False)
-    tmb.buildLCTfromALCTandGEMinME1b = cms.untracked.bool(False) 
-    tmb.buildLCTfromALCTandGEMinOverlap = cms.untracked.bool(False)
+    tmb.dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(False)
+    tmb.dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(False)
+    tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
+    tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(False) 
     tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
     tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
+    tmb.maxDeltaBXInCoPad = cms.untracked.int32(1)
+    tmb.maxDeltaRollInCoPad = cms.untracked.int32(0)
+    tmb.maxDeltaPadInCoPad = cms.untracked.int32(0)
+    tmb.maxDeltaBXPad = cms.untracked.int32(0)
+    tmb.maxDeltaRollPad = cms.untracked.int32(0)
+    tmb.maxDeltaPadPad = cms.untracked.int32(0)
+    tmb.maxDeltaBXCoPad = cms.untracked.int32(0)
+    tmb.maxDeltaRollCoPad = cms.untracked.int32(0)
+    tmb.maxDeltaPadCoPad = cms.untracked.int32(0)
     tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
     tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
     print tmb.gemMatchDeltaPhiOdd, tmb.gemMatchDeltaPhiEven
