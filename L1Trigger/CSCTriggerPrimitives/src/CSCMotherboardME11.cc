@@ -1924,11 +1924,12 @@ CSCMotherboardME11::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pa
 
   // fetch the low and high pad edges
   auto mymap(part==ME1A ? cscHsToGemPadME1a_ : cscHsToGemPadME1b_);
+  int deltaPad(isCoPad ? maxDeltaPadCoPad_ : maxDeltaPadPad_);
   const int lowPad(mymap[clct.getKeyStrip()].first);
   const int highPad(mymap[clct.getKeyStrip()].second);
   for (auto p: pads){
     auto padRoll((p.second)->pad());
-    if (lowPad != padRoll or padRoll != highPad) continue;
+    if ((lowPad - padRoll > deltaPad) or (padRoll - highPad > deltaPad)) continue;
     result.push_back(p);
     if (first) return result;
   }
@@ -1944,6 +1945,7 @@ CSCMotherboardME11::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pa
   auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
   for (auto p: pads){
     auto padRoll(GEMDetId(p.first).roll());
+    // in principle one could be 1 roll off, but since rolls are rather high, I wouldn't introduce this.
     if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
     else if (alctRoll.first == -99 and padRoll != alctRoll.second) continue; // top of the chamber
     else if (alctRoll.second == -99 and padRoll != alctRoll.first) continue; // bottom of the chamber
