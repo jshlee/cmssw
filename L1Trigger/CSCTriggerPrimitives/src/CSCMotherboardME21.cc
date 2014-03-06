@@ -1,6 +1,9 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h>
 
 CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
@@ -30,9 +33,8 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   runUpgradeME21_ = tmbParams.getUntrackedParameter<bool>("runUpgradeME21",false);
 }
 
-CSCMotherboardME21::~CSCMotherboardME21() {
-  if (alct) delete alct;
-  if (clct) delete clct;
+CSCMotherboardME21::~CSCMotherboardME21() 
+{
 }
 
 
@@ -50,13 +52,107 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
-  std::vector<CSCALCTDigi> alctV = alct->run(wiredc); // run anodeLCT
-  std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
+  alct->run(wiredc); // run anodeLCT
+  clct->run(compdc); // run cathodeLCT
 
-  int used_alct_mask[20];
-  for (int a=0;a<20;++a) used_alct_mask[a]=0;
+  bool gemGeometryAvailable(false);
+  if (gem_g != nullptr) {
+    if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupInfo")
+      << "+++ run() called for GEM-CSC integrated trigger! +++ \n";
+    gemGeometryAvailable = true;
+  }
+
+  if (runUpgradeME21_ and not gemGeometryAvailable)
+  {
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
+      << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
+    return;
+  }
+
+//   int used_clct_mask[20];
+//   for (int c=0;c<20;++c) used_clct_mask[c]=0;
+
+  // retrieve CSCChamber geometry                                                                                                                                       
+  CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
+  CSCChamber* cscChamber(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
+  CSCDetId csc_id(cscChamber->id());
+  /*
+  const CSCLayer* keyLayer(cscChamber->layer(3));
+  const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
+  */
+
+  const bool isEven(csc_id%2==0);
+  /*
+  const int region((theEndcap == 1) ? 1: -1);
+  GEMDetId gem_id(region, 1, theStation, 1, csc_id.chamber(), 0);
+  const GEMChamber* gemChamber = gem_g->chamber(gem_id);
+  */
+
+  // LUT<roll,<etaMin,etaMax> >    
+  if (runUpgradeME21_){
+    gemPadToEtaLimitsShort_ = createGEMPadLUT(isEven, false);
+    gemPadToEtaLimitsLong_ = createGEMPadLUT(isEven, true);
+
+    bool debug(false);
+    if (debug){
+      if (gemPadToEtaLimitsShort_.size())
+        for(auto p : gemPadToEtaLimitsShort_) {
+          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+        }
+      if (gemPadToEtaLimitsLong_.size())
+        for(auto p : gemPadToEtaLimitsLong_) {
+          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+        }
+    }
+  }
+
+  // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
+  int numberOfWG(cscChamber->layer(1)->geometry()->numberOfWireGroups());
+  std::cout <<"detId " << cscChamber->id() << std::endl;
+  for (int i = 0; i< numberOfWG; ++i){
+    // find low-eta of WG
+    auto length(cscChamber->layer(1)->geometry()->lengthOfWireGroup(i));
+//     auto gp(cscChamber->layer(1)->centerOfWireGroup(i));
+    auto lpc(cscChamber->layer(1)->geometry()->localCenterOfWireGroup(i));
+    auto wireEnds(cscChamber->layer(1)->geometry()->wireTopology()->wireEnds(i));
+    auto gpMin(cscChamber->layer(1)->toGlobal(wireEnds.first));
+    auto gpMax(cscChamber->layer(1)->toGlobal(wireEnds.second));
+    auto etaMin(gpMin.eta());
+    auto etaMax(gpMax.eta());
+    if (etaMax < etaMin)
+      std::swap(etaMin,etaMax);
+    //print the eta min and eta max
+    //    std::cout << i << " " << etaMin << " " << etaMax << std::endl;
+    auto x1(lpc.x() + cos(cscChamber->layer(1)->geometry()->wireAngle())*length/2.);
+    auto x2(lpc.x() - cos(cscChamber->layer(1)->geometry()->wireAngle())*length/2.);
+    auto z(lpc.z());
+    auto y1(cscChamber->layer(1)->geometry()->yOfWireGroup(i,x1));
+    auto y2(cscChamber->layer(1)->geometry()->yOfWireGroup(i,x2));
+    auto lp1(LocalPoint(x1,y1,z));
+    auto lp2(LocalPoint(x2,y2,z));
+    auto gp1(cscChamber->layer(1)->toGlobal(lp1));
+    auto gp2(cscChamber->layer(1)->toGlobal(lp2));
+    auto eta1(gp1.eta());
+    auto eta2(gp2.eta());
+    if (eta1 < eta2)
+      std::swap(eta1,eta2);
+    std::cout << "{" << i << ", " << eta1 << ", " << eta2 << "},"<< std::endl;
+    
+    
+//     Std ::cout << "WG "<< i << std::endl;
+//    wireGroupGEMRollMap_[i] = assignGEMRoll(gp.eta());
+  }
+
+//   // print-out
+//   for(auto it = wireGroupGEMRollMap_.begin(); it != wireGroupGEMRollMap_.end(); it++) {
+//     std::cout << "WG "<< it->first << " GEM pad " << it->second << std::endl;
+//   }
+
+
+
+  /*
   
-  int bx_alct_matched = 0; // bx of last matched ALCT
+  int bx_clct_matched = 0; // bx of last matched CLCT
   for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
        bx_clct++) {
     // There should be at least one valid ALCT or CLCT for a
@@ -125,6 +221,8 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       }
     }
   }
+
+  */
   
   if (infoV > 0) {
     for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
@@ -269,4 +367,28 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
       }
     }
   }
+}
+
+
+std::map<int,std::pair<double,double> >
+CSCMotherboardME21::createGEMPadLUT(bool isEven, bool isLong)
+{
+  std::map<int,std::pair<double,double> > result;
+
+  const int ch(isEven ? 2 : 1);
+  const int st(isLong ? 3 : 2);
+  auto chamber(gem_g->chamber(GEMDetId(1,1,st,1,ch,0)));
+  if (chamber==nullptr) return result;
+
+  for(int i = 1; i<= chamber->nEtaPartitions(); ++i){
+    auto roll(chamber->etaPartition(i));
+    if (roll==nullptr) continue;
+    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
+    const LocalPoint lp_top(0., half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -half_striplength, 0.);
+    const GlobalPoint gp_top(roll->toGlobal(lp_top));
+    const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
+    result[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
+  }
+  return result;
 }

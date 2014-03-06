@@ -51,7 +51,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
-  void createGEMPadLUT(bool isEven);
+  std::map<int,std::pair<double,double> > createGEMPadLUT(bool isEven, bool isLong);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
@@ -70,6 +70,9 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
+
+  std::vector<CSCALCTDigi> alctV;
+  std::vector<CSCCLCTDigi> clctV;
 
   bool runUpgradeME21_;
 
@@ -91,6 +94,10 @@ class CSCMotherboardME21 : public CSCMotherboard
   int maxDeltaBXCoPad_;
   int maxDeltaRollCoPad_;
   int maxDeltaPadCoPad_;
+
+  std::map<int,std::pair<double,double> > gemPadToEtaLimitsShort_;
+  std::map<int,std::pair<double,double> > gemPadToEtaLimitsLong_;
+  
 
 /*   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, */
 /*                      CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT); */

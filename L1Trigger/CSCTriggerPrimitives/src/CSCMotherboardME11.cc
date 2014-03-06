@@ -1653,8 +1653,6 @@ void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out
 
 void CSCMotherboardME11::createGEMPadLUT(bool isEven)
 {
-  // all GE1/1 chambers are equal
-  if (!gem_g) return;
   int ch(isEven ? 2 : 1);
   auto chamber(gem_g->chamber(GEMDetId(1,1,1,1,ch,0)));
   if (chamber==nullptr) return;
@@ -1664,8 +1662,8 @@ void CSCMotherboardME11::createGEMPadLUT(bool isEven)
     if (roll==nullptr) continue;
 
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
-    const LocalPoint lp_top(0., half_striplength+0.025, 0.);
-    const LocalPoint lp_bottom(0., -half_striplength-0.025, 0.);
+    const LocalPoint lp_top(0., half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
     gemPadToEtaLimits_[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
