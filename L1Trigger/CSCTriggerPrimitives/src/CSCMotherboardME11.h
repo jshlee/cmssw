@@ -155,11 +155,11 @@ class CSCMotherboardME11 : public CSCMotherboard
   bool isPadInOverlap(int roll);
   
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool first = true, enum ME11Part = ME1B, int deltaPad = 0);  
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
   GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool first = true, int deltaRoll = 0);  
+                            bool isCopad = false, bool first = true);  
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool first = true, enum ME11Part = ME1B, int deltaPad = 0, int deltaRoll = 0);  
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
@@ -232,25 +232,19 @@ class CSCMotherboardME11 : public CSCMotherboard
   int maxDeltaPadCoPad_;
   
   // Drop low quality stubs if they don't have GEMs
-  bool dropLowQualityCLCTsNoGEMs_;
-
-  // Drop low quality stubs if they don't have GEMs
-  bool dropLowQualityALCTsNoGEMs_;
+  bool dropLowQualityCLCTsNoGEMs_ME1a_;
+  bool dropLowQualityCLCTsNoGEMs_ME1b_;
+  bool dropLowQualityALCTsNoGEMs_ME1a_;
+  bool dropLowQualityALCTsNoGEMs_ME1b_;
 
   // use only the central BX for GEM matching
   bool centralBXonlyGEM_;
   
   // build LCT from ALCT and GEM
+  bool buildLCTfromALCTandGEM_ME1a_;
   bool buildLCTfromALCTandGEM_ME1b_;
-
-  // build LCT from ALCT and GEM
-  bool buildLCTfromALCTandGEM_overlap_;
-
-  // build LCT from CLCT and GEM
+  bool buildLCTfromCLCTandGEM_ME1a_;
   bool buildLCTfromCLCTandGEM_ME1b_;
-
-  // build LCT from CLCT and GEM
-  bool buildLCTfromCLCTandGEM_overlap_;
 
   // LCT ghostbusting
   bool doLCTGhostBustingWithGEMs_;
