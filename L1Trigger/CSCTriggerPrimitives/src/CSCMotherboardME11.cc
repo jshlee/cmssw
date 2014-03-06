@@ -259,8 +259,20 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   // print available pads
   print_available_pads = tmbParams.getUntrackedParameter<bool>("printAvailablePads", false);
 
-  // max delta BX for copad 
-  maxPadDeltaBX_ = tmbParams.getUntrackedParameter<int>("maxPadDeltaBX",1);
+  //  deltas used to construct GEM coincidence pads
+  maxDeltaBXInCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXInCoPad",1);
+  maxDeltaRollInCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaRollInCoPad",0);
+  maxDeltaPadInCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaPadInCoPad",0);
+
+  //  deltas used to match to GEM pads
+  maxDeltaBXPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXPad",0);
+  maxDeltaRollPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaRollPad",0);
+  maxDeltaPadPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaPadPad",0);
+
+  //  deltas used to match to GEM coincidence pads
+  maxDeltaBXCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXCoPad",0);
+  maxDeltaRollCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaRollCoPad",0);
+  maxDeltaPadCoPad_ = tmbParams.getUntrackedParameter<int>("maxDeltaPadCoPad",0);
 
   // drop low quality stubs if they don't have GEMs
   dropLowQualityCLCTsNoGEMs_ = tmbParams.getUntrackedParameter<bool>("dropLowQualityCLCTsNoGEMs",false);
@@ -1574,9 +1586,7 @@ void CSCMotherboardME11::matchGEMPads()
 }
 
 
-void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads,
-					      GEMCSCPadDigiCollection& out_co_pads,
-					      int deltaPad, int deltaRoll)
+void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
 {
   // build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
@@ -1596,14 +1606,14 @@ void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out
     const auto& pads_range = (*det_range).second;
     for (auto p = pads_range.first; p != pads_range.second; ++p) {
       for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p) {
-	// check the match in pad
-	if (std::abs(p->pad() - co_p->pad()) > deltaPad) continue;
-	// check the match in BX
-	if (std::abs(p->bx() - co_p->bx()) > maxPadDeltaBX_ ) continue;
-	
-	// always use layer1 pad's BX as a copad's BX
-	GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
-	out_co_pads.insertDigi(id, co_pad_digi);
+        // check the match in pad
+        if (std::abs(p->pad() - co_p->pad()) > maxDeltaPadInCoPad_) continue;
+        // check the match in BX
+        if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
+        
+        // always use layer1 pad's BX as a copad's BX
+        GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
+        out_co_pads.insertDigi(id, co_pad_digi);
       }
     }
   }
@@ -1638,8 +1648,7 @@ int CSCMotherboardME11::assignGEMRoll(double eta)
   for(auto p : gemPadToEtaLimits_) {
     const float minEta((p.second).first);
     const float maxEta((p.second).second);
-    // apply some smearing to take into account vertex displacement
-    if ((minEta - 0.025) <= eta and eta <= (maxEta + 0.025)) {
+    if (minEta <= eta and eta <= maxEta) {
       result = p.first;
       break;
     }

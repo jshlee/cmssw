@@ -129,8 +129,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   void matchGEMPads();
 
   void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
-			    GEMCSCPadDigiCollection& out_co_pads,
-			    int deltaPad = 0, int deltaRoll = 0);
+			    GEMCSCPadDigiCollection& out_co_pads);
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
   void collectGEMPads(const GEMCSCPadDigiCollection* pads, const GEMCSCPadDigiCollection* copads, unsigned id);
@@ -217,8 +216,20 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   bool print_available_pads;
 
-  // max BX for window to perform matching
-  int maxPadDeltaBX_;
+  //  deltas used to construct GEM coincidence pads
+  int maxDeltaBXInCoPad_;
+  int maxDeltaRollInCoPad_;
+  int maxDeltaPadInCoPad_;
+
+  //  deltas used to match to GEM pads
+  int maxDeltaBXPad_;
+  int maxDeltaRollPad_;
+  int maxDeltaPadPad_;
+
+  //  deltas used to match to GEM coincidence pads
+  int maxDeltaBXCoPad_;
+  int maxDeltaRollCoPad_;
+  int maxDeltaPadCoPad_;
   
   // Drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_;
