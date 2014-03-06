@@ -889,14 +889,14 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           int mbx = bx_clct-bx_clct_start;
           correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
                         clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
-                        allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A);
+                        allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A, pads_[bx_clct], coPads_[bx_clct]);
           if (allLCTs1a[bx_alct][mbx][0].isValid()){
             used_clct_mask_1a[bx_clct] += 1;
             if (match_earliest_clct_me11_only) break;
           }
         }
         else {
-          if (print_available_pads) std::cout << "++Not a valid CLCT in BX: " << bx_clct << std::endl;
+          if (print_available_pads) std::cout << "++Not a valid ME1a CLCT in BX: " << bx_clct << std::endl;
           if (not buildLCTfromALCTandGEM_ME1a_) continue;
           // Try to build an ME1/a LCT out of an ALCT and a GEM Co-Pad in the overlap region
           if (10 > alct->bestALCT[bx_alct].getKeyWG() or alct->bestALCT[bx_alct].getKeyWG() > 15) continue;

@@ -205,7 +205,6 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-  //CSCChamber* cscChamber;
 
   // central LCT bx number
   int lct_central_bx;
