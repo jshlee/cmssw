@@ -132,7 +132,6 @@ class CSCMotherboardME11 : public CSCMotherboard
 			    GEMCSCPadDigiCollection& out_co_pads);
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
-  void collectGEMPads(const GEMCSCPadDigiCollection* pads, const GEMCSCPadDigiCollection* copads, unsigned id);
 
   void createGEMPadLUT(bool isEven);
 

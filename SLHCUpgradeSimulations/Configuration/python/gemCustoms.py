@@ -62,6 +62,7 @@ def customise_L1Emulator(process, ptdphi):
     tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
     tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(False) 
     tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
+    tmb.useOldLCTDataFormatALCTGEM = cms.untracked.bool(True)
     tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
     tmb.maxDeltaBXInCoPad = cms.untracked.int32(1)
