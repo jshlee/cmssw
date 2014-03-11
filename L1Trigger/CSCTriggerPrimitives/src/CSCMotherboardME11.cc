@@ -476,7 +476,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const GlobalPoint gp(keyLayerME1a->toGlobal(lpCSC));
       const LocalPoint lpGEM(randRoll->toLocal(gp));
       const int HS(i/0.5);
-      const bool edge(HS < 5 or HS > 123);
+      const bool edge(HS < 5 or HS > 92);
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
       cscHsToGemPadME1a_[96-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
