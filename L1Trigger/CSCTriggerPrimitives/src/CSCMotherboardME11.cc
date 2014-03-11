@@ -464,8 +464,6 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     }
   }
 
-  return;
-
   if (runGEMCSCILT_){
     cscHsToGemPadME1a_.clear();
     cscHsToGemPadME1b_.clear();
