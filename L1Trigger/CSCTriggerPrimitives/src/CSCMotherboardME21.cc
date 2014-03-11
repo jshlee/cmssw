@@ -65,8 +65,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     gemGeometryAvailable = true;
   }
 
-  if (runUpgradeME21_ and not gemGeometryAvailable)
-  {
+  if (runUpgradeME21_ and not gemGeometryAvailable) {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
       << "+++ run() called for GEM-CSC integrated trigger without valid GEM geometry! +++ \n";
     return;

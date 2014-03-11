@@ -44,6 +44,7 @@ def customise_L1Emulator(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
 
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    """
     tmb.me11IntegratedLocalTrigger.PSet(
         maxDeltaBXInCoPad = cms.untracked.int32(1),
         maxDeltaRollInCoPad = cms.untracked.int32(0),
@@ -90,6 +91,7 @@ def customise_L1Emulator(process, ptdphi):
         dropLowQualityCLCTsNoGEMs = cms.untracked.bool(False),
         buildLCTfromALCTandGEM = cms.untracked.bool(False),
     )
+    """
     ## Common
     tmb.maxDeltaBXInCoPad = cms.untracked.int32(1)
     tmb.maxDeltaRollInCoPad = cms.untracked.int32(0)
@@ -119,10 +121,10 @@ def customise_L1Emulator(process, ptdphi):
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
     tmb.maxDeltaBXPad = cms.untracked.int32(0)
     tmb.maxDeltaRollPad = cms.untracked.int32(0)
-    tmb.maxDeltaPadPad = cms.untracked.int32(0)
+    tmb.maxDeltaPadPad = cms.untracked.int32(1)
     tmb.maxDeltaBXCoPad = cms.untracked.int32(0)
     tmb.maxDeltaRollCoPad = cms.untracked.int32(0)
-    tmb.maxDeltaPadCoPad = cms.untracked.int32(0)
+    tmb.maxDeltaPadCoPad = cms.untracked.int32(1)
     tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
     tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
     print tmb.gemMatchDeltaPhiOdd, tmb.gemMatchDeltaPhiEven

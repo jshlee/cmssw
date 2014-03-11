@@ -449,10 +449,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const LocalPoint lpCSCME1b(keyLayerME1b->toLocal(gp));
       const float stripME1a(keyLayerGeometryME1a->strip(lpCSCME1a));
       const float stripME1b(keyLayerGeometryME1b->strip(lpCSCME1b));
-      gemPadToCscHsME1a_[i] = (int) (stripME1a - 0.25)/0.5;
-      gemPadToCscHsME1b_[i] = (int) (stripME1b - 0.25)/0.5;
+      gemPadToCscHsME1a_[i] = 96-(int) (stripME1a - 0.25)/0.5;
+      gemPadToCscHsME1b_[i] = 128-(int) (stripME1b - 0.25)/0.5;
     }
-    bool debug(true);
+    bool debug(false);
     if (debug){
       std::cout << "detId " << me1bId << std::endl;
       for(auto p : gemPadToCscHsME1a_) {
@@ -480,7 +480,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const int HS(i/0.5);
       const bool edge(HS < 5 or HS > 123);
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
-      cscHsToGemPadME1a_[int(i/0.5)] = std::make_pair(std::floor(pad),std::ceil(pad));
+      cscHsToGemPadME1a_[96-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     // ME1b
     auto nStripsME1b(keyLayerGeometryME1b->numberOfStrips());
@@ -491,7 +491,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const int HS(i/0.5);
       const bool edge(HS < 5 or HS > 123);
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
-      cscHsToGemPadME1b_[int(i/0.5)] = std::make_pair(std::floor(pad),std::ceil(pad));
+      cscHsToGemPadME1b_[128-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     bool debug(false);
     if (debug){
@@ -796,7 +796,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           
           // find the best matching copad - first one 
           try {
-            auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_clct]));             
+            auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_clct],ME1B,true));             
             if (print_available_pads) std::cout << "\t++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
             
             ++nSuccesFulGEMMatches;            
@@ -904,7 +904,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           
           // find the best matching copad - first one 
           try {
-            auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_clct]));             
+            auto copads(matchingGEMPads(alct->bestALCT[bx_alct], coPads_[bx_clct],ME1A,true));             
             if (print_available_pads) std::cout << "++Number of matching GEM CoPads in BX " << bx_alct << " : "<< copads.size() << std::endl;
             
             ++nSuccesFulGEMMatches;            
@@ -970,14 +970,14 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         if (allLCTs1b[bx][mbx][i].isValid())
         {
           n1b++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          std::cout<< "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
+          if (infoV > 0) LogDebug("CSCMotherboard") 
+            << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
         }
         if (allLCTs1a[bx][mbx][i].isValid())
         {
           n1a++;
-          //if (infoV > 0) LogDebug("CSCMotherboard") 
-          std::cout<< "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
+          if (infoV > 0) LogDebug("CSCMotherboard") 
+            << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
         }
       }
     //    if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
@@ -1002,8 +1002,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           }
         }
 
-      //      if (infoV > 0) LogDebug("CSCMotherboard") 
-      std::cout<<"After x-bx sorting:"<<std::cout;
+      if (infoV > 0) LogDebug("CSCMotherboard") 
+        <<"After x-bx sorting:"<<std::cout;
       n1a=0, n1b=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
         for (int i=0;i<2;i++)
@@ -1012,14 +1012,14 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           if (allLCTs1b[bx][mbx][i].isValid())
           {
             n1b++;
-            //            if (infoV > 0) LogDebug("CSCMotherboard") 
-            std::cout<< "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::cout;
+            if (infoV > 0) LogDebug("CSCMotherboard") 
+              << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::cout;
           }
           if (allLCTs1a[bx][mbx][i].isValid())
           {
             n1a++;
-            //            if (infoV > 0) LogDebug("CSCMotherboard") 
-            std::cout<< "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::cout;
+            if (infoV > 0) LogDebug("CSCMotherboard") 
+              << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::cout;
           }
         }
       //      if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
@@ -1041,8 +1041,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
             if (nLCT>max_me11_lcts) allLCTs1a[bx][mbx][i].clear();
             else n1a++;
           }
-      //      if (infoV > 0 and nLCT>0) LogDebug("CSCMotherboard") 
-      std::cout<<"bx "<<bx<<" nnnLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::cout;
+      if (infoV > 0 and nLCT>0) LogDebug("CSCMotherboard") 
+        <<"bx "<<bx<<" nnnLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::cout;
     }
   }// reduction per bx
 
