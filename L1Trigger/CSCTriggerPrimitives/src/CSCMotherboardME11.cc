@@ -417,10 +417,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
-  }
 
-  // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
-  if (runGEMCSCILT_){
+    // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
     cscWgToGemRoll_.clear();
     int numberOfWG(keyLayerGeometryME1b->numberOfWireGroups());
     for (int i = 0; i< numberOfWG; ++i){
@@ -428,15 +426,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       auto etaMax(isEven ? lut_wg_etaMin_etaMax_even[i][2] : lut_wg_etaMin_etaMax_odd[i][2]); 
       cscWgToGemRoll_[i] = std::make_pair(assignGEMRoll(etaMin), assignGEMRoll(etaMax));
     }
-    bool debug(false);
+    debug = false;
     if (debug){
       for(auto p : cscWgToGemRoll_) {
         std::cout << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
       }
     }
-  }
 
-  if (runGEMCSCILT_){
     gemPadToCscHsME1a_.clear();
     gemPadToCscHsME1b_.clear();
     // pick any roll
@@ -452,7 +448,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       gemPadToCscHsME1a_[i] = 96-(int) (stripME1a - 0.25)/0.5;
       gemPadToCscHsME1b_[i] = 128-(int) (stripME1b - 0.25)/0.5;
     }
-    bool debug(false);
+    debug = false;
     if (debug){
       std::cout << "detId " << me1bId << std::endl;
       for(auto p : gemPadToCscHsME1a_) {
@@ -462,13 +458,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         std::cout << "GEM Pad "<< p.first << " CSC HS ME1b: " << p.second << std::endl;
       }
     }
-  }
 
-  if (runGEMCSCILT_){
     cscHsToGemPadME1a_.clear();
     cscHsToGemPadME1b_.clear();
-    // pick any roll
-    auto randRoll(gemChamber->etaPartition(2));
     // ME1a
     auto nStripsME1a(keyLayerGeometryME1a->numberOfStrips());
     for (float i = 0; i< nStripsME1a; i = i+0.5){
@@ -491,7 +483,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
       cscHsToGemPadME1b_[128-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
-    bool debug(false);
+    debug = false;
     if (debug){
       std::cout << "detId " << me1bId << std::endl;
       for(auto p : cscHsToGemPadME1a_) {
@@ -501,16 +493,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         std::cout << "CSC HS ME1b"<< p.first << " GEM Pad low " << (p.second).first << " GEM Pad high " << (p.second).second << std::endl;
       }
     }
-  }
 
-  // build coincidence pads
-  std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
-  if (runGEMCSCILT_){
-    buildCoincidencePads(gemPads, *pCoPads);
-  }
-
-  // retrieve pads and copads in a certain BX window for this CSC 
-  if (runGEMCSCILT_){
+    // build coincidence pads
+    std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
+    if (runGEMCSCILT_){
+      buildCoincidencePads(gemPads, *pCoPads);
+    }
+    // retrieve pads and copads in a certain BX window for this CSC 
     pads_.clear();
     coPads_.clear();
     retrieveGEMPads(gemPads, gem_id);
