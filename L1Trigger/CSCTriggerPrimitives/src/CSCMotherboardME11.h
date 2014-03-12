@@ -250,10 +250,8 @@ class CSCMotherboardME11 : public CSCMotherboard
   // correct LCT timing with GEMs
   bool correctLCTtimingWithGEM_;
 
-  // send LCT from ALCT-GEM in old dataformat
+  // send LCT old dataformat
   bool useOldLCTDataFormatALCTGEM_;
-
-  // send LCT from CLCT-GEM in old dataformat
   bool useOldLCTDataFormatCLCTGEM_;
 
   // map of roll N to min and max eta
