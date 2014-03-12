@@ -397,18 +397,19 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   CSCDetId me1aId(me1bId.endcap(), me1bId.station(), 4, me1bId.chamber(), me1bId.layer());
   const CSCChamber* cscChamberME1a(csc_g->chamber(me1aId));
 
-  const CSCLayer* keyLayerME1b(cscChamberME1b->layer(3));
-  const CSCLayerGeometry* keyLayerGeometryME1b(keyLayerME1b->geometry());
-  const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
-  const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
-
-  const bool isEven(me1bId%2==0);
-  const int region((theEndcap == 1) ? 1: -1);
-  GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
-  const GEMChamber* gemChamber = gem_g->chamber(gem_id);
-
-  // LUT<roll,<etaMin,etaMax> >    
   if (runGEMCSCILT_){
+    // trigger geometry
+    const CSCLayer* keyLayerME1b(cscChamberME1b->layer(3));
+    const CSCLayerGeometry* keyLayerGeometryME1b(keyLayerME1b->geometry());
+    const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
+    const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
+
+    const bool isEven(me1bId%2==0);
+    const int region((theEndcap == 1) ? 1: -1);
+    GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
+    const GEMChamber* gemChamber = gem_g->chamber(gem_id);
+    
+    // LUT<roll,<etaMin,etaMax> >    
     createGEMPadLUT(isEven);
     bool debug(false);
     if (debug){
@@ -417,7 +418,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
-
+    
     // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
     cscWgToGemRoll_.clear();
     int numberOfWG(keyLayerGeometryME1b->numberOfWireGroups());
