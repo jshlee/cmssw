@@ -84,7 +84,7 @@ class CSCMotherboardME11 : public CSCMotherboard
  private:
 
   /** labels for ME1a and ME1B */
-  enum {ME1B = 1, ME1A=4};
+  enum ME11Part {ME1B = 1, ME1A=4};
 
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
@@ -129,11 +129,9 @@ class CSCMotherboardME11 : public CSCMotherboard
   void matchGEMPads();
 
   void buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, 
-			    GEMCSCPadDigiCollection& out_co_pads,
-			    int deltaPad = 0, int deltaRoll = 0);
+			    GEMCSCPadDigiCollection& out_co_pads);
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
-  void collectGEMPads(const GEMCSCPadDigiCollection* pads, const GEMCSCPadDigiCollection* copads, unsigned id);
 
   void createGEMPadLUT(bool isEven);
 
@@ -142,7 +140,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   int deltaPad(int hs, int pad);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
-                                        bool oldDataFormat = true); 
+                                        bool oldDataFormat = false); 
   
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
                                         bool oldDataFormat = true); 
@@ -155,9 +153,12 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   bool isPadInOverlap(int roll);
   
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            bool isCopad = false, bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
+                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
@@ -204,7 +205,6 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-  //CSCChamber* cscChamber;
 
   // central LCT bx number
   int lct_central_bx;
@@ -214,29 +214,35 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   bool print_available_pads;
 
-  // max BX for window to perform matching
-  int maxPadDeltaBX_;
+  //  deltas used to construct GEM coincidence pads
+  int maxDeltaBXInCoPad_;
+  int maxDeltaRollInCoPad_;
+  int maxDeltaPadInCoPad_;
+
+  //  deltas used to match to GEM pads
+  int maxDeltaBXPad_;
+  int maxDeltaRollPad_;
+  int maxDeltaPadPad_;
+
+  //  deltas used to match to GEM coincidence pads
+  int maxDeltaBXCoPad_;
+  int maxDeltaRollCoPad_;
+  int maxDeltaPadCoPad_;
   
   // Drop low quality stubs if they don't have GEMs
-  bool dropLowQualityCLCTsNoGEMs_;
-
-  // Drop low quality stubs if they don't have GEMs
-  bool dropLowQualityALCTsNoGEMs_;
+  bool dropLowQualityCLCTsNoGEMs_ME1a_;
+  bool dropLowQualityCLCTsNoGEMs_ME1b_;
+  bool dropLowQualityALCTsNoGEMs_ME1a_;
+  bool dropLowQualityALCTsNoGEMs_ME1b_;
 
   // use only the central BX for GEM matching
   bool centralBXonlyGEM_;
   
   // build LCT from ALCT and GEM
+  bool buildLCTfromALCTandGEM_ME1a_;
   bool buildLCTfromALCTandGEM_ME1b_;
-
-  // build LCT from ALCT and GEM
-  bool buildLCTfromALCTandGEM_overlap_;
-
-  // build LCT from CLCT and GEM
+  bool buildLCTfromCLCTandGEM_ME1a_;
   bool buildLCTfromCLCTandGEM_ME1b_;
-
-  // build LCT from CLCT and GEM
-  bool buildLCTfromCLCTandGEM_overlap_;
 
   // LCT ghostbusting
   bool doLCTGhostBustingWithGEMs_;
@@ -244,10 +250,8 @@ class CSCMotherboardME11 : public CSCMotherboard
   // correct LCT timing with GEMs
   bool correctLCTtimingWithGEM_;
 
-  // send LCT from ALCT-GEM in old dataformat
+  // send LCT old dataformat
   bool useOldLCTDataFormatALCTGEM_;
-
-  // send LCT from CLCT-GEM in old dataformat
   bool useOldLCTDataFormatCLCTGEM_;
 
   // map of roll N to min and max eta
@@ -255,8 +259,10 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::map<int,std::pair<int,int>> cscWgToGemRoll_;
 
   // map of pad to HS
-  std::map<int,int> gemPadToCscHs_;
-  std::map<int,std::pair<int,int>> cscHsToGemPad_;
+  std::map<int,int> gemPadToCscHsME1a_;
+  std::map<int,int> gemPadToCscHsME1b_;
+  std::map<int,std::pair<int,int>> cscHsToGemPadME1a_;
+  std::map<int,std::pair<int,int>> cscHsToGemPadME1b_;
 
   // map< bx , vector<gemid, pad> >
   GEMPads pads_;
