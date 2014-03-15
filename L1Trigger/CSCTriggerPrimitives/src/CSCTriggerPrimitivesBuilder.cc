@@ -15,6 +15,7 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -52,6 +53,10 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   disableME42 = commonParams.getUntrackedParameter<bool>("disableME42", false);
 
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
+
+  edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
+  runFactorizedModel_ = tmbParams.getUntrackedParameter<bool>("runFactorizedModel",true);
+  runUpgradeME21_ = tmbParams.getUntrackedParameter<bool>("runUpgradeME21",false);
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++)
@@ -204,24 +209,82 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)
             if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
 
+            // running upgraded ME2/1 TMBs (non-upgraded)
+            if (stat==2 && ring==1 && runUpgradeME21_)
+            {
+              CSCMotherboardME21* tmb21 = static_cast<CSCMotherboardME21*>(tmb);
+              tmb21->setCSCGeometry(csc_g);
+              tmb21->setGEMGeometry(gem_g);
+              tmb21->run(wiredc, compdc, gemPads);
+              std::vector<CSCCorrelatedLCTDigi> lctV = tmb21->readoutLCTs();
+              std::vector<CSCALCTDigi> alctV = tmb21->alct->readoutALCTs();
+              std::vector<CSCCLCTDigi> clctV = tmb21->clct->readoutCLCTs();
+              std::vector<int> preTriggerBXs = tmb21->clct->preTriggerBXs();
 
+              if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
+                LogTrace("L1CSCTrigger")
+                  << "CSCTriggerPrimitivesBuilder got results in " <<detid;
+              }
+
+              /*
+              // tmp kludge: tightening of ME1a LCTs
+              if (stat==1 && ring==1) {
+                std::vector<CSCCorrelatedLCTDigi> lctV11;
+                for (unsigned t=0;t<lctV.size();t++){
+                  if (lctV[t].getStrip() < 127) lctV11.push_back(lctV[t]);
+                  else if (lctV[t].getQuality() >= 14) lctV11.push_back(lctV[t]);
+                }
+                lctV = lctV11;
+              }
+              */
+
+              // Correlated LCTs.
+              if (!lctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << lctV.size() << " LCT digi"
+                  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+              }
+
+              // Anode LCTs.
+              if (!alctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << alctV.size() << " ALCT digi"
+                  << ((alctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_alct.put(std::make_pair(alctV.begin(),alctV.end()), detid);
+              }
+
+              // Cathode LCTs.
+              if (!clctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << clctV.size() << " CLCT digi"
+                  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
+              }
+
+              // Cathode LCTs pretriggers
+              if (!preTriggerBXs.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
+                  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+              }
+            }
+            
             // running upgraded ME1/1 TMBs (non-upgraded)
             if (stat==1 && ring==1 && smartME1aME1b)
             {
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
 
               tmb11->setCSCGeometry(csc_g);
-	      if (gem_g != nullptr) {
-		tmb11->setGEMGeometry(gem_g);
-	      } 
-	      else {
- 		LogTrace("L1CSCTrigger") 
- 		  << "GEM geometry is unavailable. Running CSC-only trigger algorithm.";
-	      }
-	      
-              //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+              tmb11->setGEMGeometry(gem_g);
  
-              tmb11->run(wiredc, compdc, gemPads);
+              //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+              if (runFactorizedModel_)
+                tmb11->run(wiredc, compdc, gemPads);
+              else 
+                tmb11->runNewAlgorithm(wiredc, compdc, gemPads);
+              
               std::vector<CSCCorrelatedLCTDigi> lctV = tmb11->readoutLCTs1b();
               std::vector<CSCCorrelatedLCTDigi> lctV1a = tmb11->readoutLCTs1a();
  
