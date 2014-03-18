@@ -789,6 +789,12 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
           CSCDetId id(itr->getDetId().rawId());
           unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 
+	  //jason
+	  auto cscdigi = itr->getDigi();
+	  std::cout << "CSCTFSectorProcessor:: "
+		    << " gemDPhi " << cscdigi->getGEMDPhi()
+		    << std::endl;
+
           lclphidat lclPhi;
           try {
             lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
