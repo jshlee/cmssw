@@ -44,6 +44,18 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 
 	  	for(stubi = stub_list.begin(); stubi != stub_list.end(); stubi++)
 	    {
+	      ////////////////////////////////////////////////////////////////////////////////////////////////////
+	      //jason
+	      if(stubi->station() == 1)
+		{
+		  auto cscdigi = stubi->getDigi();
+		  std::cout << "CSCTFSPCoreLogic:: "
+			    << " gemDPhi " << cscdigi->getGEMDPhi()
+			    << " stubi->isValid() " << stubi->isValid()
+			    << std::endl;
+		}
+	      ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	      runme |= stubi->isValid();
 	      switch(st)
 				{

@@ -782,6 +782,11 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
    *  After this we append the stubs gained from the DT system.
    */
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //jason
+  bool hasGEM = false;
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
   for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++)
     {
       if(itr->station() != 5)
@@ -789,12 +794,15 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
           CSCDetId id(itr->getDetId().rawId());
           unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
 	  //jason
-	  auto cscdigi = itr->getDigi();
-	  std::cout << "CSCTFSectorProcessor:: "
-		    << " gemDPhi " << cscdigi->getGEMDPhi()
-		    << std::endl;
-
+	  if(itr->station() == 1)
+	    {
+	      auto cscdigi = itr->getDigi();
+	      if (cscdigi->getGEMDPhi() > -99) hasGEM = true;        
+	    }
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  
           lclphidat lclPhi;
           try {
             lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
@@ -860,6 +868,22 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
    *  After loading we run and then retrieve any tracks generated.
    */
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //jason
+  if (hasGEM){
+    for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++)
+      {
+	if(itr->station() == 1)
+	  {
+	    auto cscdigi = itr->getDigi();
+	    std::cout << "CSCTFSectorProcessor:: processedStubs "
+		      << " gemDPhi " << cscdigi->getGEMDPhi()
+		      << std::endl;
+	  }
+      }
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
   std::vector<csc::L1Track> tftks;
 
   if(run_core){
@@ -891,11 +915,27 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
      *  Now that we have the found tracks from the core,
      *  we must assign their Pt.
      */
-
     std::vector<csc::L1Track>::iterator titr = tftks.begin();
 
     for(; titr != tftks.end(); titr++)
       {
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//jason
+	if (hasGEM){
+	  std::cout << "CSCTFSectorProcessor:: track " << titr->me1ID() << std::endl;
+
+	    // for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
+	    // 	if(itr->station() == 1){
+	    // 	  auto cscdigi = itr->getDigi();
+	    // 	  std::cout << "CSCTFSectorProcessor:: processedStubs "
+	    // 		    << " gemDPhi " << cscdigi->getGEMDPhi()
+	    // 		    << std::endl;
+	    // 	}
+	    // }
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
         ptadd thePtAddress(titr->ptLUTAddress());
         ptdat thePtData = ptLUT_->Pt(thePtAddress);
 
@@ -926,6 +966,18 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   // Loop over CSC LCTs if triggering on them:
   if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 || trigger_on_MB1a || trigger_on_MB1d )
     for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//jason
+	if (hasGEM){
+	  if (itr->station() == 1){
+	    auto cscdigi = itr->getDigi();
+	    std::cout << "CSCTFSectorProcessor:: Add-on for singles "
+		      << " gemDPhi " << cscdigi->getGEMDPhi()
+		      << std::endl;
+	  }
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
       int station = itr->station()-1;
       if(station != 4){
 	int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
@@ -951,6 +1003,14 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   CSCTriggerContainer<csc::L1Track> tracksFromSingles;
   for(int bx=0; bx<7; bx++)
     if( myStubContainer[bx].get().size() ){ // VP in this bx
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//jason
+	if (hasGEM){
+	    std::cout << "CSCTFSectorProcessor:: tracksFromSingles "
+		      << std::endl;
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
       bool coreTrackExists = false;
       // tracks are not ordered to be accessible by bx => loop them all
       std::vector<csc::L1Track> tracks = l1_tracks.get();
@@ -1031,7 +1091,6 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
   if( single_tracks.size() ) l1_tracks.push_many(single_tracks);
   // End of add-on for singles
-
   return (l1_tracks.get().size() > 0);
 }
 
