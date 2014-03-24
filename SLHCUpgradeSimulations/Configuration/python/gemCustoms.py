@@ -4,7 +4,7 @@ def customise(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
-       process=customise_L1Emulator(process)
+        process=customise_L1Emulator(process,'pt0')
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
