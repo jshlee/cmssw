@@ -102,6 +102,9 @@ def customise_L1Emulator(process, ptdphi):
         dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False),
         buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False),
     )
+    tmb.me3141ILT = cms.PSet(
+        runME3141ILT = cms.untracked.bool(False),
+    )
     return process
 
 def customise_DigiToRaw(process):
