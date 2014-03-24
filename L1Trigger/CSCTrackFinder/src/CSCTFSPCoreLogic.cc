@@ -51,7 +51,16 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 		  auto cscdigi = stubi->getDigi();
 		  std::cout << "CSCTFSPCoreLogic:: "
 			    << " gemDPhi " << cscdigi->getGEMDPhi()
+			    << " isValid " << stubi->isValid()
+			    << " MPCLink " << stubi->getMPCLink()
 			    << " stubi->isValid() " << stubi->isValid()
+			    << " me1aVp   " <<stubi->isValid()
+			    << " me1aQp   " <<stubi->getQuality()
+			    << " me1aEtap " <<stubi->etaPacked()
+			    << " me1aPhip " <<stubi->phiPacked()
+			    << " me1aAmp  " << stubi->getQuality()	
+			    << " me1aCSCIdp  " <<stubi->cscid()
+			    << " me1aCLCTp  " <<stubi->getCLCTPattern()
 			    << std::endl;
 		}
 	      ////////////////////////////////////////////////////////////////////////////////////////////////////
