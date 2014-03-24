@@ -884,13 +884,6 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
     
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //jason
-    std::cout << "CSCTFSPCoreLogic:: Core Verbose Output For Debugging"
-	      << std::endl;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     if ( IsVerbose() ) {
       std::cout << "Core Verbose Output For Debugging\n";
       std::cout << io->me1aVp << " " << io->me1aQp << " " << io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << " " << io->me1aCLCTp << std::endl;
