@@ -299,7 +299,8 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 
   // set core verbosity: for debugging only purpouses
   // in general the output is handled to Alex Madorsky
-  core_ -> SetVerbose(isCoreVerbose);
+  //  core_ -> SetVerbose(isCoreVerbose);
+  core_ -> SetVerbose(true);
 
   // Set the SP firmware 
   core_ -> SetSPFirmwareVersion (m_firmSP);
