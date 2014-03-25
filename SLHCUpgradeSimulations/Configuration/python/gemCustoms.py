@@ -4,7 +4,7 @@ def customise(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
-        process=customise_L1Emulator(process,'pt0')
+       process=customise_L1Emulator(process)
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -129,20 +129,9 @@ def customise_L1Emulator(process, ptdphi = 'pt0'):
     if ptdphi == 'pt0':
         tmb.gemClearNomatchLCTs = cms.untracked.bool(False)
     ## GE2/1-ME2/1
-<<<<<<< HEAD
-    tmb.me21ILT = cms.PSet(
-        runME21ILT = cms.untracked.bool(False),
-        dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False),
-        buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False),
-    )
-    tmb.me3141ILT = cms.PSet(
-        runME3141ILT = cms.untracked.bool(False),
-    )
-=======
     tmb.runUpgradeME21 = cms.untracked.bool(False)
     tmb.dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False)
     tmb.buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False)
->>>>>>> parent of ac3fc86... fix merge
     return process
 
 def customise_DigiToRaw(process):
