@@ -197,5 +197,36 @@ void CSCTFTrackBuilder::buildTracks(const CSCCorrelatedLCTDigiCollection* lcts,
       tcitr++; // increment to next track in the collection
     }
 
+  //////////////////////////////
+  //jason
+  L1CSCTrackCollection::iterator tmp_trk = trkcoll->begin();
+  for(; tmp_trk != trkcoll->end(); tmp_trk++){
+    //auto l1track = tmp_trk->first;
+    // std::cout << "track = "
+    // 	 << ", ptValue " << l1track.ptValue()
+    // 	 << ", etaValue " << l1track.etaValue()
+    // 	 << ", phiValue " << l1track.phiValue()
+    // 	 << ", ptLUTAddress " << l1track.ptLUTAddress()
+    // 	 << ", quality " << l1track.quality()
+    // 	 << ", front_rear " << l1track.front_rear()
+    // 	 << std::endl;
+    // //      l1track.Print();
+    for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=tmp_trk->second.begin(); csc!=tmp_trk->second.end(); csc++){
+      auto lctdigi = (*csc).second.first;
+      if ((*csc).first.station() == 1){
+	std::cout << "CSCTFTrackBuilder:: Station = " << (*csc).first.station()
+	     << ", getGEMDPhi " << lctdigi->getGEMDPhi()
+	     << ", getQuality " << lctdigi->getQuality()
+	     << ", getKeyWG " << lctdigi->getKeyWG()
+	     << ", getStrip " << lctdigi->getStrip()
+	     << ", getPattern " << lctdigi->getPattern()
+	     << ", getBend " << lctdigi->getBend()
+	     << ", getCLCTPattern " << lctdigi->getCLCTPattern()
+	     << ", getMPCLink " << lctdigi->getMPCLink()
+	     << std::endl;
+      }
+    }
+  }
+  
 }
 

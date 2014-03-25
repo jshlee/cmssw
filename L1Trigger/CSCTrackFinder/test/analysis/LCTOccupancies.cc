@@ -220,9 +220,9 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<csctf::TrackStub>::const_iterator ts = trackStubs->begin();
   std::vector<csctf::TrackStub>::const_iterator tsEnd = trackStubs->end();
 
-  for(unsigned i=0;i<12;i++)
-  {
-  }
+  // for(unsigned i=0;i<12;i++)
+  // {
+  // }
 
   std::vector<int> occME11a(24,0);
   std::vector<int> occME11b(24,0);
@@ -258,23 +258,23 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (;ts != tsEnd; ts++)
   {
-	//std::cout << "etaValue: \t" <<ts->etaValue()<< std::endl;
-	//std::cout << "phiValue: \t" <<ts->phiValue()<< std::endl;
-	//std::cout << "eta: \t" <<ts->etaPacked()<< std::endl;
-	//std::cout << "phi: \t" <<ts->phiPacked()<< std::endl;
-	//std::cout << "cscid: \t" <<ts->cscid()<< std::endl;
-	//std::cout << "subsector: \t" <<ts->subsector()<< std::endl;
-	//std::cout << "sector: \t" <<ts->sector()<< std::endl;
-	//std::cout << "station: \t" <<ts->station()<< std::endl;
-	//std::cout << "endcap: \t" <<ts->endcap()<< std::endl;
-	//std::cout << "bx: \t" <<ts->BX()<< std::endl;
-	//std::cout << "MPCLink: \t" <<ts->getMPCLink()<< std::endl;
-	//std::cout << std::endl;
-
 	unsigned sector = ts->sector()-1;
 
-	if(ts->BX() != 0)
-		continue;
+	// if(ts->BX() != 0)
+	// 	continue;
+	std::cout << "etaValue: \t" <<ts->etaValue()<< std::endl;
+	std::cout << "phiValue: \t" <<ts->phiValue()<< std::endl;
+	std::cout << "eta: \t" <<ts->etaPacked()<< std::endl;
+	std::cout << "phi: \t" <<ts->phiPacked()<< std::endl;
+	std::cout << "cscid: \t" <<ts->cscid()<< std::endl;
+	std::cout << "subsector: \t" <<ts->subsector()<< std::endl;
+	std::cout << "sector: \t" <<ts->sector()<< std::endl;
+	std::cout << "station: \t" <<ts->station()<< std::endl;
+	std::cout << "endcap: \t" <<ts->endcap()<< std::endl;
+	std::cout << "bx: \t" <<ts->BX()<< std::endl;
+	std::cout << "MPCLink: \t" <<ts->getMPCLink()<< std::endl;
+	std::cout << std::endl;
+
 	hMPCLink->Fill(ts->getMPCLink());
 	hLocalPhi->Fill(ts->phiValue());
 	hPhi->Fill(ts->phiValue()+15.0*M_PI/180+(sector)*60.0*M_PI/180); 
