@@ -74,7 +74,7 @@ class CSCTFSPCoreLogic
 
     CSCTFSPCoreLogic() : runme(false),
       spFirmwareVersion(0), coreFirmwareVersion(0),
-      verboseCore(false){}
+      verboseCore(true){}
 
   void loadData(const CSCTriggerContainer<csctf::TrackStub>&,
 		const unsigned& endcap, const unsigned& sector,
