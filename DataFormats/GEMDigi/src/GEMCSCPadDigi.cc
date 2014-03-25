@@ -1,5 +1,8 @@
 /** \file
  * 
+ *  $Date: 2013/01/18 04:21:50 $
+ *  $Revision: 1.1 $
+ *
  * \author Vadim Khotilovich
  */
 
@@ -21,14 +24,9 @@ GEMCSCPadDigi::GEMCSCPadDigi ():
 // Comparison
 bool GEMCSCPadDigi::operator == (const GEMCSCPadDigi& digi) const
 {
-  return pad_ == digi.pad() and bx_ == digi.bx();
-}
-
-
-// Comparison
-bool GEMCSCPadDigi::operator != (const GEMCSCPadDigi& digi) const
-{
-  return pad_ != digi.pad() or bx_ != digi.bx();
+  if ( pad_ != digi.pad() ||
+       bx_    != digi.bx() ) return false;
+  return true;
 }
 
 

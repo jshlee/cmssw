@@ -20,13 +20,14 @@ class CSCGeometry;
 class CSCChamber;
 class GEMGeometry;
 class GEMSuperChamber;
-class CSCTriggerPrimitivesProducer;
 
 class CSCMotherboardME11 : public CSCMotherboard
 {
+  typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
   typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
-  typedef std::map<int, GEMPadsBX> GEMPads;
+  // roll, pad, isCopad?
+  typedef std::vector<std::tuple<unsigned int, const GEMCSCPadDigi*, bool> > GEMPadsBXGeneral;
 
  public:
   /** Normal constructor. */
@@ -79,7 +80,6 @@ class CSCMotherboardME11 : public CSCMotherboard
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
-  void setLctProducer(CSCTriggerPrimitivesProducer* p) {lctProducer_ = p;}
 
  private:
 
@@ -156,7 +156,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
                             enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
   GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
+                            bool isCopad = false, bool first = true);  
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
                             enum ME11Part = ME1B, bool isCopad = false, bool first = true);  
 
@@ -184,7 +184,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   unsigned int max_me11_lcts;
 
   /// GEM-CSC integrated local algorithm
-  bool runME11ILT_;
+  bool runGEMCSCILT_;
 
   /// Do GEM matching?
   bool do_gem_matching;
@@ -206,8 +206,6 @@ class CSCMotherboardME11 : public CSCMotherboard
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
 
-  CSCTriggerPrimitivesProducer* lctProducer_;
-  
   // central LCT bx number
   int lct_central_bx;
 
@@ -218,23 +216,18 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;
+  int maxDeltaRollInCoPad_;
   int maxDeltaPadInCoPad_;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
+  int maxDeltaRollPad_;
   int maxDeltaPadPad_;
-  int maxDeltaBXPadEven_;
-  int maxDeltaPadPadEven_;
-  int maxDeltaBXPadOdd_;
-  int maxDeltaPadPadOdd_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
+  int maxDeltaRollCoPad_;
   int maxDeltaPadCoPad_;
-  int maxDeltaBXCoPadEven_;
-  int maxDeltaPadCoPadEven_;
-  int maxDeltaBXCoPadOdd_;
-  int maxDeltaPadCoPadOdd_;
   
   // Drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_ME1a_;
