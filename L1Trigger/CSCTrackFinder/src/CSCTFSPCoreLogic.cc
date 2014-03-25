@@ -884,7 +884,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
     
     }
   
-    if ( IsVerbose() ) {
+    if ( IsVerbose() && bx == 4 && bx == 12 ) {
       std::cout << "Core Verbose Output For Debugging: bx = " << bx << std::endl;
       std::cout << io->me1aVp << " " << io->me1aQp << " " << io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << " " << io->me1aCLCTp << std::endl;
       std::cout << io->me1bVp << " " << io->me1bQp << " " << io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << " " << io->me1bCLCTp << std::endl;
