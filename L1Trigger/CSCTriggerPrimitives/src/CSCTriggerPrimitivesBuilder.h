@@ -21,7 +21,6 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCDBL1TPParameters;
@@ -29,8 +28,6 @@ class CSCMotherboard;
 class CSCMuonPortCard;
 class CSCGeometry;
 class GEMGeometry;
-class RPCGeometry;
-class CSCTriggerPrimitivesProducer;
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -50,10 +47,6 @@ class CSCTriggerPrimitivesBuilder
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
-  void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
-
-  /// link to producer for debugging
-  void setProducer(CSCTriggerPrimitivesProducer* c) {producer_ = c;}
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
@@ -62,7 +55,6 @@ class CSCTriggerPrimitivesBuilder
 	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     const GEMCSCPadDigiCollection* gemPads,
-	     const RPCDigiCollection* rpcDigis,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
@@ -72,7 +64,6 @@ class CSCTriggerPrimitivesBuilder
    *  processors. */
   enum trig_cscs {MAX_ENDCAPS = 2, MAX_STATIONS = 4, MAX_SECTORS = 6,
 		  MAX_SUBSECTORS = 2, MAX_CHAMBERS = 9};
-
  private:
 
   /** Min and max allowed values for various CSC elements, defined in
@@ -101,10 +92,7 @@ class CSCTriggerPrimitivesBuilder
   bool runFactorizedModel_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
-  bool runME21ILT_;
-
-  /** SLHC: special switch for the upgrade ME3/1 and ME4/1 TMB */
-  bool runME3141ILT_;
+  bool runUpgradeME21_;
 
   int m_minBX, m_maxBX; // min and max BX to sort.
 
@@ -117,9 +105,6 @@ class CSCTriggerPrimitivesBuilder
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-  const RPCGeometry* rpc_g;
-
-  CSCTriggerPrimitivesProducer* producer_;
 };
 
 #endif

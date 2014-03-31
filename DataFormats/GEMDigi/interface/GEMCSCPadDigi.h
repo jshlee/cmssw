@@ -5,6 +5,9 @@
  *
  * Digi for GEM-CSC trigger pads
  *  
+ *  $Date: 2013/01/18 04:21:50 $
+ *  $Revision: 1.1 $
+ *
  * \author Vadim Khotilovich
  *
  */
@@ -15,11 +18,10 @@
 class GEMCSCPadDigi{
 
 public:
-  explicit GEMCSCPadDigi(int pad, int bx);
-  GEMCSCPadDigi();
+  explicit GEMCSCPadDigi (int pad, int bx);
+  GEMCSCPadDigi ();
 
   bool operator==(const GEMCSCPadDigi& digi) const;
-  bool operator!=(const GEMCSCPadDigi& digi) const;
   bool operator<(const GEMCSCPadDigi& digi) const;
 
   int pad() const { return pad_; }
