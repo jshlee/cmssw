@@ -1574,7 +1574,7 @@ void CSCMotherboardME11::matchGEMPads()
       for (int i=0; i<2; ++i)
       {
         CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
-        if (!lct.isValid() or lct.getGEMDPhi() < 0.000001) continue;
+        if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
         if (debug_gem_matching) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
 
         // use -99 as default value whe we don't know if there could have been a gem match
