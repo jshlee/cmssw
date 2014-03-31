@@ -54,8 +54,8 @@ def customise_L1Emulator(process, ptdphi):
         runME11ILT = cms.untracked.bool(True),
 
         ## run in debug mode
-        printAvailablePads = cms.untracked.bool(False),
-
+        printAvailablePads = cms.untracked.bool(True),
+        debugGemMatching   = cms.untracked.bool(True),
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
         

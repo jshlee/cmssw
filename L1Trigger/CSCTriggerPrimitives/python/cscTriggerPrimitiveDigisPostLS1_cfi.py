@@ -317,7 +317,14 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         # How many maximum LCTs per whole chamber per BX to keep
         # (supposedly, 1b and 1a can have max 2 each)
-        maxME11LCTs = cms.untracked.uint32(2)
+        maxME11LCTs = cms.untracked.uint32(2),
+
+        me21ILT = cms.PSet(
+        runME21ILT = cms.untracked.bool(False),
+        dropLowQualityCLCTsNoGEMs_ME21 = cms.untracked.bool(False),
+        buildLCTfromALCTandGEM_ME21 = cms.untracked.bool(False)),
+
+        me3141ILT = cms.PSet(runME3141ILT = cms.untracked.bool(False))
     ),
 
     # MPC sorter config for SLHC studies
