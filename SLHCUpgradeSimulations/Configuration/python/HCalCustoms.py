@@ -5,8 +5,7 @@ def customise_HcalPhase0(process):
 
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
-	
-    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
+
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
@@ -44,8 +43,7 @@ def customise_HcalPhase1(process):
                 'CholeskyMatrices',
                 'CovarianceMatrices'
                 )
-    
-    process.es_hardcode.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
@@ -92,6 +90,12 @@ def customise_HcalPhase2(process):
             190.94, 190.94, 190.94, 190.94, 190.94)
         process.mix.digitizers.hcal.he.samplingFactors = newFactors
         process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
+
+    if hasattr(process,'reconstruction_step'):
+        process.towerMaker.HcalPhase = cms.int32(2)
+        process.towerMakerPF.HcalPhase = cms.int32(2)
+        process.towerMakerWithHO.HcalPhase = cms.int32(2)
+        process.CaloTowerConstituentsMapBuilder.MapFile = cms.untracked.string("")
 
     return process
 
@@ -141,6 +145,9 @@ def customise_Reco(process):
     process.towerMakerPF.hbheInput = cms.InputTag("hbheUpgradeReco") 
     process.towerMakerWithHO.hfInput = cms.InputTag("hfUpgradeReco")
     process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMaker.HcalPhase = cms.int32(1)
+    process.towerMakerPF.HcalPhase = cms.int32(1)
+    process.towerMakerWithHO.HcalPhase = cms.int32(1)
     process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
     process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
     process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
