@@ -20,6 +20,7 @@ namespace csctf_analysis
 	
 	TFileDirectory matchSubdirOverall = matchSubdirPt.mkdir("Overall");
 	TFileDirectory matchSubdirCSCOnly = matchSubdirPt.mkdir("CSCOnly");
+	TFileDirectory matchSubdirGEM = matchSubdirPt.mkdir("GEM");
 	TFileDirectory matchSubdirCSCRestricted = matchSubdirPt.mkdir("CSCRestricted");
 	TFileDirectory matchSubdirDTOnly = matchSubdirPt.mkdir("DTOnly");
 	TFileDirectory matchSubdirOverlap = matchSubdirPt.mkdir("Overlap");
@@ -35,6 +36,7 @@ namespace csctf_analysis
 	modeOcc = allSubdir.make<TH1F>("modeOcc","Mode Occupancy",16,-0.5,15.5);
 	modeOccDT = allSubdir.make<TH1F>("modeOccDT","Mode Occupancy 0 <= #eta <= 0.9",16,-0.5,15.5);
 	modeOccCSCOnly = allSubdir.make<TH1F>("modeOccCSCOnly","Mode Occupancy 1.2<= #eta <=2.4",16,-0.5,15.5);
+	modeOccGEM = allSubdir.make<TH1F>("modeOccGEM","Mode Occupancy 1.6<= #eta <=2.4",16,-0.5,15.5);
 	modeOccOverlap = allSubdir.make<TH1F>("modeOccOverlap","Mode Occupancy 0.9<= #eta <=1.2",16,-0.5,15.5);
 	modeOccHighEta = allSubdir.make<TH1F>("modeOccHighEta","Mode Occupancy 2.1<= #eta",16,-0.5,15.5);
 	Eta = allSubdir.make<TH1F>("Eta"," Track #eta",50,0, 2.5); 
@@ -58,7 +60,8 @@ namespace csctf_analysis
 	//matchPt = dir.make<TH1F>("matchPt","Matched Track Pt",ptbins,minpt,maxpt);
 	matchPtOverall = matchSubdirOverall.make<TH1F>("matchPtOverall","Matched Track Overall Pt",ptbins,minpt,maxpt);
 	matchPtCSCOnly = matchSubdirCSCOnly.make<TH1F>("matchPtCSCOnly","Matched Track Pt; 1.2<= #eta <=2.4",ptbins,minpt,maxpt);
-	matchPtCSCRestricted = matchSubdirCSCRestricted.make<TH1F>("matchPtCSCRestricted","Matched Track Pt; 1.2<= #eta <=2.1",ptbins,minpt,maxpt);
+	matchPtGEM = matchSubdirGEM.make<TH1F>("matchPtGEM","Matched Track Pt; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchPtCSCRestricted = matchSubdirCSCRestricted.make<TH1F>("matchPtCSCRestricted","Matched Track Pt; 1.6<= #eta <=2.1",ptbins,minpt,maxpt);
 	matchPtDTOnly = matchSubdirDTOnly.make<TH1F>("matchPtDTOnly","Matched Track Pt; 0.0<= #eta <=0.9",ptbins,minpt,maxpt);
 	matchPtOverlap = matchSubdirOverlap.make<TH1F>("matchPtOverlap","Matched Track Pt; 0.9<= #eta <=1.2",ptbins,minpt,maxpt);
 	matchPtHighEta = matchSubdirHighEta.make<TH1F>("matchPtHighEta","Matched Track Pt; 2.1<= #eta",ptbins,minpt,maxpt);
@@ -75,6 +78,12 @@ namespace csctf_analysis
 	matchTFPt20CSCOnly = matchSubdirCSCOnly.make<TH1F>("matchPt20CSCOnly","Matched Track Pt Tf > 20; 1.2<= #eta <=2.4",ptbins,minpt,maxpt);
 	matchTFPt40CSCOnly = matchSubdirCSCOnly.make<TH1F>("matchPt40CSCOnly","Matched Track Pt Tf > 40; 1.2<= #eta <=2.4",ptbins,minpt,maxpt);
 	matchTFPt60CSCOnly = matchSubdirCSCOnly.make<TH1F>("matchPt60CSCOnly","Matched Track Pt Tf > 60; 1.2<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchTFPt10GEM = matchSubdirGEM.make<TH1F>("matchPt10GEM","Matched Track Pt Tf > 10; 1.6<= #eta <=2.4",ptbins,minpt,maxpt); 
+	matchTFPt12GEM = matchSubdirGEM.make<TH1F>("matchPt12GEM","Matched Track Pt Tf > 12; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchTFPt16GEM = matchSubdirGEM.make<TH1F>("matchPt16GEM","Matched Track Pt Tf > 16; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchTFPt20GEM = matchSubdirGEM.make<TH1F>("matchPt20GEM","Matched Track Pt Tf > 20; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchTFPt40GEM = matchSubdirGEM.make<TH1F>("matchPt40GEM","Matched Track Pt Tf > 40; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
+	matchTFPt60GEM = matchSubdirGEM.make<TH1F>("matchPt60GEM","Matched Track Pt Tf > 60; 1.6<= #eta <=2.4",ptbins,minpt,maxpt);
 	matchTFPt10CSCRestricted = matchSubdirCSCRestricted.make<TH1F>("matchPt10CSCRestricted","Matched Track Pt Tf > 10; 1.2<= #eta <=2.1",ptbins,minpt,maxpt);
 	matchTFPt12CSCRestricted = matchSubdirCSCRestricted.make<TH1F>("matchPt12CSCRestricted","Matched Track Pt Tf > 12; 1.2<= #eta <=2.1",ptbins,minpt,maxpt);
 	matchTFPt16CSCRestricted = matchSubdirCSCRestricted.make<TH1F>("matchPt16CSCRestricted","Matched Track Pt Tf > 16; 1.2<= #eta <=2.1",ptbins,minpt,maxpt);
@@ -102,6 +111,7 @@ namespace csctf_analysis
 	//fidPtDen = dir.make<TH1F>("fidPtDen", "Fiducial Sim Track Pt", ptbins,minpt,maxpt);
 	ptDenOverall = allSubdir.make<TH1F>("ptDenOverall", "Overall Sim Track Pt", ptbins,minpt,maxpt);	
 	ptDenCSCOnly = allSubdir.make<TH1F>("ptDenCSCOnly", "High Eta Sim Track Pt", ptbins,minpt,maxpt);
+	ptDenGEM = allSubdir.make<TH1F>("ptDenGEM", "High Eta Sim Track Pt", ptbins,minpt,maxpt);
 	ptDenCSCRestricted = allSubdir.make<TH1F>("ptDenCSCRestricted", "1.2<= #eta <=2.1 Sim Track Pt", ptbins,minpt,maxpt);	
 	ptDenOverlap = allSubdir.make<TH1F>("ptDenOverlap", "Overlap Sim Track Pt", ptbins,minpt,maxpt);	
 	ptDenHighEta = allSubdir.make<TH1F>("ptDenHighEta", "HighEta Sim Track Pt", ptbins,minpt,maxpt);	
@@ -164,6 +174,8 @@ namespace csctf_analysis
 	modeOccDT->GetYaxis()->SetTitle("Counts");
 	modeOccCSCOnly->GetXaxis()->SetTitle("Mode");
 	modeOccCSCOnly->GetYaxis()->SetTitle("Counts");
+	modeOccGEM->GetXaxis()->SetTitle("Mode");
+	modeOccGEM->GetYaxis()->SetTitle("Counts");
 	modeOccOverlap->GetXaxis()->SetTitle("Mode");
 	modeOccOverlap->GetYaxis()->SetTitle("Counts");
 	EtaQ3->GetXaxis()->SetTitle("#eta");
