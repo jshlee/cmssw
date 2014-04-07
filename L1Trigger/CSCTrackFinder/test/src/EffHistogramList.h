@@ -36,17 +36,18 @@ namespace csctf_analysis
   	TH1F* EffEtaAll, *EffEtaQ3, *EffEtaQ2, *EffEtaQ1;
   	TH1F* EffSignedEtaAll, *EffSignedEtaQ3, *EffSignedEtaQ2, *EffSignedEtaQ1;
   	TH1F* EffPhiQ3, *EffPhiQ2, *EffPhiQ1, *EffPhi;
-  	TH1F* EffPtOverall, *EffPtCSCOnly, *EffPtOverlap, *EffPtHighEta, *EffPtDTOnly, *EffPtCSCRestricted;
+  	TH1F* EffPtOverall, *EffPtCSCOnly, *EffPtOverlap, *EffPtHighEta, *EffPtDTOnly, *EffPtCSCRestricted, *EffPtGEM;
   	TH1F* EffTFPt10Overall, *EffTFPt12Overall,*EffTFPt16Overall, *EffTFPt20Overall, *EffTFPt40Overall,*EffTFPt60Overall;
   	TH1F* EffTFPt10CSCOnly,*EffTFPt12CSCOnly,*EffTFPt16CSCOnly,*EffTFPt20CSCOnly, *EffTFPt40CSCOnly, *EffTFPt60CSCOnly;
+  	TH1F* EffTFPt10GEM,*EffTFPt12GEM,*EffTFPt16GEM,*EffTFPt20GEM, *EffTFPt40GEM, *EffTFPt60GEM;
   	TH1F* EffTFPt10CSCRestricted,*EffTFPt12CSCRestricted,*EffTFPt16CSCRestricted, *EffTFPt20CSCRestricted, *EffTFPt40CSCRestricted, *EffTFPt60CSCRestricted;
   	TH1F* EffTFPt10DTOnly,*EffTFPt12DTOnly,*EffTFPt16DTOnly, *EffTFPt20DTOnly, *EffTFPt40DTOnly, *EffTFPt60DTOnly;
   	TH1F* EffTFPt10Overlap,*EffTFPt12Overlap,*EffTFPt16Overlap, *EffTFPt20Overlap, *EffTFPt40Overlap, *EffTFPt60Overlap;
   	TH1F* EffTFPt10HighEta,*EffTFPt12HighEta,*EffTFPt16HighEta, *EffTFPt20HighEta, *EffTFPt40HighEta, *EffTFPt60HighEta;
   	TLegend* TrackerLeg1, *TrackerLeg2, *TrackerLeg3;
-  	TLegend* TrackerLeg1CSCOnly, *TrackerLeg1Overlap, *TrackerLeg1HighEta, *TrackerLeg1DTOnly, *TrackerLeg1CSCRestricted, *TrackerLeg1Overall;
-  	TCanvas* PhiEff, *EtaEff, *SignedEtaEff, *PtEffAllOverall, *PtEffAllCSCOnly, *PtEffAllOverlap, *PtEffAllHighEta, *PtEffAllDTOnly, *PtEffAllCSCRestricted;
-	TF1* fitThreshOverall, *fitThreshCSCOnly,*fitThreshDTOnly, *fitThreshCSCRestricted, *fitThreshOverlap, *fitThreshHighEta;
+  	TLegend* TrackerLeg1CSCOnly, *TrackerLeg1Overlap, *TrackerLeg1HighEta, *TrackerLeg1DTOnly, *TrackerLeg1CSCRestricted, *TrackerLeg1Overall, *TrackerLeg1GEM;
+  	TCanvas* PhiEff, *EtaEff, *SignedEtaEff, *PtEffAllOverall, *PtEffAllCSCOnly, *PtEffAllOverlap, *PtEffAllHighEta, *PtEffAllDTOnly, *PtEffAllCSCRestricted, *PtEffAllGEM;
+	TF1* fitThreshOverall, *fitThreshCSCOnly,*fitThreshDTOnly, *fitThreshCSCRestricted, *fitThreshOverlap, *fitThreshHighEta, *fitThreshGEM;
     private:
 	edm::Service<TFileService> fs;
 	std::string PtEffStatsFilename;

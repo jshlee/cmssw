@@ -16,6 +16,7 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
 	TFileDirectory ptSubdirDTOnly = ptSubdir.mkdir("DTOnly");
 	TFileDirectory ptSubdirOverlap = ptSubdir.mkdir("Overlap");
 	TFileDirectory ptSubdirHighEta = ptSubdir.mkdir("HighEta");
+	TFileDirectory ptSubdirGEM = ptSubdir.mkdir("GEM");
 	
 	TFileDirectory etaSubdir = dir.mkdir("Eta_Efficiency");
 	TFileDirectory phiSubdir = dir.mkdir("Phi_Efficiency");
@@ -82,6 +83,13 @@ EffHistogramList::EffHistogramList(const std::string dirname, const edm::Paramet
     	EffTFPt40HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt40HighEta","Efficiency v Pt Tf > 40; 2.1<= #eta",ptbins, minpt, maxpt);
     	EffTFPt60HighEta = ptSubdirHighEta.make<TH1F>("EffTFPt60HighEta","Efficiency v Pt Tf > 60; 2.1<= #eta",ptbins, minpt, maxpt);
 
+    	EffPtGEM = ptSubdirGEM.make<TH1F>("EffPtGEM","Efficiency v Pt; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+    	EffTFPt10GEM = ptSubdirGEM.make<TH1F>("EffTFPt10GEM","Efficiency v Pt Tf > 10; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+	EffTFPt12GEM = ptSubdirGEM.make<TH1F>("EffTFPt12GEM","Efficiency v Pt Tf > 12; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+	EffTFPt16GEM = ptSubdirGEM.make<TH1F>("EffTFPt16GEM","Efficiency v Pt Tf > 16; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+    	EffTFPt20GEM = ptSubdirGEM.make<TH1F>("EffTFPt20GEM","Efficiency v Pt Tf > 20; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+    	EffTFPt40GEM = ptSubdirGEM.make<TH1F>("EffTFPt40GEM","Efficiency v Pt Tf > 40; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
+    	EffTFPt60GEM = ptSubdirGEM.make<TH1F>("EffTFPt60GEM","Efficiency v Pt Tf > 60; 1.2<= #eta <=2.4",ptbins, minpt, maxpt);
 
     	EffEtaAll = etaSubdir.make<TH1F>("EffEtaAll","Efficiency v eta for all Tracks", 50, 0, 2.5);
     	EffEtaQ3 = etaSubdir.make<TH1F>("EffEtaQ3","Efficiency v #eta for Quality >= 3 Tracks", 50, 0, 2.5);
@@ -120,6 +128,13 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     CSCOnlyhists.push_back(EffTFPt20CSCOnly);
     CSCOnlyhists.push_back(EffTFPt40CSCOnly);
     CSCOnlyhists.push_back(EffTFPt60CSCOnly);
+
+    std::vector<TH1F*> GEMhists;
+    GEMhists.push_back(EffPtGEM);
+    GEMhists.push_back(EffTFPt12GEM);
+    GEMhists.push_back(EffTFPt20GEM);
+    GEMhists.push_back(EffTFPt40GEM);
+    GEMhists.push_back(EffTFPt60GEM);
 
     std::vector<TH1F*> CSCRestrictedhists;
     CSCRestrictedhists.push_back(EffPtCSCRestricted);
@@ -175,6 +190,8 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,Overallhists);
     (*PtStats)<<"\n\nPt Plateau Efficiencies for CSC Only region (1.2<=|eta|<=2.4)";
     computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,CSCOnlyhists);
+    (*PtStats)<<"\n\nPt Plateau Efficiencies for GEM GE2/1 region (1.6<=|eta|<=2.4)";
+    computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,GEMhists);
     (*PtStats)<<"\n\nPt Plateau Efficiencies for CSC Restricted region (1.2<=|eta|<=2.1)";
     computePtPlateauEff(PtStats, PlateauDefinitions,thresholds,CSCRestrictedhists);
     (*PtStats)<<"\n\nPt Plateau Efficiencies for DT Only region (|eta|<=0.9)";
@@ -188,6 +205,7 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     //Drawing Pt Histograms
     DrawPtEffHists("Overall",PtEffAllOverall,fitThreshOverall,TrackerLeg1Overall,thresholds,Overallhists);
     DrawPtEffHists("CSCOnly",PtEffAllCSCOnly,fitThreshCSCOnly,TrackerLeg1CSCOnly,thresholds,CSCOnlyhists);
+    DrawPtEffHists("GEM",PtEffAllGEM,fitThreshGEM,TrackerLeg1GEM,thresholds,GEMhists);
     DrawPtEffHists("CSCRestricted",PtEffAllCSCRestricted,fitThreshCSCRestricted,TrackerLeg1CSCRestricted,thresholds,CSCRestrictedhists);
     DrawPtEffHists("DTOnly",PtEffAllDTOnly,fitThreshDTOnly,TrackerLeg1DTOnly,thresholds,DTOnlyhists);
     DrawPtEffHists("Overlap",PtEffAllOverlap,fitThreshOverlap,TrackerLeg1Overlap,thresholds,Overlaphists);
@@ -301,6 +319,7 @@ void EffHistogramList::Print()
     PtEffAllOverlap->Print("EffPtOverlap.png","png");
     PtEffAllHighEta->Print("EffPtHighEta.png","png");
     PtEffAllCSCOnly->Print("EffPtCSCOnly.png","png");
+    PtEffAllGEM->Print("EffPtGEM.png","png");
     EtaEff->Print("EffEta.png","png");
     SignedEtaEff->Print("EffSignedEta.png","png");
     PhiEff->Print("EffPhi.png","png");
@@ -365,6 +384,9 @@ void EffHistogramList::computeErrors(TrackHistogramList* refHists)
 	refHists->matchTFPt10CSCOnly->Sumw2();	refHists->matchTFPt12CSCOnly->Sumw2();	refHists->matchTFPt16CSCOnly->Sumw2();
 	refHists->matchTFPt20CSCOnly->Sumw2();	refHists->matchTFPt40CSCOnly->Sumw2();	refHists->matchTFPt60CSCOnly->Sumw2();
 
+	refHists->matchTFPt10GEM->Sumw2();	refHists->matchTFPt12GEM->Sumw2();	refHists->matchTFPt16GEM->Sumw2();
+	refHists->matchTFPt20GEM->Sumw2();	refHists->matchTFPt40GEM->Sumw2();	refHists->matchTFPt60GEM->Sumw2();
+
 	refHists->matchTFPt10DTOnly->Sumw2();	refHists->matchTFPt12DTOnly->Sumw2();	refHists->matchTFPt16DTOnly->Sumw2();
 	refHists->matchTFPt20DTOnly->Sumw2();	refHists->matchTFPt40DTOnly->Sumw2();	refHists->matchTFPt60DTOnly->Sumw2();
 
@@ -375,6 +397,9 @@ void EffHistogramList::computeErrors(TrackHistogramList* refHists)
 
 	refHists->matchPtOverall->Sumw2();	refHists->matchPtCSCOnly->Sumw2();	refHists->matchPtDTOnly->Sumw2();
 	refHists->matchPtHighEta->Sumw2();	refHists->ptDenHighEta->Sumw2();	refHists->ptDenCSCOnly->Sumw2();
+
+	refHists->matchPtGEM->Sumw2();
+	refHists->ptDenGEM->Sumw2();
 
 	refHists->ptDenDTOnly->Sumw2();	refHists->ptDenCSCRestricted->Sumw2();	refHists->ptDenOverall->Sumw2();
 }
@@ -396,6 +421,12 @@ void EffHistogramList::divideHistograms(TrackHistogramList* refHists)
     	EffTFPt20CSCOnly->Divide(refHists->matchTFPt20CSCOnly, refHists->ptDenCSCOnly);
     	EffTFPt40CSCOnly->Divide(refHists->matchTFPt40CSCOnly, refHists->ptDenCSCOnly);
     	EffTFPt60CSCOnly->Divide(refHists->matchTFPt60CSCOnly, refHists->ptDenCSCOnly);
+    	EffTFPt10GEM->Divide(refHists->matchTFPt10GEM, refHists->ptDenGEM);
+	EffTFPt12GEM->Divide(refHists->matchTFPt12GEM, refHists->ptDenGEM);
+	EffTFPt16GEM->Divide(refHists->matchTFPt16GEM, refHists->ptDenGEM);
+    	EffTFPt20GEM->Divide(refHists->matchTFPt20GEM, refHists->ptDenGEM);
+    	EffTFPt40GEM->Divide(refHists->matchTFPt40GEM, refHists->ptDenGEM);
+    	EffTFPt60GEM->Divide(refHists->matchTFPt60GEM, refHists->ptDenGEM);
     	EffTFPt10CSCRestricted->Divide(refHists->matchTFPt10CSCRestricted, refHists->ptDenCSCRestricted);
 	EffTFPt12CSCRestricted->Divide(refHists->matchTFPt12CSCRestricted, refHists->ptDenCSCRestricted);
 	EffTFPt16CSCRestricted->Divide(refHists->matchTFPt16CSCRestricted, refHists->ptDenCSCRestricted);
@@ -425,6 +456,7 @@ void EffHistogramList::divideHistograms(TrackHistogramList* refHists)
     	//EffPt->Divide(refHists->matchPt, refHists->fidPtDen);
 	EffPtOverall->Divide(refHists->matchPtOverall, refHists->ptDenOverall);
     	EffPtCSCOnly->Divide(refHists->matchPtCSCOnly, refHists->ptDenCSCOnly);
+    	EffPtGEM->Divide(refHists->matchPtGEM, refHists->ptDenGEM);
 	EffPtCSCRestricted->Divide(refHists->matchPtCSCRestricted, refHists->ptDenCSCRestricted);
     	EffPtDTOnly->Divide(refHists->matchPtDTOnly, refHists->ptDenDTOnly); 
     	EffPtOverlap->Divide(refHists->matchPtOverlap, refHists->ptDenOverlap);

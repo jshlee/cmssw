@@ -153,6 +153,12 @@ void Track::fillHist()
               histlist->ptDenCSCOnly->Fill(pt);
               histlist->modeOccCSCOnly->Fill(mode);
       }
+      //GEM
+      if( fabsEta >= 1.6 && fabsEta <= 2.4)
+      {
+              histlist->ptDenGEM->Fill(pt);
+              histlist->modeOccGEM->Fill(mode);
+      }
       //CSC Restricted
       if( fabsEta >= 1.2 && fabsEta <= 2.1)
       {
@@ -330,6 +336,35 @@ void Track::fillMatchHist()
               if (tfpt>60)
               {
         	      histlist->matchTFPt60CSCOnly->Fill(simpt);
+              }
+      }
+      //GEM
+      if(fabsEta>=1.6&&fabsEta<=2.4&&qual>1)
+      {
+              histlist->matchPtGEM->Fill(simpt);  
+              if (tfpt>10)
+              {
+        	      histlist->matchTFPt10GEM->Fill(simpt);
+              }
+	      if (tfpt>12)
+              {
+        	      histlist->matchTFPt12GEM->Fill(simpt);
+              }
+	      if (tfpt>16)
+              {
+        	      histlist->matchTFPt16GEM->Fill(simpt);
+              }
+              if (tfpt>20)
+              {
+        	      histlist->matchTFPt20GEM->Fill(simpt);
+              }
+              if (tfpt>40)
+              {
+        	      histlist->matchTFPt40GEM->Fill(simpt);
+              }
+              if (tfpt>60)
+              {
+        	      histlist->matchTFPt60GEM->Fill(simpt);
               }
       }
       //CSC Restricted
