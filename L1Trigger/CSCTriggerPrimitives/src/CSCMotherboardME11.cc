@@ -632,7 +632,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           }
           auto firstCoPadInBx((coPadsInBx.at(0)).second);
           correlateLCTsGEM(clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                           *firstCoPadInBx, allLCTs1b[6][0][0], allLCTs1b[6][0][1]);
+                           *firstCoPadInBx, allLCTs1b[6][0][0], allLCTs1b[6][0][1], ME1B);
           
           if (print_available_pads) 
             std::cout << "Successful CLCT-GEM CoPad match in ME1b: bx_clct = " << bx_clct << std::endl << std::endl;
@@ -812,10 +812,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
             continue;
           }
           
-          ++nSuccesFulGEMMatches;            
           correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                           *(copads.at(0)).second, allLCTs1b[bx_alct][0][0], allLCTs1b[bx_alct][0][1]);
+                           *(copads.at(0)).second, allLCTs1b[bx_alct][0][0], allLCTs1b[bx_alct][0][1], ME1B);
           if (allLCTs1b[bx_alct][0][0].isValid()) {
+            ++nSuccesFulGEMMatches;            
             if (match_earliest_clct_me11_only) break;
           }
           lctProducer_->me1bMatchAlctGemCoPad_++;
@@ -924,10 +924,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
             continue;
           }
           
-          ++nSuccesFulGEMMatches;            
           correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                           *(copads.at(0)).second, allLCTs1a[bx_alct][0][0], allLCTs1a[bx_alct][0][1]);
+                           *(copads.at(0)).second, allLCTs1a[bx_alct][0][0], allLCTs1a[bx_alct][0][1], ME1A);
           if (allLCTs1a[bx_alct][0][0].isValid()) {
+             ++nSuccesFulGEMMatches;            
             if (match_earliest_clct_me11_only) break;
           }
           lctProducer_->me1aMatchAlctGemCoPad_++;
@@ -1288,7 +1288,7 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  GEMCSCPadDigi gemPad,
 					  CSCCorrelatedLCTDigi& lct1,
-					  CSCCorrelatedLCTDigi& lct2)
+					  CSCCorrelatedLCTDigi& lct2, int ME)
 {
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
@@ -1299,7 +1299,7 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  and bestALCT.isValid()) or
       (match_trig_enable and bestALCT.isValid()))
   {
-    lct1 = constructLCTsGEM(bestALCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct1 = constructLCTsGEM(bestALCT, gemPad, ME, useOldLCTDataFormatALCTGEM_);
     lct1.setTrknmb(1);
     lct1.setGEMDPhi(0.0);
   }
@@ -1307,7 +1307,7 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  and secondALCT.isValid()) or
       (match_trig_enable and secondALCT.isValid() and secondALCT != bestALCT))
   {
-    lct2 = constructLCTsGEM(secondALCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct2 = constructLCTsGEM(secondALCT, gemPad, ME, useOldLCTDataFormatALCTGEM_);
     lct2.setTrknmb(2);
     lct2.setGEMDPhi(0.0);
   }
@@ -1318,7 +1318,7 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
 					  CSCCLCTDigi secondCLCT,
 					  GEMCSCPadDigi gemPad,
 					  CSCCorrelatedLCTDigi& lct1,
-					  CSCCorrelatedLCTDigi& lct2)
+					  CSCCorrelatedLCTDigi& lct2, int ME)
 {
   bool cathodeBestValid     = bestCLCT.isValid();
   bool cathodeSecondValid   = secondCLCT.isValid();
@@ -1329,14 +1329,14 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
   if ((clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestCLCT.isValid()))
   {
-    lct1 = constructLCTsGEM(bestCLCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct1 = constructLCTsGEM(bestCLCT, gemPad, ME, useOldLCTDataFormatALCTGEM_);
     lct1.setTrknmb(1);
   }
 
   if ((clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondCLCT.isValid() and secondCLCT != bestCLCT))
     {
-    lct2 = constructLCTsGEM(secondCLCT, gemPad, useOldLCTDataFormatALCTGEM_);
+    lct2 = constructLCTsGEM(secondCLCT, gemPad, ME, useOldLCTDataFormatALCTGEM_);
     lct2.setTrknmb(2);
   }
 }
@@ -1767,9 +1767,13 @@ int CSCMotherboardME11::assignGEMRoll(double eta)
 
 
 CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alct,
-                                                          const GEMCSCPadDigi& gem, bool oldDataFormat) 
+                                                          const GEMCSCPadDigi& gem, 
+							  int ME, bool oldDataFormat) 
 {
-  if (oldDataFormat){
+    
+    auto mymap(ME==ME1A ? gemPadToCscHsME1a_ : gemPadToCscHsME1b_);
+    auto wgvshs(ME==ME1A ? lut_wg_vs_hs_me1a : lut_wg_vs_hs_me1b);
+    if (oldDataFormat){
     // CLCT pattern number - no pattern
     unsigned int pattern = 0;
 
@@ -1780,11 +1784,15 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alc
     int bx = alct.getBX();
     
     // get keyStrip from LUT
-    int keyStrip = gemPadToCscHsME1b_[gem.pad()];
-    
-    // construct correlated LCT; temporarily assign track number of 0.
-    return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  } 
+    int keyStrip = mymap[gem.pad()];
+    // get wiregroup from ALCT
+    int wg = alct.getKeyWG();
+    if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
+    { // construct correlated LCT; temporarily assign track number of 0.
+      return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+    }
+    else return CSCCorrelatedLCTDigi(0,0,0,0,0,0,0,0,0,0,0,0);
+   } 
   else {
     
     // CLCT pattern number - no pattern
@@ -1797,17 +1805,22 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alc
     int bx = gem.bx() + lct_central_bx;
     
     // get keyStrip from LUT
-    int keyStrip = gemPadToCscHsME1b_[gem.pad()];
-
-    // construct correlated LCT; temporarily assign track number of 0.
-    return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
-  }
+    int keyStrip = mymap[gem.pad()];
+    // get wiregroup from ALCT
+    int wg = alct.getKeyWG();
+    if (keyStrip>wgvshs[wg][0] && keyStrip<wgvshs[wg][1])
+    { // construct correlated LCT; temporarily assign track number of 0.
+      return CSCCorrelatedLCTDigi(0, 1, quality, alct.getKeyWG(), keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+      }
+    else return CSCCorrelatedLCTDigi(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+   }
 }
 
-
 CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCCLCTDigi& clct,
-                                                          const GEMCSCPadDigi& gem, bool oldDataFormat) 
+                                                          const GEMCSCPadDigi& gem, 
+							  int ME, bool oldDataFormat) 
 {
+//  auto mymap(ME==ME1A ? gemPadToCscHsME1a_ : gemPadToCscHsME1b_);
   if (oldDataFormat){
     // CLCT pattern number - no pattern
     unsigned int pattern = encodePatternGEM(clct.getPattern(), clct.getStripType());
