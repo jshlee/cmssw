@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Configuration.Geometry.GeometryExtended2023HGCalMuon_cff import *
+from Configuration.Geometry.GeometryExtended2023Muon4Eta_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -26,6 +26,7 @@ trackerSLHCGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
+
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
@@ -37,13 +38,16 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
 )
 
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+
+## Include EE and ES back temporarily
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
-from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
 from Geometry.HcalEventSetup.HcalTopology_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
-
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi import *
+
