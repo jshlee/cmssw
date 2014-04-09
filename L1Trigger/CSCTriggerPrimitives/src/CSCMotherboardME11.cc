@@ -1582,7 +1582,7 @@ void CSCMotherboardME11::matchGEMPads()
 
         // "strip" here is actually a half-strip in geometry's terms
         // note that LCT::getStrip() starts from 0
-        float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
+        float fractional_strip = 0.5 * (127-lct.getStrip() + 1) - 0.25;
         auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
         // LCT::getKeyWG() also starts from 0
         float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
