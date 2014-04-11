@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
@@ -165,6 +166,9 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   }
   nEtaHB_ = (lastHBRing_-firstHBRing_+1);
   nEtaHE_ = (lastHERing_-firstHERing_+1);
+
+  edm::LogWarning("CaloTopology") << "This is an incomplete constructor of HcalTopology - be warned that many functionalities will not be there - revert from this - get from EventSetup";
+
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -687,7 +691,7 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
 	     mode_ != HcalTopologyMode::SLHC) {
     (ieta > 0) ? --ieta : ++ieta;
   } else if (depth <= 0) {
-    if (subdet == HcalEndcap && etaRing ==  firstHFRing()) {
+    if (subdet == HcalForward && etaRing ==  firstHFRing()) {
       // overlap
       subdet = HcalEndcap;
       etaRing= etaHF2HE_;
@@ -809,6 +813,37 @@ std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned dept
   return std::pair<int, int>(d1, d2);
 }
 
+double HcalTopology::etaMax(HcalSubdetector subdet) const {
+  double eta(0);
+  switch (subdet) {
+  case(HcalBarrel):  
+    if (lastHBRing_ < (int)(etaTable.size())) eta=etaTable[lastHBRing_]; break;
+  case(HcalEndcap):  
+    if (lastHERing_ < (int)(etaTable.size()) && nEtaHE_ > 0) eta=etaTable[lastHERing_]; break;
+  case(HcalOuter): 
+    if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_]; break;
+  case(HcalForward): 
+    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1]; break;
+  default: eta=0;
+  }
+  return eta;
+}
+
+std::pair<double,double> HcalTopology::etaRange(HcalSubdetector subdet, 
+						int ieta) const {
+
+  if (subdet == HcalForward) {
+    unsigned int ii = (unsigned int)(ieta-firstHFRing_);
+    return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
+  } else {
+    if (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta+1]);
+    } else {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta]);
+    }
+  }
+}
+    
 unsigned int HcalTopology::detId2denseIdPreLS1 (const DetId& id) const {
 
   HcalDetId hid(id);
