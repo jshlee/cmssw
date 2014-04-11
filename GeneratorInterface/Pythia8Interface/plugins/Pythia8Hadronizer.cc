@@ -4,11 +4,11 @@
 #include <memory>
 #include <stdint.h>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -83,6 +83,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // Reweight user hook
     //
     UserHooks* fReweightUserHook;
+    UserHooks* fReweightRapUserHook;
+    UserHooks* fReweightPtHatRapUserHook;
         
     // PS matching protot6ype
     //
@@ -102,6 +104,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int  EV1_pTdefMode;
     bool EV1_MPIvetoOn;
 
+    std::string slhafile_;
 };
 
 
@@ -110,7 +113,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
-  fReweightUserHook(0),
+  fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
@@ -159,8 +162,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    std::string slhafilename = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    slhafile_ = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
     fMasterGen->readString(pythiacommandslha);
     for ( ParameterCollector::const_iterator line = fParameters.begin();
           line != fParameters.end(); ++line ) {
@@ -168,13 +171,41 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
         throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
         << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
         << std::endl;
-     }  
+     }
   }
 
   // Reweight user hook
   //
   if( params.exists( "reweightGen" ) )
     fReweightUserHook = new PtHatReweightUserHook();
+  if( params.exists( "reweightGenRap" ) )
+  {
+    std::cout << "Pythia8Interface: Start setup for reweightGenRap" << std::endl;
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenRap");
+    fReweightRapUserHook =
+      new RapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                              rgrParams.getParameter<double>("yLabPower"),
+                              rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                              rgrParams.getParameter<double>("yCMPower"),
+                              rgrParams.getParameter<double>("pTHatMin"),
+                              rgrParams.getParameter<double>("pTHatMax"));
+    std::cout << "End setup for reweightGenRap" << std::endl;
+  }
+  if( params.exists( "reweightGenPtHatRap" ) )
+  {
+    std::cout << "Pythia8Interface: Start setup for reweightGenPtHatRap" << std::endl;
+    edm::ParameterSet rgrParams =
+      params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
+    fReweightPtHatRapUserHook =
+      new PtHatRapReweightUserHook(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                                   rgrParams.getParameter<double>("yLabPower"),
+                                   rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                                   rgrParams.getParameter<double>("yCMPower"),
+                                   rgrParams.getParameter<double>("pTHatMin"),
+                                   rgrParams.getParameter<double>("pTHatMax"));
+    std::cout << "End setup for reweightGenPtHatRap" << std::endl;
+  }
 
   if( params.exists( "useUserHook" ) )
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -228,28 +259,24 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
+  if(fReweightRapUserHook) NHooks++;
+  if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" Too many User Hooks. \n Please choose one from: reweightGen, jetMatching, emissionVeto \n";
+      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto, emissionVeto1 \n";
 
   if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
+  if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
+  if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) cout << " 1";
     cout << endl;
-    int nversion = (int)(1000.*(fMasterGen->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion < 157) {
-      cout << "obsolete pythia8 version for this Emission Veto code" << endl;
-      cout << "Please update pythia8 version using the instructions here:" << endl;
-      cout << "https://twiki.cern.ch/twiki/bin/view/CMS/Pythia8Interface" << endl;
-      cout << "or try to use tag V00-01-28 of this interface" << endl;
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Obsolete pythia8 version for this Emission Veto code\n";
-    }
+    //int nversion = (int)(1000.*(fMasterGen->settings.parm("Pythia:versionNumber") - 8.));
     if(fEmissionVetoHook) fMasterGen->setUserHooksPtr(fEmissionVetoHook);
     if(fEmissionVetoHook1) fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }
@@ -332,7 +359,35 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
+    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
+    //so dump it to a temp file and set the appropriate pythia parameters to read it
+    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
+    const char *fname = std::tmpnam(NULL);
+    //read slha header from lhe only if header is present AND no slha header was specified
+    //for manual loading.
+    bool doslha = !slha.empty() && slhafile_.empty();
+
+    if (doslha) {
+      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+      std::string block;
+      for(std::vector<std::string>::const_iterator iter = slha.begin();
+        iter != slha.end(); ++iter) {
+              file << *iter;
+      }
+      file.close();
+   
+      std::string lhareadcmd = "SLHA:readFrom = 2";
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+    
+      fMasterGen->readString(lhareadcmd); 
+      fMasterGen->readString(lhafilecmd);
+    }
+
     fMasterGen->init(lhaUP.get());
+
+    if (doslha) {
+      std::remove( fname );
+    }
 
   }
   

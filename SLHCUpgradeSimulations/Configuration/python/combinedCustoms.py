@@ -15,12 +15,14 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1
 from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import customise as customiseTTI
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI as customise_ev_l1tracker
+from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI_forHLT
 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
+from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
@@ -96,6 +98,23 @@ def cust_2023(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     process=customise_gem(process)
+    process=customise_rpc(process)
+    return process
+
+def cust_2023Pixel(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem(process)
+    return process
+
+def cust_2023Pixel(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem(process)
     return process
 
 def cust_2023Muon(process):
@@ -104,6 +123,7 @@ def cust_2023Muon(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem(process)
+    process=customise_rpc(process)
     process=customise_me0(process)
     return process
 
@@ -113,8 +133,16 @@ def cust_2023TTI(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase0(process)
     process=customise_ev_l1tracker(process)
-
     return process
+
+def cust_2023TTI_forHLT(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase0(process)
+    process=l1EventContent_TTI_forHLT(process)
+    return process
+
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
