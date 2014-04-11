@@ -75,7 +75,8 @@ bool Py8JetGun::generatePartonsAndHadronize()
       //
       ee   = (fMaxE-fMinE)*randomEngine->flat() + fMinE;
             
-      double mass = (fMasterGen->particleData).m0( particleID );
+      double mass = (fMasterGen->particleData).mass( particleID );
+//      double mass = (pythia->particleData).m0( particleID );
 
       pp = sqrt( ee*ee - mass*mass );
       
@@ -122,7 +123,9 @@ bool Py8JetGun::generatePartonsAndHadronize()
    if ( !fMasterGen->next() ) return false;
    
    event().reset(new HepMC::GenEvent);
-   return toHepMC.fill_next_event( fMasterGen->event, event().get() );
+   toHepMC.fill_next_event( fMasterGen->event, event().get() );
+      
+   return true;   
   
 }
 

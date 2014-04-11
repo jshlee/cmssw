@@ -6,8 +6,8 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8/Pythia8ToHepMC.h"
+#include <Pythia.h>
+#include <HepMCInterface.h>
 
 namespace gen {
 
@@ -32,9 +32,9 @@ namespace gen {
          
 	 std::auto_ptr<Pythia8::Pythia> fMasterGen;
 	 std::auto_ptr<Pythia8::Pythia> fDecayer;
-	 HepMC::Pythia8ToHepMC          toHepMC;
+	 HepMC::I_Pythia8               toHepMC;
 	 ParameterCollector	        fParameters;
- 
+	 
 	 unsigned int                   pythiaPylistVerbosity;
          bool                           pythiaHepMCVerbosity;
 	 unsigned int                   maxEventsToPrint;

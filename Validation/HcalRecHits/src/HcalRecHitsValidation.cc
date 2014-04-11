@@ -29,7 +29,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
   // false for regular relval and true for SLHC relval
-  doSLHC_ = conf.getUntrackedParameter<bool>("doSLHC", true);
+  doSLHC_ = conf.getUntrackedParameter<bool>("doSLHC", false);
 
   //Collections
   theHBHERecHitCollectionLabel = conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel");

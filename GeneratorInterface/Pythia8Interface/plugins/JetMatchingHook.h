@@ -1,7 +1,7 @@
 #ifndef gen_JetMatchinhHook_h
 #define gen_JetMatchingHook_h
 
-#include "Pythia8/Pythia.h"
+#include <Pythia.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
