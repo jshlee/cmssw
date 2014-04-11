@@ -120,11 +120,11 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			GEMCSCPadDigi gemPad,
-			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
   void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			GEMCSCPadDigi gemPad,
-			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
   void matchGEMPads();
 
@@ -140,10 +140,10 @@ class CSCMotherboardME11 : public CSCMotherboard
   int deltaPad(int hs, int pad);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
-                                        bool oldDataFormat = false); 
+                                        int me, bool oldDataFormat = false); 
   
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
-                                        bool oldDataFormat = true); 
+                                        int me, bool oldDataFormat = true); 
 
   unsigned int encodePatternGEM(const int ptn, const int highPt);
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const GEMCSCPadDigi& gem);
