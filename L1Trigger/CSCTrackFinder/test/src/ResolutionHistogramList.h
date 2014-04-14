@@ -41,6 +41,9 @@ namespace csctf_analysis
     TH1F* PtQ2ResGolden, *PhiQ2ResGolden;
     TH1F* PtQ2ResHighEta, *PhiQ2ResHighEta;
     TH1F* PtQ2ResOverlap, *PhiQ2ResOverlap;
+    TH1F* PtQ1ResGEM, *PhiQ1ResGEM;
+    TH1F* PtQ2ResGEM, *PhiQ2ResGEM;
+    TH1F* PtQ3ResGEM, *PhiQ3ResGEM;
 
     void FillResolutionHist( RefTrack refTrk, TFTrack tfTrk );
     void Print();

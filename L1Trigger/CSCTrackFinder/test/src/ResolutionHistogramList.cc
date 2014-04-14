@@ -31,6 +31,12 @@ namespace csctf_analysis
 	PhiQ2ResHighEta = dir.make<TH1F>("PhiQ2ResHighEta","Phi Q>=2 Resolution; eta >= 2.1",1000,-1, 1);
 	PtQ2ResOverlap = dir.make<TH1F>("PtQ2ResOverlap","Pt Q>=2 Resolution; eta <= 1.2",300,-1.5,1.5);
 	PhiQ2ResOverlap = dir.make<TH1F>("PhiQ2ResOverlap","Phi Q>=2 Resolution; eta <= 1.2",1000,-1, 1);
+	PtQ1ResGEM = dir.make<TH1F>("PtQ1ResGEM","Pt Q>=1 Resolution; 1.6 <= eta <= 2.4",300,-1.5,1.5);
+	PhiQ1ResGEM = dir.make<TH1F>("PhiQ1ResGEM","Phi Q>=1 Resolution;1.6 <= eta <= 2.4",1000,-1, 1);
+	PtQ2ResGEM = dir.make<TH1F>("PtQ2ResGEM","Pt Q>=2 Resolution; 1.6 <= eta <= 2.4",300,-1.5,1.5);
+	PhiQ2ResGEM = dir.make<TH1F>("PhiQ2ResGEM","Phi Q>=2 Resolution;1.6 <= eta <= 2.4",1000,-1, 1);
+	PtQ3ResGEM = dir.make<TH1F>("PtQ3ResGEM","Pt Q>=3 Resolution; 1.6 <= eta <= 2.4",300,-1.5,1.5);
+	PhiQ3ResGEM = dir.make<TH1F>("PhiQ3ResGEM","Phi Q>=3 Resolution;1.6 <= eta <= 2.4",1000,-1, 1);
 
   PtQ2Res->GetXaxis()->SetTitle("Pt_{Sim}/Pt_{TF}-1");
   PtQ2Res->GetYaxis()->SetTitle("Counts");
@@ -51,6 +57,18 @@ namespace csctf_analysis
   PtQ2ResOverlap->GetYaxis()->SetTitle("Counts");
   PhiQ2ResOverlap->GetXaxis()->SetTitle("#phi_{Sim}-#phi_{TF}");
   PhiQ2ResOverlap->GetYaxis()->SetTitle("Counts");
+  PtQ1ResGEM->GetXaxis()->SetTitle("Pt_{Sim}/Pt_{TF}-1");
+  PtQ1ResGEM->GetYaxis()->SetTitle("Counts");
+  PhiQ1ResGEM->GetXaxis()->SetTitle("#phi_{Sim}-#phi_{TF}");
+  PhiQ1ResGEM->GetYaxis()->SetTitle("Counts");
+  PtQ2ResGEM->GetXaxis()->SetTitle("Pt_{Sim}/Pt_{TF}-1");
+  PtQ2ResGEM->GetYaxis()->SetTitle("Counts");
+  PhiQ2ResGEM->GetXaxis()->SetTitle("#phi_{Sim}-#phi_{TF}");
+  PhiQ2ResGEM->GetYaxis()->SetTitle("Counts");
+  PtQ3ResGEM->GetXaxis()->SetTitle("Pt_{Sim}/Pt_{TF}-1");
+  PtQ3ResGEM->GetYaxis()->SetTitle("Counts");
+  PhiQ3ResGEM->GetXaxis()->SetTitle("#phi_{Sim}-#phi_{TF}");
+  PhiQ3ResGEM->GetYaxis()->SetTitle("Counts");
   }
 
 
@@ -66,6 +84,14 @@ namespace csctf_analysis
 	PhiQ1Res->Fill( PhiResd ); 
 	EtaQ1Res->Fill( EtaResd );
 	PtQ1Res->Fill( ptResd );
+	double eta = refTrk.getEta();
+	//GEM
+	if(eta <= 2.4 && eta >= 1.6)
+	{
+		PhiQ1ResGEM->Fill( PhiResd ); 
+		PtQ1ResGEM->Fill( ptResd );
+	}
+
       }
     if ( refTrk.getQuality() >= 2 )
       {
@@ -95,6 +121,13 @@ namespace csctf_analysis
 		PtQ2ResOverlap->Fill( ptResd );
 	}
 
+	//GEM
+	if(eta <= 2.4 && eta >= 1.6)
+	{
+		PhiQ2ResGEM->Fill( PhiResd ); 
+		PtQ2ResGEM->Fill( ptResd );
+	}
+
 
       }    
     if ( refTrk.getQuality() >= 3 )
@@ -102,6 +135,14 @@ namespace csctf_analysis
 	PhiQ3Res->Fill( PhiResd ); 
 	EtaQ3Res->Fill( EtaResd );
 	PtQ3Res->Fill( ptResd );
+	double eta = refTrk.getEta();
+	//GEM
+	if(eta <= 2.4 && eta >= 1.6)
+	{
+		PhiQ3ResGEM->Fill( PhiResd ); 
+		PtQ3ResGEM->Fill( ptResd );
+	}
+
       }
     
     
