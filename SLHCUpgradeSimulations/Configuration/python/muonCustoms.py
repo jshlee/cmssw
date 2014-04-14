@@ -66,6 +66,7 @@ def customise_csc_Indexing(process):
     process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
     from CalibMuon.CSCCalibration.CSCChannelMapper_cfi import CSCChannelMapperESProducer
     process.CSCChannelMapperESProducer= CSCChannelMapperESProducer
+    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
     process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
     return process
 
