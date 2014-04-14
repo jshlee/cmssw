@@ -462,7 +462,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     //the vectors directly above
     std::vector<std::string> thresholds;
     thresholds.push_back("");
+    thresholds.push_back("10");
     thresholds.push_back("12");
+    thresholds.push_back("16");
     thresholds.push_back("20");
     thresholds.push_back("40");
     thresholds.push_back("60");
@@ -688,8 +690,8 @@ void EffHistogramList::DrawPtEffHists(std::string region, TCanvas* canvas, TF1* 
     
     tmp="PtEffAll"+region;
     canvas = fs->make<TCanvas>(tmp.c_str());
-    tmp="fitThresh"+region;
-    fit = new TF1(tmp.c_str(), csctf_analysis::thresh, 0, 100, 4);
+//    tmp="fitThresh"+region;
+//    fit = new TF1(tmp.c_str(), csctf_analysis::thresh, 0, 100, 4);
     legend = new TLegend(0.7,0.15,0.85,0.35);
 	
     std::vector<TH1F*>::iterator iHist;
@@ -704,11 +706,11 @@ void EffHistogramList::DrawPtEffHists(std::string region, TCanvas* canvas, TF1* 
 	tmp=region+" Pt Efficiency";
 	PtEffHists[i]->SetTitle(tmp.c_str());
 	PtEffHists[i]->SetFillColor(7-i);
-	tmp="Pt"+thresholds[i];
-	fit->SetParNames(tmp.c_str(),"Resol","Constant","Slope");
+//	tmp="Pt"+thresholds[i];
+//	fit->SetParNames(tmp.c_str(),"Resol","Constant","Slope");
 	
-	tmp="fitThresh"+region;	
-	PtEffHists[i]->Fit(tmp.c_str());
+//	tmp="fitThresh"+region;	
+//	PtEffHists[i]->Fit(tmp.c_str());
 	
 	if(i==0) tmp="All Tracks";
 	else tmp="Pt_{TF} > "+thresholds[i];
@@ -1052,7 +1054,7 @@ void EffHistogramList::computePtPlateauEff(std::ofstream* PtStats, std::vector<d
 	for(iHist=PtEffHists.begin();iHist!=PtEffHists.end();iHist++)
 	{
 		xmin = PlateauDefinitions[i]; //define start of plateau
-		PtEffHists[i] -> Fit(constFit,"R","", xmin, 140.); //do fit
+		PtEffHists[i] -> Fit(constFit,"0R","", xmin, 140.); //do fit
 		if(i==0) (*PtStats)<<"\nDefault Pt thresh   Efficiency:  "<<constFit->GetParameter(0)<<"   "; // efficiency of plateau
 		else (*PtStats)<<"\nPt>"<<thresholds[i].c_str()<<"               Efficiency:  "<<constFit->GetParameter(0)<<"   "; // efficiency of plateau
 		
