@@ -285,7 +285,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     //Putting Histograms in vectors for use in later functions
     std::vector<TH1F*> Overallhists;
     Overallhists.push_back(EffPtOverall);
+    Overallhists.push_back(EffTFPt10Overall);
     Overallhists.push_back(EffTFPt12Overall);
+    Overallhists.push_back(EffTFPt16Overall);
     Overallhists.push_back(EffTFPt20Overall);
     Overallhists.push_back(EffTFPt40Overall);
     Overallhists.push_back(EffTFPt60Overall);
@@ -310,7 +312,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     
     std::vector<TH1F*> CSCOnlyhists;
     CSCOnlyhists.push_back(EffPtCSCOnly);
+    CSCOnlyhists.push_back(EffTFPt10CSCOnly);
     CSCOnlyhists.push_back(EffTFPt12CSCOnly);
+    CSCOnlyhists.push_back(EffTFPt16CSCOnly);
     CSCOnlyhists.push_back(EffTFPt20CSCOnly);
     CSCOnlyhists.push_back(EffTFPt40CSCOnly);
     CSCOnlyhists.push_back(EffTFPt60CSCOnly);
@@ -360,7 +364,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
 
     std::vector<TH1F*> CSCRestrictedhists;
     CSCRestrictedhists.push_back(EffPtCSCRestricted);
+    CSCRestrictedhists.push_back(EffTFPt10CSCRestricted);
     CSCRestrictedhists.push_back(EffTFPt12CSCRestricted);
+    CSCRestrictedhists.push_back(EffTFPt16CSCRestricted);
     CSCRestrictedhists.push_back(EffTFPt20CSCRestricted);
     CSCRestrictedhists.push_back(EffTFPt40CSCRestricted);
     CSCRestrictedhists.push_back(EffTFPt60CSCRestricted);
@@ -385,7 +391,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     
     std::vector<TH1F*> DTOnlyhists;
     DTOnlyhists.push_back(EffPtDTOnly);
+    DTOnlyhists.push_back(EffTFPt10DTOnly);
     DTOnlyhists.push_back(EffTFPt12DTOnly);
+    DTOnlyhists.push_back(EffTFPt16DTOnly);
     DTOnlyhists.push_back(EffTFPt20DTOnly);
     DTOnlyhists.push_back(EffTFPt40DTOnly);
     DTOnlyhists.push_back(EffTFPt60DTOnly);
@@ -410,7 +418,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     
     std::vector<TH1F*> Overlaphists;
     Overlaphists.push_back(EffPtOverlap);
+    Overlaphists.push_back(EffTFPt10Overlap);
     Overlaphists.push_back(EffTFPt12Overlap);
+    Overlaphists.push_back(EffTFPt16Overlap);
     Overlaphists.push_back(EffTFPt20Overlap);
     Overlaphists.push_back(EffTFPt40Overlap);
     Overlaphists.push_back(EffTFPt60Overlap);
@@ -435,7 +445,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
 
     std::vector<TH1F*> HighEtahists;
     HighEtahists.push_back(EffPtHighEta);
+    HighEtahists.push_back(EffTFPt10HighEta);
     HighEtahists.push_back(EffTFPt12HighEta);
+    HighEtahists.push_back(EffTFPt16HighEta);
     HighEtahists.push_back(EffTFPt20HighEta);
     HighEtahists.push_back(EffTFPt40HighEta);
     HighEtahists.push_back(EffTFPt60HighEta);
@@ -462,7 +474,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     //the vectors directly above
     std::vector<std::string> thresholds;
     thresholds.push_back("");
+    thresholds.push_back("10");
     thresholds.push_back("12");
+    thresholds.push_back("16");
     thresholds.push_back("20");
     thresholds.push_back("40");
     thresholds.push_back("60");
@@ -473,7 +487,9 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     //CSCOnlyhists, DTOnlyhists, etc. above.
     std::vector<double> PlateauDefinitions;
     PlateauDefinitions.push_back(80);
+    PlateauDefinitions.push_back(20);
     PlateauDefinitions.push_back(24);
+    PlateauDefinitions.push_back(28);
     PlateauDefinitions.push_back(30);
     PlateauDefinitions.push_back(60);
     PlateauDefinitions.push_back(80);
@@ -708,7 +724,7 @@ void EffHistogramList::DrawPtEffHists(std::string region, TCanvas* canvas, TF1* 
 	fit->SetParNames(tmp.c_str(),"Resol","Constant","Slope");
 	
 	tmp="fitThresh"+region;	
-	PtEffHists[i]->Fit(tmp.c_str());
+	PtEffHists[i]->Fit(tmp.c_str(),"0");
 	
 	if(i==0) tmp="All Tracks";
 	else tmp="Pt_{TF} > "+thresholds[i];
