@@ -68,12 +68,41 @@ class CSCMotherboardME21 : public CSCMotherboard
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
                             bool isCopad = false, bool first = true);  
 
+  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+             		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
+                     const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
+ 
+  void matchGEMPads();
+  
+  void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+			GEMCSCPadDigi gemPad,
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+
+  void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+			GEMCSCPadDigi gemPad,
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
+                                        bool oldDataFormat = false); 
+  
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
+                                        bool oldDataFormat = true); 
+
+  /** Methods to sort the LCTs */
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
+
+
  private: 
 
-/*   static const int lut_wg_vs_hs_me1b[48][2]; */
-/*   static const int lut_wg_vs_hs_me1a[48][2]; */
-/*   static const int lut_wg_vs_hs_me1ag[48][2]; */
-/*   static const double lut_pt_vs_dphi_gemcsc[7][3]; */
+  /** for the case when more than 2 LCTs/BX are allowed;
+      maximum match window = 15 */
+  CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
+
+  static const double lut_pt_vs_dphi_gemcsc[7][3];
   static const double lut_wg_eta_odd[112][2];
   static const double lut_wg_eta_even[112][2];
 
@@ -83,6 +112,11 @@ class CSCMotherboardME21 : public CSCMotherboard
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
+  /** "preferential" index array in matching window for cross-BX sorting */
+  int pref[MAX_LCT_BINS];
+
+  bool match_earliest_clct_me21_only;
+
   // central LCT bx number
   int lct_central_bx;
 
@@ -90,14 +124,31 @@ class CSCMotherboardME21 : public CSCMotherboard
       in ALCT-to-CLCT algorithm */
   bool drop_used_clcts;
   
+  unsigned int tmb_cross_bx_algo;
+
   // masterswitch
   bool runME21ILT_;
 
+  /// Do GEM matching?
+  bool do_gem_matching;
+
+  /// GEM matching dphi and deta
+  double gem_match_delta_phi_odd;
+  double gem_match_delta_phi_even;
+  double gem_match_delta_eta;
+
+  /// delta BX for GEM pads matching
+  int gem_match_delta_bx;
+
+  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta) 
+  double gem_match_min_eta;
+
+  /// whether to throw out GEM-fiducial LCTs that have no gem match
+  bool gem_clear_nomatch_lcts;
+
   // debug gem matching
   bool debug_gem_matching;
-
-  // print available pads
-  bool print_available_pads;
+  bool debug_luts;
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;
@@ -114,9 +165,14 @@ class CSCMotherboardME21 : public CSCMotherboard
   int maxDeltaRollCoPad_;
   int maxDeltaPadCoPad_;
 
+  bool doLCTGhostBustingWithGEMs_;
+
   // drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_;
   bool dropLowQualityALCTsNoGEMs_;
+
+  // correct LCT timing with GEMs
+  bool correctLCTtimingWithGEM_;
 
   // use only the central BX for GEM matching
   bool centralBXonlyGEM_;
@@ -124,6 +180,9 @@ class CSCMotherboardME21 : public CSCMotherboard
   // build LCT from ALCT and GEM
   bool buildLCTfromALCTandGEM_;
   bool buildLCTfromCLCTandGEM_;
+
+  bool useOldLCTDataFormatALCTGEM_;
+  bool useOldLCTDataFormatCLCTGEM_;
 
   std::map<int,std::pair<double,double> > gemPadToEtaLimitsShort_;
   std::map<int,std::pair<double,double> > gemPadToEtaLimitsLong_;
