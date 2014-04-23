@@ -821,7 +821,7 @@ bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCo
 // compare LCTs by GEM bending angle
 bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
 { 
-  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
+  return fabs(lct1.getGEMDPhi()) < fabs(lct2.getGEMDPhi());
 }
 
 // sort vector of LCTs
