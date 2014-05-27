@@ -58,6 +58,7 @@ const int CSCMotherboardME11GEM::lut_wg_vs_hs_me1b[48][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
+/*
 const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
   {5.,  0.02203511, 0.00930056},
   {6 ,  0.0182579 , 0.00790009},
@@ -66,6 +67,17 @@ const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
   {20., 0.00562598, 0.00304878},
   {30., 0.00416544, 0.00253782},
   {40., 0.00342827, 0.00230833} };
+*/
+
+const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
+  {3, 0.03971647, 0.01710244},                                    
+  {5, 0.02123785, 0.00928431}, 
+  {7, 0.01475524, 0.00650928},                                                                                                  
+  {10, 0.01023299, 0.00458796},                                                                                                 
+  {15, 0.00689220, 0.00331313},                                                                  
+  {20, 0.00535176, 0.00276152},                                                                                                                                  
+  {30, 0.00389050, 0.00224959},                                                                                                                                       
+  {40, 0.00329539, 0.00204670}};
 
 const double CSCMotherboardME11GEM::lut_wg_etaMin_etaMax_odd[48][3] = {
 {0, 2.44005, 2.44688},
@@ -235,6 +247,7 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
 
   /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta)
   gem_match_min_eta = me11tmbParams.getParameter<double>("gemMatchMinEta");
+  gem_match_max_eta = me11tmbParams.getParameter<double>("gemMatchMaxEta");
 
   /// whether to throw out GEM-fiducial LCTs that have no gem match
   gem_clear_nomatch_lcts = me11tmbParams.getParameter<bool>("gemClearNomatchLCTs");
@@ -420,7 +433,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
     const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
 
-    const bool isEven(me1bId%2==0);
+    const bool isEven(me1bId.chamber()%2==0);
     const int region((theEndcap == 1) ? 1: -1);
     const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
     const GEMChamber* gemChamber(gem_g->chamber(gem_id));
@@ -434,6 +447,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     createGEMRollEtaLUT(isEven);
     if (debug_luts){
+      std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamebr "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
@@ -1646,7 +1660,16 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
         GlobalPoint csc_gp = csc_g->idToDet(key_id)->surface().toGlobal(csc_intersect);
 
         // is LCT located in the high efficiency GEM eta range?
-        bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
+        if (is_odd){
+          gem_match_min_eta = 1.55;
+          gem_match_max_eta = 2.15;
+        }else{
+          gem_match_min_eta = 1.59;
+          gem_match_max_eta = 2.08;
+        }
+        
+        bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta and 
+                         std::abs(csc_gp.eta()) <= gem_match_max_eta);
 
         if (debug_gem_dphi) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
 

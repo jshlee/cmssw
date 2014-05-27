@@ -50,7 +50,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # run integrated local triggers
         runME11ILT = cms.bool(True),
         runME21ILT = cms.bool(True),
-        runME3141ILT = cms.bool(False),
+        runME3141ILT = cms.bool(True),
     ),
 
     # Parameters for ALCT processors: old MC studies
@@ -396,6 +396,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchDeltaPhiOdd = cms.double(1),
         gemMatchDeltaPhiEven = cms.double(1),
         gemMatchMinEta = cms.double(1.55),
+        gemMatchMaxEta = cms.double(2.15),
         gemClearNomatchLCTs = cms.bool(False),
 
         ## cross BX algorithm
@@ -487,12 +488,30 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
 
+        ## use old dataformat
+        useOldLCTDataFormatCLCTRPC = cms.bool(True),
+        useOldLCTDataFormatALCTRPC = cms.bool(True),
+
         ## matching to digis in case LowQ CLCT
-        maxDeltaBXRPC = cms.int32(1),
-        maxDeltaStripRPC = cms.int32(1),
+        maxDeltaBXRPC = cms.int32(0),
+        maxDeltaStripRPC = cms.int32(3),
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPCs = cms.bool(True),
+        buildLCTfromALCTandRPC = cms.bool(True),
+        buildLCTfromCLCTandRPC = cms.bool(True),
+        promoteCLCTRPCquality = cms.bool(True),
+        promoteALCTRPCpattern = cms.bool(True),
+        promoteALCTRPCquality = cms.bool(True),
+
+        ## rate reduction 
+        doRpcMatching = cms.bool(True),
+        rpcMatchDeltaEta = cms.double(0.08),
+        rpcMatchDeltaBX = cms.int32(1),
+        rpcMatchDeltaPhiOdd = cms.double(1),
+        rpcMatchDeltaPhiEven = cms.double(1),
+        rpcMatchMinEta = cms.double(1.5),
+        rpcClearNomatchLCTs = cms.bool(False),
     ),
 
     # MPC sorter config for SLHC studies

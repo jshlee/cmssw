@@ -46,14 +46,16 @@ const double CSCMotherboardME21GEM::lut_wg_eta_even[112][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
-const double CSCMotherboardME21GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
-  {5.,  0.02203511, 0.00930056},
-  {6 ,  0.0182579 , 0.00790009},
-  {10., 0.01066000, 0.00483286},
-  {15., 0.00722795, 0.00363230},
-  {20., 0.00562598, 0.00304878},
-  {30., 0.00416544, 0.00253782},
-  {40., 0.00342827, 0.00230833} };
+const double CSCMotherboardME21GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
+  {3, 0.01832829, 0.01003643 },
+  {5, 0.01095490, 0.00631625 },
+  {7, 0.00786026, 0.00501017 },
+  {10, 0.00596349, 0.00414560 },
+  {15, 0.00462411, 0.00365550 },
+  {20, 0.00435298, 0.00361550 },
+  {30, 0.00465160, 0.00335700 },
+  {40, 0.00372145, 0.00366262 }
+};
 
 CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
@@ -222,7 +224,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
-    const bool isEven(csc_id%2==0);
+    const bool isEven(csc_id.chamber()%2==0);
     const GEMDetId gem_id_short(region, 1, 2, 1, csc_id.chamber(), 0);
     const GEMDetId gem_id_long(region, 1, 3, 1, csc_id.chamber(), 0);
     //    const GEMChamber* gemChamberShort(gem_g->chamber(gem_id_short));
@@ -233,6 +235,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     gemRollToEtaLimitsLong_ = createGEMRollEtaLUT(true);
 
     if (debug_luts){
+      std::cout<<"csc id "<< csc_id <<" "<< csc_id.rawId() << (isEven ? " even" : " odd") << " chamber" << csc_id.chamber()<<std::endl;      
       if (gemRollToEtaLimitsShort_.size())
 	for(auto p : gemRollToEtaLimitsShort_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
@@ -712,14 +715,14 @@ void CSCMotherboardME21GEM::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
   if ((clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestCLCT.isValid()))
   {
-    lct1 = constructLCTsGEM(bestCLCT, gemPad, roll, useOldLCTDataFormatALCTGEM_);
+    lct1 = constructLCTsGEM(bestCLCT, gemPad, roll, useOldLCTDataFormatCLCTGEM_);
     lct1.setTrknmb(1);
   }
 
   if ((clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondCLCT.isValid() and secondCLCT != bestCLCT))
     {
-    lct2 = constructLCTsGEM(secondCLCT, gemPad, roll, useOldLCTDataFormatALCTGEM_);
+    lct2 = constructLCTsGEM(secondCLCT, gemPad, roll, useOldLCTDataFormatCLCTGEM_);
     lct2.setTrknmb(2);
   }
 }
