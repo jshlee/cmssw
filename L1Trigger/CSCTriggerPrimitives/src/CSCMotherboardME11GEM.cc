@@ -450,7 +450,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamebr "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
-          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+          std::cout << "roll "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
     
