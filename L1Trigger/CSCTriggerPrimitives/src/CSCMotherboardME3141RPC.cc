@@ -918,9 +918,6 @@ void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi
 					    CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
 					    const RPCDigisBX& digis)
 {
-  // check for digis 
-  const bool hasDigis(digis.size());
-  
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
   bool cathodeBestValid   = bestCLCT.isValid();
@@ -936,7 +933,7 @@ void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi
   if ((alct_trig_enable  and bestALCT.isValid()) or
       (clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid())){
-    lct1 = constructLCTsRPC(bestALCT, bestCLCT, hasDigis);
+    lct1 = constructLCTsRPC(bestALCT, bestCLCT, digis);
     lct1.setTrknmb(1);
   }
   
@@ -944,22 +941,22 @@ void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi
       ((alct_trig_enable  and secondALCT.isValid()) or
        (clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid()))){
-    lct2 = constructLCTsRPC(secondALCT, secondCLCT, hasDigis);
+    lct2 = constructLCTsRPC(secondALCT, secondCLCT, digis);
     lct2.setTrknmb(2);
   }
 }
 
-CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC) 
+CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, const RPCDigisBX& digis) 
 {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
   
   // LCT quality number
-  unsigned int quality = findQualityRPC(aLCT, cLCT, hasRPC);
+  unsigned int quality = findQualityRPC(aLCT, cLCT, digis.size()!=0);
   
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
-  //if (hasRPC) bx = rpc.bx() + lct_central_bx;
+  if (digis.size()!=0) bx = lct_central_bx + digis[0].second->bx(); // fix this!!!
   
   // construct correlated LCT; temporarily assign track number of 0.
   int trknmb = 0;
