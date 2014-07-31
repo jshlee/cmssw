@@ -1663,13 +1663,14 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
 
   // retrieve CSCChamber geometry
   CSCTriggerGeomManager* geo_manager = CSCTriggerGeometry::get();
-  CSCChamber* cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  const CSCChamber* cscChamberME1b(geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber));
 
-  const CSCDetId me1bId(cscChamber->id());
+  const CSCDetId me1bId(cscChamberME1b->id());
   const CSCDetId me1aId(me1bId.endcap(), 1, 4, me1bId.chamber());
   const CSCDetId me1abId(ME==ME1A ? me1aId : me1bId);
   const int chamber(me1abId.chamber());
   const bool is_odd(chamber%2==1);
+  auto cscChamber = csc_g->chamber(me1abId);
 
   if (debug_gem_dphi) std::cout<<"++++++++  matchGEMPads "<< me1abId <<" +++++++++ "<<std::endl;
 
@@ -1707,7 +1708,11 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
 
         LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
         GlobalPoint csc_gp = csc_g->idToDet(key_id)->surface().toGlobal(csc_intersect);
-
+        
+	if (debug_gem_dphi)
+ 	  std::cout<<"CSC det id"<<key_id <<" strip:"<<fractional_strip<<" wire:"<<wire<<" layer_geo " <<*layer_geo 
+	       <<" global position phi:"<<csc_gp.phi()<<std::endl;
+       
         // is LCT located in the high efficiency GEM eta range?
         if (is_odd){
           gem_match_min_eta = 1.55;
@@ -1753,7 +1758,8 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
           GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
           float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
           float deta = csc_gp.eta() - gem_gp.eta();
-          if (debug_gem_dphi) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
+          if (debug_gem_dphi) std::cout<<"pad"<< id_pad.second->pad()<<" phi:"<<gem_gp.phi()
+	      <<" gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
 
           if( (              std::abs(deta) <= gem_match_delta_eta        ) and // within delta_eta
               ( (  is_odd and std::abs(dphi) <= gem_match_delta_phi_odd ) or
