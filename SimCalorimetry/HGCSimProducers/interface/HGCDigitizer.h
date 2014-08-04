@@ -12,9 +12,12 @@
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 
 #include <vector>
 #include <map>
+#include <memory>
 
 class PCaloHit;
 class PileUpEventPrincipal;
@@ -23,16 +26,15 @@ class HGCDigitizer
 {
 public:
   
-  explicit HGCDigitizer(const edm::ParameterSet& ps);
-  virtual ~HGCDigitizer();
-
+  HGCDigitizer(const edm::ParameterSet& ps);
+  ~HGCDigitizer() { }
 
   /**
      @short handle SimHit accumulation
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c);
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing);
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom);
 
   /**
      @short actions at the start/end of event
@@ -42,9 +44,9 @@ public:
 
   /**
    */
-  bool producesEEDigis()       { return (hitCollection_.find("EE")!=std::string::npos);      } 
-  bool producesHEfrontDigis()  { return (hitCollection_.find("HEfront")!=std::string::npos); } 
-  bool producesHEbackDigis()   { return (hitCollection_.find("HEback")!=std::string::npos);  } 
+  bool producesEEDigis()       { return (mySubDet_==ForwardSubdetector::HGCEE);  }
+  bool producesHEfrontDigis()  { return (mySubDet_==ForwardSubdetector::HGCHEF); }
+  bool producesHEbackDigis()   { return (mySubDet_==ForwardSubdetector::HGCHEB); }
   std::string digiCollection() { return digiCollection_; }
 
   /**
@@ -55,22 +57,25 @@ public:
 
 private :
 
+  //used for initialization
+  bool checkValidDetIds_;
+
   //input/output names
   std::string hitCollection_,digiCollection_;
 
-  //flag for trivial digitization
-  bool doTrivialDigis_;
+  //digitization type (it's up to the specializations to decide it's meaning)
+  int digitizationType_;
 
   //handle sim hits
   int maxSimHitsAccTime_;
   int bxTime_;
-  HGCSimHitDataAccumulator simHitAccumulator_;  
+  std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
   //digitizers
-  HGCEEDigitizer theHGCEEDigitizer_;
-  HGCHEbackDigitizer theHGCHEbackDigitizer_;
-  HGCHEfrontDigitizer theHGCHEfrontDigitizer_;
+  std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
+  std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
+  std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
 
   //subdetector id
   ForwardSubdetector mySubDet_;

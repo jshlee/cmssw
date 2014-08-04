@@ -42,6 +42,8 @@ public:
     {return std::pair<int,int>(etaMin[i],etaMax[i]);}
   std::vector<double>       getEtaTable() const {return etaTable;}
   std::vector<double>       getEtaTableHF() const;
+  std::vector<double>       getGparHF() const {return gparHF;}
+  std::vector<double>       getLayer0Wt() const {return layer0wt;}
   std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::vector<int>          getNOff() const {return nOff;}
   double                    getPhiBin(const int i) const {return phibin[i];}
@@ -50,6 +52,7 @@ public:
   std::vector<double>       getPhiOffs()  const {return phioff;}
   std::vector<double>       getPhiTable() const {return phibin;}
   std::vector<double>       getPhiTableHF() const {return phitable;}
+  std::vector<double>       getRTableHF() const {return rTable;}
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
@@ -62,10 +65,10 @@ public:
        
 private:
   void                initialize(const DDCompactView& cpv);
-  void                loadSpecPars(const DDFilteredView& fv);
+  void                loadSpecPars( void );
   void                loadGeometry(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, 
-				  const DDsvalues_type &, int &) const;
+  bool		      checkDDVector( const std::string & ) const;
+  std::vector<double> getDDVector( const std::string & ) const;
   unsigned            find (int element, std::vector<int>& array) const;
   double              deltaEta(int det, int eta, int depth) const;
   double              getEta(int det, int etaR, int zside, int depth=1) const;
@@ -83,7 +86,6 @@ private:
   int                 nEta;     // Number of bins in eta for HB and HE
   std::vector<double> rTable;   // R-table
   int                 nR;       // Number of bins in r
-  int                 nPhi;     // Number of bins in phibin
   std::vector<double> phibin;   // Phi step for all eta bins (HB, HE and HO)
   int                 nPhiF;    // Number of bins in phitable
   std::vector<double> phitable; // Phi step for all eta bins (HF)
@@ -95,7 +97,7 @@ private:
   std::vector<int>    etaMax;   // Maximum eta bin number for HB/HE/HF
   std::vector<double> etaRange; // Maximum eta value for HB/HE/HF
   std::vector<double> gparHF;   // Geometry parameters of HF
-  std::vector<double> layer0Wt; // Weight of layer 0
+  std::vector<double> layer0wt; // Weight of layer 0
   std::vector<double> gainHB;   // Gain factor   for HB
   std::vector<int>    shiftHB;  // Readout shift ..  ..
   std::vector<double> gainHE;   // Gain factor   for HE

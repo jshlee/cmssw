@@ -11,6 +11,21 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         HGCalRecHitWorkerBaseClass(ps)
 {
         rechitMaker_ = new HGCalRecHitSimpleAlgo();
+	// HGCee constants 
+	HGCEEmipInKeV_ =  ps.getParameter<double>("HGCEEmipInKeV");
+	HGCEElsbInMIP_ =  ps.getParameter<double>("HGCEElsbInMIP");
+	HGCEEmip2noise_ = ps.getParameter<double>("HGCEEmip2noise");
+	hgceeADCtoGeV_ = HGCEEmipInKeV_ * HGCEElsbInMIP_/1000000; 
+	// HGChef constants
+	HGCHEFmipInKeV_ =  ps.getParameter<double>("HGCHEFmipInKeV");
+	HGCHEFlsbInMIP_ =  ps.getParameter<double>("HGCHEFlsbInMIP");
+	HGCHEFmip2noise_ = ps.getParameter<double>("HGCHEFmip2noise");
+	hgchefADCtoGeV_ = HGCHEFmipInKeV_ * HGCHEFlsbInMIP_/1000000;
+	// HGCheb constants
+	HGCHEBmipInKeV_ =  ps.getParameter<double>("HGCHEBmipInKeV");
+	HGCHEBlsbInMIP_ =  ps.getParameter<double>("HGCHEBlsbInMIP");
+	HGCHEBmip2noise_ = ps.getParameter<double>("HGCHEBmip2noise");
+	hgchebADCtoGeV_ = HGCHEBmipInKeV_ * HGCHEBlsbInMIP_/1000000;
 	//        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
 	//	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
 	//        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
@@ -44,13 +59,13 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
 	//	float offsetTime = 0; // the global time phase
 
         if ( detid.subdetId() == HGCEE ) {
-	  //                rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
+	  rechitMaker_->setADCToGeVConstant(float(hgceeADCtoGeV_) );
 	  //		offsetTime = offtime->getEEValue();
         } else if ( detid.subdetId() == HGCHEF ) {
-	  //                rechitMaker_->setADCToGeVConstant( float(agc->getHEFValue()) );
+	  rechitMaker_->setADCToGeVConstant(float(hgchefADCtoGeV_) );
 	  //		offsetTime = offtime->getHEFValue();
 	}else {
-          //      rechitMaker_->setADCToGeVConstant( float(agc->getHEBValue()) );
+	  rechitMaker_->setADCToGeVConstant(float(hgchebADCtoGeV_) );
 	  //	offsetTime = offtime->getHEBValue();
         }
 	 

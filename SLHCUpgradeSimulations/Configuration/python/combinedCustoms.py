@@ -124,6 +124,25 @@ def cust_2023SHCal(process):
             )
             )
         
+    if hasattr(process,'raw2digi_step'):
+        process.ecalDigis.FEDs = cms.vint32(
+            # EE-:
+            #601, 602, 603, 604, 605,
+            #606, 607, 608, 609,
+            # EB-:
+            610, 611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620, 621,
+            622, 623, 624, 625, 626, 627,
+            # EB+:
+            628, 629, 630, 631, 632, 633,
+            634, 635, 636, 637, 638, 639,
+            640, 641, 642, 643, 644, 645,
+            # EE+:
+            #646, 647, 648, 649, 650,
+            #651, 652, 653, 654
+            )
+        print "RAW2DIGI only for EB FEDs"
+
     if hasattr(process,'reconstruction_step'):
     	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
         #remove the old EE pfrechit producer
@@ -139,7 +158,70 @@ def cust_2023SHCal(process):
         process.pfClusteringEK += process.particleFlowClusterECAL
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.particleFlowCluster += process.pfClusteringEK
-       
+        
+        process.photonCore.scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel")
+        process.photonCore.scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")        
+        process.photons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedPhotons.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        
+        process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMakerWithHO.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEK"))
+        process.towerMaker.EESumThreshold = cms.double(0.1)
+        process.towerMakerPF.EESumThreshold = cms.double(0.1)
+        process.towerMakerWithHO.EESumThreshold = cms.double(0.1)
+        process.towerMaker.EEThreshold = cms.double(0.035)
+        process.towerMakerPF.EEThreshold = cms.double(0.035)
+        process.towerMakerWithHO.EEThreshold = cms.double(0.035)
+        
+        # Change all processes to use EcalRecHitsEK instead of EcalRecHitsEE
+        process.EcalHaloData.EERecHitLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.JPTeidTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.calomuons.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.conversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.earlyMuons.CaloExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.earlyMuons.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.earlyMuons.JetExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalDrivenGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidLoose.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustLoose.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidRobustTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.eidTight.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedPhotons.mipVariableSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gedPhotons.isolationSumsCalculatorSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.gsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.interestingEleIsoDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.interestingGamIsoDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonMETValueMapProducer.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muons1stStep.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muons1stStep.JetExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muons1stStep.CaloExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics.JetExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics.CaloExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics1Leg.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics1Leg.JetExtractorPSet.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics1Leg.JetExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.muonsFromCosmics1Leg.CaloExtractorPSet.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.particleFlowSuperClusterECAL.regressionConfig.ecalRecHitsEE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfElectronInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfPhotonInterestingEcalDetIdEE.recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.pfPhotonTranslator.endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.photons.mipVariableSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.photons.isolationSumsCalculatorSet.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyConversionTrackCandidates.endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.uncleanedOnlyGsfElectrons.endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        ## The following ones don't work out of the box, so until they're fixed let them use the wrong collection
+        #process.multi5x5BasicClustersCleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        #process.multi5x5BasicClustersUncleaned.endcapHitCollection = cms.string('EcalRecHitsEK')
+        #process.correctedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+        #process.uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEK")
+
+
     return process
 
 def cust_2023HGCal(process):
@@ -158,12 +240,50 @@ def cust_2023HGCal(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # Also need to tell the MixingModule to make the correct collections available from
+        # the pileup, even if not creating CrossingFrames.
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
+        process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            #if hasattr(process,'ecalDrivenElectronSeeds'):
+            #    process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+        if hasattr(process,'particleFlowBlock'):
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCEE') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
+                                                                        linkType = cms.string('TRACK:HGC_ECAL'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEFLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALF'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALB'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkType = cms.string('SC:HGC_ECAL'),
+                                                                        SuperClusterMatchByRef = cms.bool(True),
+                                                                        useKDTree = cms.bool(False),
+                                                                        linkerName = cms.string('SCAndECALLinker') ) ) 
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023HGCalMuon(process):
@@ -183,12 +303,51 @@ def cust_2023HGCalMuon(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+        # Also need to tell the MixingModule to make the correct collections available from
+        # the pileup, even if not creating CrossingFrames.
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgceeDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchebackDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.input.append( cms.InputTag("g4SimHits",process.hgchefrontDigitizer.hitCollection.value()) )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
+        process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
+        process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            #if hasattr(process,'ecalDrivenElectronSeeds'):
+            #    process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+        if hasattr(process,'particleFlowBlock'):
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCEE') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
+                                                                        linkType = cms.string('TRACK:HGC_ECAL'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEFLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALF'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
+                                                                        linkType = cms.string('TRACK:HGC_HCALB'),
+                                                                        useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkType = cms.string('SC:HGC_ECAL'),
+                                                                        SuperClusterMatchByRef = cms.bool(True),
+                                                                        useKDTree = cms.bool(False),
+                                                                        linkerName = cms.string('SCAndECALLinker') ) )
+            
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023Pixel(process):
