@@ -1177,8 +1177,8 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
 {
   CSCMotherboardME21GEM::GEMPadsBX result;
   int deltaBX(isCoPad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
-  int alct_bx = alct.getBX();
   int Wg = alct.getKeyWG();
+  int alct_bx = alct.getBX();
   std::vector<int> Rolls;
   Rolls.push_back(cscWgToGemRollLong_[Wg]);
   if (Wg>=maxDeltaWg_ && cscWgToGemRollLong_[Wg] != cscWgToGemRollLong_[Wg-maxDeltaWg_]) 
@@ -1187,7 +1187,7 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
       Rolls.push_back(cscWgToGemRollLong_[Wg+maxDeltaWg_]);
 
   const bool debug(false);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << std::endl;
+  if (debug) std::cout << "ALCT keyWG " << Wg << std::endl;
   for (auto alctRoll : Rolls)
   {
   if (debug) std::cout <<"roll " << alctRoll << std::endl;
@@ -1205,6 +1205,13 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX&
   }
   return result;
 }
+
+//CSCMotherboardME21GEM::GEMPadsBX 
+//CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pads, bool isCoPad, bool first)
+//{
+//   return matchingGEMPads(alct.getKeyWG(),alct.getBX(),pads,isCoPad,first);
+//}
+
 
 
 CSCMotherboardME21GEM::GEMPadsBX 
@@ -1269,8 +1276,6 @@ void CSCMotherboardME21GEM::matchGEMPads()
   // walk over BXs
   for (int bx = 0; bx < MAX_LCT_BINS; ++bx)
   {
-    auto in_pads = padsLong_.find(bx);
-
     // walk over potential LCTs in this BX
     for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
       for (int i=0; i<2; ++i)
@@ -1278,10 +1283,15 @@ void CSCMotherboardME21GEM::matchGEMPads()
         CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
         if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
         if (debug_gem_dphi) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
-
+         
+        	
         // use -99 as default value whe we don't know if there could have been a gem match
         lct.setGEMDPhi(-99.);
-
+        //make a fake alct
+	CSCALCTDigi alct(1, 3, 1, 0, lct.getKeyWG(), bx);
+        auto in_pads(matchingGEMPads(alct,padsLong_[bx],false,false));//return the pads that can match to wg in LCTs
+	if (debug_gem_dphi) std::cout<<"size of available pads "<< in_pads.size()<<std::endl;
+        //if (in_pads.size()==0) continue;
         // "strip" here is actually a half-strip in geometry's terms
         // note that LCT::getStrip() starts from 0
         float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
@@ -1303,9 +1313,9 @@ void CSCMotherboardME21GEM::matchGEMPads()
           continue;
         }
         // use 100 ad default value when within gem fiducial region
-        lct.setGEMDPhi(100.);
+        //lct.setGEMDPhi(100.);
 	
-        if (in_pads == padsLong_.end()) // has no potential GEM hits with similar BX -> zap it
+        if (in_pads.size()==0) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
           if (debug_gem_dphi) std::cout<<"    -- no gem"<<std::endl;
@@ -1314,21 +1324,25 @@ void CSCMotherboardME21GEM::matchGEMPads()
         if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
         // use 99 ad default value when we expect there to be a gem match
         lct.setGEMDPhi(99.);
-
         // to consider a GEM pad as "matched" it has to be 
         // within specified delta_eta and delta_phi ranges
         // and if there are multiple ones, only the min|delta_phi| is considered as matched
+	if (debug_gem_dphi)
+ 	  std::cout<<"CSC det id"<<csc_id <<" strip:"<<fractional_strip<<" wire:"<<wire 
+	       <<" global position phi:"<<csc_gp.phi()<<std::endl;
+
         bool gem_matched = false;
         //int gem_bx = 99;
         float min_dphi = 99.;
-        for (auto& id_pad: in_pads->second)
+        for (auto& id_pad: in_pads)
         {
           GEMDetId gem_id(id_pad.first);
           LocalPoint gem_lp = gem_g->etaPartition(gem_id)->centreOfPad(id_pad.second->pad());
           GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
           float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
           float deta = csc_gp.eta() - gem_gp.eta();
-          if (debug_gem_dphi) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
+          if (debug_gem_dphi) std::cout<<"gem_id "<<gem_id<<" pad"<< id_pad.second->pad()<<" phi:"<<gem_gp.phi()
+	                     <<" gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
 
           if( (              std::abs(deta) <= gem_match_delta_eta        ) and // within delta_eta
               ( (  is_odd and std::abs(dphi) <= gem_match_delta_phi_odd ) or
