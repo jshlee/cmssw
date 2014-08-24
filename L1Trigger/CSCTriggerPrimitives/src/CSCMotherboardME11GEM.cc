@@ -559,6 +559,43 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
 
+  //  bool first = true;
+  if (false) for (int bx = 5; bx <= 7; bx++){
+    const bool hasALCT1(alct->bestALCT[bx].isValid());
+    const bool hasALCT2(alct->secondALCT[bx].isValid());
+    const bool hasCLCT1(clct->bestCLCT[bx].isValid());
+    const bool hasCLCT2(clct->secondCLCT[bx].isValid());
+    const bool hasCLCT1a(clct1a->bestCLCT[bx].isValid());
+    const bool hasCLCT2a(clct1a->secondCLCT[bx].isValid());
+    const bool hasGEM1(pads_[bx].size()!=0);
+    const bool hasGEM2(coPads_[bx].size()!=0);
+
+    // const bool ALCTandGEM1(hasALCT1 and hasGEM1);
+    // const bool ALCTandGEM2(hasALCT1 and hasGEM2);
+    // const bool CLCTandGEM1(hasCLCT1 and hasGEM1);
+    // const bool CLCTandGEM2(hasCLCT1 and hasGEM2);
+    // const bool ALCTandCLCT(hasALCT1 and hasCLCT1);
+    // const bool twoStubs(ALCTandGEM2 or CLCTandGEM2 or ALCTandCLCT or (ALCTandGEM1 and CLCTandGEM1));
+
+    const std::string ALCT1(hasALCT1? "X" : " ");
+    const std::string ALCT2(hasALCT2? "X" : " ");
+    const std::string CLCT1(hasCLCT1? "X" : " ");
+    const std::string CLCT2(hasCLCT2? "X" : " ");
+    const std::string CLCT1a(hasCLCT1a? "X" : " ");
+    const std::string CLCT2a(hasCLCT2a? "X" : " ");
+    const std::string GEM1(hasGEM1? "X" : " ");
+    const std::string GEM2(hasGEM2? "X" : " ");
+    
+    if (hasALCT1 or hasCLCT1 or hasCLCT1a or hasGEM1 or hasGEM2){
+      // reference BX
+      if (bx==5) std::cout << "BX  ALCT1  ALCT2  CLCTa1  CLCTa2  CLCTb1  CLCTb2  GEM1  GEM2"<<std::endl;
+      std::cout <<bx;
+      if (bx < 10) std::cout <<" ";
+      std::cout<<"    "<<ALCT1<<"      "<<ALCT2<<"       "<<CLCT1a<<"      "<<CLCT2a
+               <<"       "<<CLCT1<<"      "<<CLCT2<<"      "<<GEM1<<"     "<<GEM2<<std::endl;
+    }
+  }
+
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
   {
@@ -1649,8 +1686,6 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
   // walk over BXs
   for (int bx = 0; bx < MAX_LCT_BINS; ++bx)
   {
-    auto in_pads = pads_.find(bx);
-
     // walk over potential LCTs in this BX
     for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
       for (int i=0; i<2; ++i)
@@ -1661,8 +1696,10 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
 
         // use -99 as default value whe we don't know if there could have been a gem match
         lct.setGEMDPhi(-99.);
-
-        // "strip" here is actually a half-strip in geometry's terms
+	//make a fake ALCT according to LCT
+        CSCALCTDigi alct(1, 3, 1, 0, lct.getKeyWG(), bx);
+	auto in_pads(matchingGEMPads(alct, pads_[bx], ME, false));//only use the pads that can match to wg in lct
+        // "strip" here is actually a half-strip in geometry's term
         // note that LCT::getStrip() starts from 0
         float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
         auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
@@ -1696,9 +1733,9 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
           continue;
         }
         // use 100 ad default value when within gem fiducial region
-        lct.setGEMDPhi(100.);
+        //lct.setGEMDPhi(100.);
 
-        if (in_pads == pads_.end()) // has no potential GEM hits with similar BX -> zap it
+        if (in_pads.size()==0) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
           if (debug_gem_dphi) std::cout<<"    -- no gem"<<std::endl;
@@ -1714,7 +1751,7 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
         bool gem_matched = false;
         //int gem_bx = 99;
         float min_dphi = 99.;
-        for (auto& id_pad: in_pads->second)
+        for (auto& id_pad: in_pads)
         {
           GEMDetId gem_id(id_pad.first);
           LocalPoint gem_lp = gem_g->etaPartition(gem_id)->centreOfPad(id_pad.second->pad());
