@@ -9166,7 +9166,10 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     useRegressionFromDB = cms.bool( False ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
-    usePFSCEleCalib = cms.bool( True )
+    usePFSCEleCalib = cms.bool( True ),
+    # HGCal neutral hadron resolution
+    HGCalResolutionConst = cms.double(0.15),
+    HGCalResolutionStoch = cms.double(0.92)    
 )
 hltKT6PFJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 1 ),
@@ -12572,7 +12575,10 @@ hltParticleFlowPromptTracks = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     useRegressionFromDB = cms.bool( False ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
-    usePFSCEleCalib = cms.bool( True )
+    usePFSCEleCalib = cms.bool( True ),
+    # HGCal neutral hadron resolution
+    HGCalResolutionConst = cms.double(0.15),
+    HGCalResolutionStoch = cms.double(0.92)
 )
 hltAntiKT5PFJetsPromptTracks = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -28552,7 +28558,10 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     useRegressionFromDB = cms.bool( False ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
-    usePFSCEleCalib = cms.bool( True )
+    usePFSCEleCalib = cms.bool( True ),
+    # HGCal neutral hadron resolution
+    HGCalResolutionConst = cms.double(0.15),
+    HGCalResolutionStoch = cms.double(0.92)
 )
 hltAntiKT5PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -33158,7 +33167,10 @@ hltParticleFlowReg = cms.EDProducer( "PFProducer",
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
     useRegressionFromDB = cms.bool( False ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
-    usePFSCEleCalib = cms.bool( True )
+    usePFSCEleCalib = cms.bool( True ),
+    # HGCal neutral hadron resolution
+    HGCalResolutionConst = cms.double(0.15),
+    HGCalResolutionStoch = cms.double(0.92)
 )
 hltAntiKT5PFJetsReg = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
