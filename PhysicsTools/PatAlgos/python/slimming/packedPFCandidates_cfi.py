@@ -7,5 +7,6 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     inputVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     originalVertices = cms.InputTag("offlinePrimaryVertices"),
     originalTracks = cms.InputTag("generalTracks"),
+    PuppiWeight = cms.InputTag("puppi","PuppiWeights"),
     minPtForTrackProperties = cms.double(0.95)
 )
