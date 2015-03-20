@@ -207,22 +207,28 @@ class HLTProcess(object):
   # add release-specific customizations
   def releaseSpecificCustomize(self):
     # version specific customizations
-    self.data += """
 
+    self.data += """
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in %(dict)s:
-        %(process)strackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in %(dict)s:
-        del %(process)sTrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
+"""
+    if self.config.fragment:
+      self.data += """
+import imp
+customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
+execfile(customFile)
+#
+"""
+    else:
+      self.data += """
+from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process)
+#
 """
 
   # customize the configuration according to the options
@@ -296,21 +302,24 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       if self.config.type not in ('Fake',) :
         if self.config.type in ('50nsGRun',) :
           self.data += """
-# load PostLS1 customisation for 50ns
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_50ns
-process = customisePostLS1_50ns(process)
+# load 2015 Run-2 L1 Menu for 50ns
+# move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly
+# from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v0 as loadL1Menu
+# until then use the 25ns L1 menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1Menu
+process = loadL1Menu(process)
 """
         elif self.config.type in ('HIon',) :
           self.data += """
-# load PostLS1 customisation for HIon
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_HI
-process = customisePostLS1_HI(process)
+# load 2015 Run-2 L1 Menu for HIon
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
+process = loadL1Menu(process)
 """
         else :
           self.data += """
-# load PostLS1 customisation for 25ns
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-process = customisePostLS1(process)
+# load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
+process = loadL1menu(process)
 """
 
       # override the process name and adapt the relevant filters
@@ -1053,6 +1062,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
+      self.options['esmodules'].append( "-trackerTopology" )
+
       if not self.config.fastsim:
         self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
         self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
