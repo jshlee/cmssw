@@ -117,8 +117,8 @@ def miniAOD_customizeCommon(process):
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).vertex.z):(0)',
     )
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig','vtxPx','vtxPy','vtxPz','vtxPosX','vtxPosY','vtxPosZ')
-    process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
-    process.patJets.addTagInfos = cms.bool(True)
+    #process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
+    #process.patJets.addTagInfos = cms.bool(True)
     #
     ## PU JetID
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
