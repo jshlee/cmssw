@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 def miniAOD_customizeCommon(process):
+    process.load("RecoJets.Configuration.GenJetParticles_cff")
+    process.load("RecoJets.Configuration.RecoGenJets_cff")
+
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
@@ -117,8 +120,8 @@ def miniAOD_customizeCommon(process):
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).vertex.z):(0)',
     )
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig','vtxPx','vtxPy','vtxPz','vtxPosX','vtxPosY','vtxPosZ')
-    #process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
-    #process.patJets.addTagInfos = cms.bool(True)
+    process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
+    process.patJets.addTagInfos = cms.bool(True)
     #
     ## PU JetID
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
@@ -170,8 +173,8 @@ def miniAOD_customizeCommon(process):
     
     process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
-    #process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
-    #process.patJetsPuppi.addTagInfos = cms.bool(True)
+    process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
+    process.patJetsPuppi.addTagInfos = cms.bool(True)
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
 
