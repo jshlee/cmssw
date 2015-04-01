@@ -27,8 +27,8 @@ def customise2023(process):
         process=customise_L1Emulator2023(process,'pt0')
 
     #temp for now since default doesnt work
-    if hasattr(process,'HLTSchedule'):
-        process.hltL3TrajSeedOIState.TkSeedGenerator.option = cms.uint32( 4 )
+    #if hasattr(process,'HLTSchedule'):
+    #    process.hltL3TrajSeedOIState.TkSeedGenerator.option = cms.uint32( 4 )
         
     return process
 
@@ -122,6 +122,7 @@ def outputCustoms(process):
 
     
 def customise_gem_hlt(process):
+    #turning on gems at hlt
     process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
     process.HLTMuonLocalRecoSequence += process.gemRecHits
     process.hltL2OfflineMuonSeeds.EnableGEMMeasurement = cms.bool( True )
