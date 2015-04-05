@@ -18,6 +18,7 @@ private:
   bool * zero(unsigned listSize);
 
   void endcapPatterns(
+    const MuonRecHitContainer & ge11,
     const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
     const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
     const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,

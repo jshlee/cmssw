@@ -31,7 +31,9 @@ SETMuonSeed  = cms.EDProducer("SETMuonSeedProducer",
             MinLocalSegmentAngle = cms.double(0.09),
 # NOT USED for now
             EnableDTMeasurement = cms.bool(True),
-            EnableCSCMeasurement = cms.bool(True)       
+            EnableCSCMeasurement = cms.bool(True),
+            EnableGEMMeasurement = cms.bool(False),
+            GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
         )
     )
 )

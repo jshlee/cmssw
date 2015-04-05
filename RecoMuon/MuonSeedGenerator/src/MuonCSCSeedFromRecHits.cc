@@ -1,6 +1,7 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -33,23 +34,44 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end();
         iter != end; ++iter)
   {
-    int station = CSCDetId((*iter)->geographicalId().rawId()).station();
-    if(station == 1)
-    {
-      station1Hits.push_back(*iter);
+    if ((*iter)->isCSC()){
+      int station = CSCDetId((*iter)->geographicalId().rawId()).station();
+      if(station == 1)
+	{
+	  station1Hits.push_back(*iter);
+	}
+      else if(station == 2) 
+	{
+	  station2Hits.push_back(*iter);
+	}
+      else if(station == 3)
+	{
+	  station3Hits.push_back(*iter);
+	}
+      else if(station == 4)
+	{
+	  station4Hits.push_back(*iter);
+	}
     }
-    else if(station == 2) 
-    {
-      station2Hits.push_back(*iter);
-    }
-    else if(station == 3)
-    {
-      station3Hits.push_back(*iter);
-    }
-    else if(station == 4)
-    {
-      station4Hits.push_back(*iter);
-    }
+    if ((*iter)->isGEM()){
+      int station = GEMDetId((*iter)->geographicalId().rawId()).station();
+      if(station == 1)
+	{
+	  station1Hits.push_back(*iter);
+	}
+      else if(station == 2) 
+	{
+	  station2Hits.push_back(*iter);
+	}
+      else if(station == 3)
+	{
+	  station3Hits.push_back(*iter);
+	}
+      else if(station == 4)
+	{
+	  station4Hits.push_back(*iter);
+	}
+    }    
   }
 
   //std::cout << "Station hits " << station1Hits.size() << " " 
@@ -101,14 +123,14 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
   for ( MuonRecHitContainer::const_iterator itr1 = hits1.begin(), end1 = hits1.end();
         itr1 != end1; ++itr1)
   {
-    CSCDetId cscId1((*itr1)->geographicalId().rawId());
+    //    CSCDetId cscId1((*itr1)->geographicalId().rawId());
     //int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
 
     for ( MuonRecHitContainer::const_iterator itr2 = hits2.begin(), end2 = hits2.end();
           itr2 != end2; ++itr2)
     {
 
-      CSCDetId cscId2((*itr2)->geographicalId().rawId());
+      //CSCDetId cscId2((*itr2)->geographicalId().rawId());
       //int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
 
         // take the first pair that comes along.  Probably want to rank them later
