@@ -195,31 +195,36 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   if (!IPfts(muon, cIPFTS)) return;
 
   //take state at outer surface and check the first part reached
-  const std::vector<BarrelDetLayer*> &blc = theGeometricSearchTracker->tobLayers();
+  //const std::vector<BarrelDetLayer*> &blc = theGeometricSearchTracker->tobLayers();
+  const std::vector<BarrelDetLayer*> &blc = theGeometricSearchTracker->barrelLayers();
 
   //  TrajectoryStateOnSurface outer = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.back()->surface());
   StateOnTrackerBound onBounds(theProxyService->propagator(thePropagatorName).product());
   TrajectoryStateOnSurface outer = onBounds(cIPFTS);
 
   if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid. no seed."; return;}
-  
+
   //rescale the error
   if (!notAtIPtsos(outer)) return;
 
   double z = outer.globalPosition().z();
 
-  const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
-  const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
+  // const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posTecLayers();
+  // const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
+  const std::vector<ForwardDetLayer*> &ptecc = theGeometricSearchTracker->posForwardLayers();
+  const std::vector<ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negForwardLayers();
 
   LogDebug(theCategory)<<"starting looking for a compatible layer from: "<<outer<<"\nz: "<<z<<"TEC1 z: "<<ptecc.front()->surface().position().z();
 
   unsigned int layerShift=0;
   const DetLayer *inLayer = 0;
-  if (fabs(z) < ptecc.front()->surface().position().z()  ){
+
+  // using all layers to make it compatible with phase 2 geometry
+  if (fabs(z) < ptecc[6]->surface().position().z()  ){
     inLayer = *(blc.rbegin()+layerShift);
     LogTrace(theCategory)<<"choosing TOB layer with shift: "<<layerShift;
   } else {
-    unsigned int tecIt=1;
+    unsigned int tecIt=7;
     for (; tecIt!=ptecc.size();tecIt++){
       LogTrace(theCategory)<<"checking surface with shift: "<<tecIt
 			   <<"z: "<<ptecc[tecIt]->surface().position().z();
@@ -233,6 +238,8 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
       LogTrace(theCategory)<<"choosing last TEC layer with z: "<<inLayer->surface().position().z();
     }
   }
+  
+  if (!inLayer) return;
 
   //find out at least one compatible detector reached
   std::vector< DetLayer::DetWithState > compatible;
