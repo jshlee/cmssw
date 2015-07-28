@@ -239,7 +239,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 
     for(size_t i=0,ntk=mappingPuppi.size();i<ntk;i++){
         int origInd = mappingPuppi[i];
-        mappingPuppi[i]=reverseOrder[mappingPuppi[i]];
         if (origInd>=0 ) mappingPuppi[i]=reverseOrder[origInd]; 
     }
 
