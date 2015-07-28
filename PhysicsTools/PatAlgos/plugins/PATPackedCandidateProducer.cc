@@ -211,8 +211,13 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 	
 	if (puppiWeight.isValid()){
 	  reco::PFCandidateRef pkref( cands, ic );
-	  outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
-	  mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
+	  if ( (*puppiWeight)[pkref] ){
+	    outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
+	    mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
+	  }
+	  else {
+	     outPtrP->back().setPuppiWeight( 0 );
+	  }	    
 	}
 	
         mapping[ic] = ic; // trivial at the moment!
