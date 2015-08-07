@@ -4,7 +4,7 @@
 #include <map>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -26,7 +26,7 @@
 */
 
 
-class TopDecaySubset : public edm::EDProducer {
+class TopDecaySubset : public edm::stream::EDProducer<> {
 
  public:
   /// supported modes to fill the new vectors
@@ -42,7 +42,7 @@ class TopDecaySubset : public edm::EDProducer {
   /// default destructor
   ~TopDecaySubset();
   /// write output into the event
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
  private:
   /// find top quarks in list of input particles

@@ -41,16 +41,12 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   // define what will be produced
   produces<std::vector<TtDilepEvtSolution> >();
 
-  myLRSignalSelObservables = new TtDilepLRSignalSelObservables(consumesCollector(), jetSourceToken_);
+  myLRSignalSelObservables_.reset(new TtDilepLRSignalSelObservables(consumesCollector(), jetSourceToken_));
+  solver_.reset(new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_));
 }
 
 TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker()
 {
-}
-
-void TtDilepEvtSolutionMaker::beginJob()
-{
-  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
 void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
@@ -362,13 +358,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	}
 	// If asked, use the kin fitter to compute the top mass
         if (calcTopMass_) {
-          solver->SetConstraints(xconstraint, yconstraint);
-	  solver->useWeightFromMC(useMCforBest_);
-          asol = solver->addKinSolInfo(&asol);
+          solver_->SetConstraints(xconstraint, yconstraint);
+	  solver_->useWeightFromMC(useMCforBest_);
+          asol = solver_->addKinSolInfo(&asol);
         }
 
      // these lines calculate the observables to be used in the TtDilepSignalSelection LR
-      (*myLRSignalSelObservables)(asol, iEvent);
+      (*myLRSignalSelObservables_)(asol, iEvent);
 
         evtsols->push_back(asol);
       }

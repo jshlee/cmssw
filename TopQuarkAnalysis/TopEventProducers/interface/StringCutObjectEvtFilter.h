@@ -2,7 +2,7 @@
 #define StringCutObjectEvtFilter_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -18,7 +18,7 @@
 */
 
 template <typename T>
-class StringCutObjectEvtFilter : public edm::EDFilter {
+class StringCutObjectEvtFilter : public edm::stream::EDFilter<> {
 
  public:
 
@@ -30,7 +30,7 @@ class StringCutObjectEvtFilter : public edm::EDFilter {
  private:
 
   /// filter function
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -11,15 +11,14 @@
 
 class TtDilepLRSignalSelObservables;
 
-class TtDilepEvtSolutionMaker : public edm::EDProducer {
+class TtDilepEvtSolutionMaker : public edm::stream::EDProducer<> {
 
   public:
 
     explicit TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig);
     ~TtDilepEvtSolutionMaker();
 
-    virtual void beginJob();
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
 
@@ -43,8 +42,8 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
     double tmassbegin_, tmassend_, tmassstep_;
     std::vector<double> nupars_;
 
-    TtDilepLRSignalSelObservables* myLRSignalSelObservables;
-    TtFullLepKinSolver* solver;
+    std::auto_ptr<TtDilepLRSignalSelObservables> myLRSignalSelObservables_;
+    std::auto_ptr<TtFullLepKinSolver> solver_;
 };
 
 inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const

@@ -4,22 +4,21 @@
 #include <iostream>
 #include <fstream>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitter.h"
 //#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
-class StEvtSolutionMaker : public edm::EDProducer {
+class StEvtSolutionMaker : public edm::stream::EDProducer<> {
  public:
 
   explicit StEvtSolutionMaker(const edm::ParameterSet&);
   ~StEvtSolutionMaker();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

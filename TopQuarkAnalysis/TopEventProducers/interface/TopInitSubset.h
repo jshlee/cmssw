@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,14 +10,14 @@ namespace TopInitID{
   static const int tID    = 6;
 }
 
-class TopInitSubset : public edm::EDProducer {
+class TopInitSubset : public edm::stream::EDProducer<> {
 
  public:
 
   explicit TopInitSubset(const edm::ParameterSet&);
   ~TopInitSubset();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
 
  private:
