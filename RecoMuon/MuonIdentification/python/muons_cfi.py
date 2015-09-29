@@ -84,7 +84,8 @@ muons = cms.EDProducer("MuonProducer",
                                                     cms.InputTag("muidTMOneStationLoose"),
                                                     cms.InputTag("muidAllArbitrated"),
                                                     cms.InputTag("muidGMTkKinkTight"),
-                                                    cms.InputTag("muidRPCMuLoose")
+                                                    cms.InputTag("muidRPCMuLoose"),
+                                                    cms.InputTag("muidTrackerGEMLoose")
                                                     ),
 
                        FillShoweringInfo = cms.bool(True),
