@@ -13,6 +13,7 @@
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 #include "TGeoArb8.h"
+#include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -90,12 +91,43 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
      
      geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
 
-     segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			  globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	
+     //   segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+     //			  globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	
 
      std::cout<<"GEMSegment in DetId = "<<iData.gemDetId()<<" = "<<rawid<<" globalSegmentInnerPoint = ["
 	      <<globalSegmentInnerPoint[0]<<","<<globalSegmentInnerPoint[1]<<","<<globalSegmentInnerPoint[2]<<"] "
 	      <<"globalSegmentOuterPoint = ["<<globalSegmentOuterPoint[0]<<","<<globalSegmentOuterPoint[1]<<","<<globalSegmentOuterPoint[2]<<"]"<<std::endl;
+      // Draw hits included in the segment
+      TEvePointSet* pointSet = new TEvePointSet;
+      // FIXME: This should be set elsewhere.
+      pointSet->SetMarkerSize(0.5);
+      pointSet->SetMarkerColor(1);
+      setupAddElement( pointSet, &oItemHolder );
+
+      float previoushitGlobalPoint[3]={0,0,0};
+      
+      auto recHits = iData.specificRecHits();
+      for (auto rh = recHits.begin(); rh!= recHits.end(); rh++){
+	auto gemId = rh->gemId();
+	LocalPoint hpos = rh->localPosition();
+	float hitLocalPos[3]= {hpos.x(), hpos.y(), hpos.z()};
+	float hitGlobalPoint[3];
+	geom->localToGlobal(gemId, hitLocalPos, hitGlobalPoint);
+	if (previoushitGlobalPoint[0] != 0){
+	  segmentSet->AddLine( previoushitGlobalPoint[0], previoushitGlobalPoint[1], previoushitGlobalPoint[2],
+			       hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2] );
+	}
+	previoushitGlobalPoint[0] = hitGlobalPoint[0];
+	previoushitGlobalPoint[1] = hitGlobalPoint[1];
+	previoushitGlobalPoint[2] = hitGlobalPoint[2];
+	//pointSet->SetNextPoint(hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2]);
+	std::cout<<"GEMHit globalPoint = ["
+		 << hitGlobalPoint[0]<<", "
+		 << hitGlobalPoint[1]<<", "
+		 << hitGlobalPoint[2] <<std::endl;
+	  
+      }
+     
   }
 }
 

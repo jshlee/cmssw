@@ -85,7 +85,14 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   DetId detId( DetId::Tracker, 0 );
   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
-  record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+  try {
+    record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+    if(m_caloGeom.isValid()) {
+      addCaloGeometry();
+    }
+  } catch (cms::Exception &exception){
+    edm::LogInfo("FWRecoGeometry") << "No CaloGeometryRecord is available." << exception.what() << std::endl;
+  }
   
   addPixelBarrelGeometry( );
   addPixelForwardGeometry();
@@ -98,7 +105,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addRPCGeometry();
   addGEMGeometry();
   addME0Geometry();
-  addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
   std::vector<FWRecoGeom::Info>( m_fwGeometry->idToName ).swap( m_fwGeometry->idToName );

@@ -33,6 +33,11 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['mc']
        process.load("Configuration.Geometry.GeometryExtended2015Reco_cff");
 
+    elif score == "2015MuonGEMDev":
+        from Configuration.AlCa.autoCond import autoCond
+        process.GlobalTag.globaltag = autoCond['run2_mc']
+        process.load("Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff");
+
     elif score == "2017":
        from Configuration.AlCa.GlobalTag import GlobalTag
        process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
@@ -64,9 +69,7 @@ def recoGeoLoad(score):
       
     elif  score == "2023Muon":
       from Configuration.AlCa.autoCond import autoCond
-      process.GlobalTag.globaltag = autoCond['mc']
-      #from Configuration.AlCa.GlobalTag import GlobalTag
-      #process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')
+      process.GlobalTag.globaltag = autoCond['phase2_design']
       process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
       # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
       #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
