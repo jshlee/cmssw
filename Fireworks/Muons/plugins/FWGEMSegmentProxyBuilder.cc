@@ -112,7 +112,7 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 	LocalPoint hpos = rh->localPosition();
 	float hitLocalPos[3]= {hpos.x(), hpos.y(), hpos.z()};
 	float hitGlobalPoint[3];
-	geom->localToGlobal(gemId, hitLocalPos, hitGlobalPoint);
+	geom->localToGlobal(gemId.rawId(), hitLocalPos, hitGlobalPoint);
 	if (previoushitGlobalPoint[0] != 0){
 	  segmentSet->AddLine( previoushitGlobalPoint[0], previoushitGlobalPoint[1], previoushitGlobalPoint[2],
 			       hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2] );
@@ -121,7 +121,7 @@ FWGEMSegmentProxyBuilder::build( const GEMSegment& iData,
 	previoushitGlobalPoint[1] = hitGlobalPoint[1];
 	previoushitGlobalPoint[2] = hitGlobalPoint[2];
 	//pointSet->SetNextPoint(hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2]);
-	std::cout<<"GEMHit globalPoint = ["
+	std::cout<<"GEMHit gemId "<< gemId << " globalPoint = ["
 		 << hitGlobalPoint[0]<<", "
 		 << hitGlobalPoint[1]<<", "
 		 << hitGlobalPoint[2] <<std::endl;
