@@ -572,8 +572,8 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     {
       if ( chamberMatch->detector() != 3 ) continue;
 
-      const double trkX = chamberMatch->x;
-      const double errX = chamberMatch->xErr;
+      // const double trkX = chamberMatch->x;
+      // const double errX = chamberMatch->xErr;
       ++nMatch;
     }
 
