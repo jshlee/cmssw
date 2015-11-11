@@ -30,6 +30,7 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/DTRecHit"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="TrackingTools/TrackRefitter"/>
 <use   name="roothistmatrix"/>
 <export>

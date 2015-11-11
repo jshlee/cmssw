@@ -135,10 +135,10 @@ for path in process.paths:
 # customisation of the process.
 
 # Automatic addition of the customisation function from SimMuon.GEMDigitizer.customizeGEMDigi
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only 
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_nocalo 
 
 #call to customisation function customize_digi_addGEM_muon_only imported from SimMuon.GEMDigitizer.customizeGEMDigi
-process = customize_digi_addGEM_muon_only(process)
+process = customize_digi_addGEM_nocalo(process)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions 
@@ -162,3 +162,4 @@ process.simMuonGEMDigis.doNoiseCLS             = cms.bool(False) # default: true
 
 # End of customisation functions
 
+#process.mix.mixObjects.mixHepMC.input = cms.VInputTag(cms.InputTag("generatorSmeared"), cms.InputTag("generator"))

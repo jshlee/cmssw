@@ -95,7 +95,8 @@ mixObjects_dt_csc_rpc_trk =  cms.PSet(
         subdets = cms.vstring()
     ),
     mixHepMC = cms.PSet(
-        input = cms.VInputTag(cms.InputTag("generator")),
+        input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
+        #input = cms.VInputTag(cms.InputTag("generator")),
         makeCrossingFrame = cms.untracked.bool(True),
         type = cms.string('HepMCProduct')
     ),
@@ -210,7 +211,7 @@ def customize_mix_nocalo(process):
     print("digi aliases before clean up: ")
     for a in digi_aliases: 
         print(a)
-    if ('Strip' not in a) and ('Pixel' not in a): 
+        if ('Strip' not in a) and ('Pixel' not in a): 
             process.__delattr__(a)
     process.mix.mixObjects = mixObjects_dt_csc_rpc_trk
     return process

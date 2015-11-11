@@ -205,7 +205,8 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	  MuonCandidate.setTrack(thisTrackRef);
 	  // need to make track from gem seg
 	  MuonCandidate.setOuterTrack(thisTrackRef);
-	       
+	  MuonCandidate.setType(thisSegment->nRecHits());
+	      
 	  //MuonCandidate.setGlobalTrackPosAtSurface(r3FinalReco_glob);
 	  //MuonCandidate.setGlobalTrackMomAtSurface(p3FinalReco_glob);
 	  //MuonCandidate.setLocalTrackPosAtSurface(r3FinalReco);

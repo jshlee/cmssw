@@ -8,7 +8,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 # - wantSummary helps to understand which module crashes
 # - skipEvent skips event in case a product was not found
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False), 
-                                      # SkipEvent = cms.untracked.vstring('ProductNotFound') 
+                                      # SkipEvent = cms.untracked.vstring('ProductNotFound')
+                                        #allowUnscheduled = cms.untracked.bool(True),
                                     )
 
 

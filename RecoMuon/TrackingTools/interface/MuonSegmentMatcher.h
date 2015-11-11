@@ -11,6 +11,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -36,6 +37,8 @@ class MuonSegmentMatcher {
    
     std::vector<const CSCSegment*>     matchCSC(const reco::Track& muon, const edm::Event& event);
 
+    std::vector<const GEMSegment*>     matchGEM(const reco::Track& muon, const edm::Event& event);
+    
     std::vector<const RPCRecHit*>     matchRPC(const reco::Track& muon, const edm::Event& event);
   
   protected:
@@ -48,16 +51,19 @@ class MuonSegmentMatcher {
 	edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 	edm::InputTag DTSegmentTags_;
 	edm::InputTag CSCSegmentTags_;
+	edm::InputTag GEMSegmentTags_;
 	edm::InputTag RPCHitTags_;
 
 	edm::EDGetTokenT<DTRecSegment4DCollection> dtRecHitsToken;
 	edm::EDGetTokenT<CSCSegmentCollection> allSegmentsCSCToken;
+	edm::EDGetTokenT<GEMSegmentCollection> allSegmentsGEMToken;
 	edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
 
 	double dtRadius_;
 	
 	bool dtTightMatch;
 	bool cscTightMatch;
+	bool gemTightMatch;
 
 };
 #endif
