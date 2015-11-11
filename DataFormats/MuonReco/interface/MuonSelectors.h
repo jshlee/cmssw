@@ -46,7 +46,8 @@ namespace muon {
       // less confusing for future generations of CMS members, I hope...
       TMLastStationOptimizedBarrelLowPtLoose = 22, // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
       TMLastStationOptimizedBarrelLowPtTight = 23, // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
-      RPCMuLoose = 24                              // checks isRPCMuon flag (require two well matched hits in different RPC layers)
+      RPCMuLoose = 24,                             // checks isRPCMuon flag (require two well matched hits in different RPC layers)
+      TrackerGEMLoose = 25                         // checks isTrackerGEM flag (require matched to GEM segments)
    };
 
    /// a lightweight "map" for selection type string label and enum value
@@ -60,7 +61,7 @@ namespace muon {
    // ===========================================================================
    //                               Support functions
    // 
-   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation, RPCMu };
+   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation, RPCMu, TrackerGEM };
    
    // specialized GoodMuon functions called from main wrapper
    bool isGoodMuon( const reco::Muon& muon, 
