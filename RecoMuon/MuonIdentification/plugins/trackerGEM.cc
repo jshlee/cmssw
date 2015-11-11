@@ -78,69 +78,75 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     float zSign = thisTrack->pz() > 0 ? 1.0f : -1.0f;
 
-    const float zValue = 526.75 * zSign;
-
-    Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
-
-    //Getting the initial variables for propagation
-
-    int chargeReco = thisTrack->charge(); 
-    GlobalVector p3reco, r3reco;
-
-    p3reco = GlobalVector(thisTrack->outerPx(), thisTrack->outerPy(), thisTrack->outerPz());
-    r3reco = GlobalVector(thisTrack->outerX(), thisTrack->outerY(), thisTrack->outerZ());
-
-    AlgebraicSymMatrix66 covReco;
-    //This is to fill the cov matrix correctly
-    AlgebraicSymMatrix55 covReco_curv;
-    covReco_curv = thisTrack->outerStateCovariance();
-    FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
-    getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
-
-    //Now we propagate and get the propagated variables from the propagated state
-    SteppingHelixStateInfo startrecostate(initrecostate);
-    SteppingHelixStateInfo lastrecostate;
-
-    //const SteppingHelixPropagator* ThisshProp = 
-    //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-
-      
-	
-    //lastrecostate = ThisshProp->propagate(startrecostate, *plane);
-    //lastrecostate = ThisshProp->propagateWithPath(startrecostate, *plane);
-    ThisshProp->propagate(startrecostate, *plane,lastrecostate);
-	
-    FreeTrajectoryState finalrecostate;
-    lastrecostate.getFreeState(finalrecostate);
-
-    AlgebraicSymMatrix66 covFinalReco;
-    GlobalVector p3FinalReco_glob, r3FinalReco_globv;
-    getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
-
-
-    //To transform the global propagated track to local coordinates
     int SegmentNumber = 0;
-
     reco::Muon MuonCandidate;
     double ClosestDelR2 = 999.;
-
     for (auto thisSegment = gemSegments->begin(); thisSegment != gemSegments->end(); 
 	 ++thisSegment,++SegmentNumber){
       //GEMDetId id = thisSegment->gemDetId();
       // should be segment det ID, but not working currently
       GEMDetId id = thisSegment->specificRecHits()[0].gemId();
-      
+
+      //cout << "thisSegment->nRecHits() "<< thisSegment->nRecHits()<< endl;
+      //cout << "thisSegment->specificRecHits().size() "<< thisSegment->specificRecHits().size()<< endl;
+      //cout << "id.station() "<< id.station()<< endl;
       auto roll = gemGeom->etaPartition(id); 
 
       //      if ( zSign * roll->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
       if ( zSign * id.region() < 0 ) continue;
+      // add in deltaR cut
+      LocalPoint thisPosition(thisSegment->localPosition());
+      GlobalPoint SegPos(roll->toGlobal(thisPosition));
+      
+      const float zValue = SegPos.z();
+
+      Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
+
+      //Getting the initial variables for propagation
+
+      int chargeReco = thisTrack->charge(); 
+      GlobalVector p3reco, r3reco;
+
+      p3reco = GlobalVector(thisTrack->outerPx(), thisTrack->outerPy(), thisTrack->outerPz());
+      r3reco = GlobalVector(thisTrack->outerX(), thisTrack->outerY(), thisTrack->outerZ());
+
+      AlgebraicSymMatrix66 covReco;
+      //This is to fill the cov matrix correctly
+      AlgebraicSymMatrix55 covReco_curv;
+      covReco_curv = thisTrack->outerStateCovariance();
+      FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
+      getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
+
+      //Now we propagate and get the propagated variables from the propagated state
+      SteppingHelixStateInfo startrecostate(initrecostate);
+      SteppingHelixStateInfo lastrecostate;
+
+      //const SteppingHelixPropagator* ThisshProp = 
+      //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
+
+      
+	
+      //lastrecostate = ThisshProp->propagate(startrecostate, *plane);
+      //lastrecostate = ThisshProp->propagateWithPath(startrecostate, *plane);
+      ThisshProp->propagate(startrecostate, *plane,lastrecostate);
+	
+      FreeTrajectoryState finalrecostate;
+      lastrecostate.getFreeState(finalrecostate);
+
+      AlgebraicSymMatrix66 covFinalReco;
+      GlobalVector p3FinalReco_glob, r3FinalReco_globv;
+      getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
+
+
+      //To transform the global propagated track to local coordinates
+
 
       GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
 
       LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
       LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
 
-      LocalPoint thisPosition(thisSegment->localPosition());
+      //LocalPoint thisPosition(thisSegment->localPosition());
       //LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
 
       //The same goes for the error
@@ -189,7 +195,7 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	   
 	TrackRef thisTrackRef(generalTracks,TrackNumber);
 	   
-	GlobalPoint SegPos(roll->toGlobal(thisSegment->localPosition()));
+	//GlobalPoint SegPos(roll->toGlobal(thisSegment->localPosition()));
 	GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
 	   
 	double thisDelR2 = reco::deltaR2(SegPos,TkPos);

@@ -104,12 +104,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(True),
     PGunParameters = cms.PSet(
-        MaxEta = cms.double(2.45),
+        MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),
         MaxPt = cms.double(100.01),
-        MinEta = cms.double(1.65),
+        MinEta = cms.double(1.5),
         MinPhi = cms.double(-3.14159265359),
-        MinPt = cms.double(99.99),
+        MinPt = cms.double(5),
         PartID = cms.vint32(-13)
     ),
     Verbosity = cms.untracked.int32(0),
