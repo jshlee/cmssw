@@ -34,6 +34,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose },
       { "TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight },
       { "RPCMuLoose", RPCMuLoose },
+      { "TrackerGEMLoose", TrackerGEMLoose },
       { 0, (SelectionType)-1 }
    };
 
@@ -561,6 +562,25 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     else return false;
   } // RPCMu
 
+  if ( type == TrackerGEM )
+  {
+    if ( minNumberOfMatches == 0 ) return true;
+    
+    int nMatch = 0;
+    for ( std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+          chamberMatch != muon.matches().end(); ++chamberMatch )
+    {
+      if ( chamberMatch->detector() != 3 ) continue;
+
+      // const double trkX = chamberMatch->x;
+      // const double errX = chamberMatch->xErr;
+      ++nMatch;
+    }
+
+    if ( nMatch >= minNumberOfMatches ) return true;
+    else return false;
+  } // TrackerGEM
+  
    return goodMuon;
 }
 
@@ -667,6 +687,9 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
       break;
     case muon::RPCMuLoose:
 	return muon.isRPCMuon() && isGoodMuon(muon, RPCMu, 2, 20, 4, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
+      break;
+    case muon::TrackerGEMLoose: // NEEDs to be updated!
+	return muon.isTrackerGEM() && isGoodMuon(muon, TrackerGEM, 1, 20, 4, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
       break;
     default:
       return false;
