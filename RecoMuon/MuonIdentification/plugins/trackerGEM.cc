@@ -81,13 +81,15 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	 << " phi = " << thisTrack->phi()
 	 <<std::endl;
      
-    const GEMSegment* foundGE11 = findGEMSegment(*thisTrack, *gemSegments, 1, ThisshProp);
-    const GEMSegment* foundGE21 = findGEMSegment(*thisTrack, *gemSegments, 3, ThisshProp);
+    reco::MuonChamberMatch* foundGE11 = findGEMSegment(*thisTrack, *gemSegments, 1, ThisshProp);
+    reco::MuonChamberMatch* foundGE21 = findGEMSegment(*thisTrack, *gemSegments, 3, ThisshProp);
 
     if (!foundGE11 && !foundGE21) continue;
-    if (foundGE11) std::cout << "foundGE11.eta() = " << foundGE11->localDirection().eta() <<std::endl;
-    if (foundGE21) std::cout << "foundGE21.eta() = " << foundGE21->localDirection().eta() <<std::endl;
-    		     
+
+    std::vector<reco::MuonChamberMatch> muonChamberMatches;
+    if (foundGE11) muonChamberMatches.push_back(*foundGE11);
+    if (foundGE21) muonChamberMatches.push_back(*foundGE21);
+
     TrackRef thisTrackRef(generalTracks,TrackNumber);
     	   
     // temp settting the muon to track p4
@@ -101,7 +103,8 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
     // need to make track from gem seg
     MuonCandidate.setOuterTrack(thisTrackRef);
     //MuonCandidate.setType(thisSegment->nRecHits());
-    
+    MuonCandidate.setMatches(muonChamberMatches);
+
     //MuonCandidate.setGlobalTrackPosAtSurface(r3FinalReco_glob);
     //MuonCandidate.setGlobalTrackMomAtSurface(p3FinalReco_glob);
     //MuonCandidate.setLocalTrackPosAtSurface(r3FinalReco);
@@ -169,10 +172,12 @@ void trackerGEM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get(gemGeom);
 }
 
-const GEMSegment* trackerGEM::findGEMSegment(const reco::Track& track, const GEMSegmentCollection& gemSegments, int station, const SteppingHelixPropagator* shPropagator)
+reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, const GEMSegmentCollection& gemSegments, int station, const SteppingHelixPropagator* shPropagator)
 {
   int SegmentNumber = 0;
-  double ClosestDelR2 = 999.;
+  double ClosestDelR2 = 500.;
+
+  const GEMSegment* matchedGEMSegment = NULL;
   
   for (auto thisSegment = gemSegments.begin(); thisSegment != gemSegments.end(); 
        ++thisSegment,++SegmentNumber){
@@ -340,15 +345,26 @@ const GEMSegment* trackerGEM::findGEMSegment(const reco::Track& track, const GEM
       double thisDelR2 = reco::deltaR2(SegPos,TkPos);
       if (thisDelR2 < ClosestDelR2){
 	ClosestDelR2 = thisDelR2;
+	matchedGEMSegment = &(*thisSegment);
       }
     }
-    if (ClosestDelR2 < 500.){
-      std::cout <<" found match ClosestDelR2 = "<< ClosestDelR2
-		<< std::endl;
-
-      return &(*thisSegment);
-    }
   }
+  if (matchedGEMSegment){
+
+    reco::MuonChamberMatch* matchedChamber = new reco::MuonChamberMatch();
+    matchedChamber->id = matchedGEMSegment->specificRecHits()[0].gemId();
+    matchedChamber->x = matchedGEMSegment->localPosition().x();
+    matchedChamber->y = matchedGEMSegment->localPosition().y();
+    matchedChamber->dXdZ = matchedGEMSegment->localDirection().z()?matchedGEMSegment->localDirection().x()/matchedGEMSegment->localDirection().z():0;
+    matchedChamber->dYdZ = matchedGEMSegment->localDirection().z()?matchedGEMSegment->localDirection().y()/matchedGEMSegment->localDirection().z():0;
+    matchedChamber->xErr = matchedGEMSegment->localPositionError().xx();
+    matchedChamber->yErr = matchedGEMSegment->localPositionError().yy();
+    // need to recheck errors
+    matchedChamber->dXdZErr = matchedGEMSegment->localDirectionError().xx();
+    matchedChamber->dYdZErr = matchedGEMSegment->localDirectionError().yy();
+    return matchedChamber;
+  }
+   
   return NULL;
 }
 DEFINE_FWK_MODULE(trackerGEM);

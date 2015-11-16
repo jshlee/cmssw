@@ -28,6 +28,8 @@
 #include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
+#include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -46,7 +48,7 @@ public:
     
     virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
-    const GEMSegment* findGEMSegment(const reco::Track&, const GEMSegmentCollection&, int station, const SteppingHelixPropagator*);
+    reco::MuonChamberMatch* findGEMSegment(const reco::Track&, const GEMSegmentCollection&, int station, const SteppingHelixPropagator*);
     
     FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
 				   int , const AlgebraicSymMatrix66& ,
