@@ -232,7 +232,10 @@ process.output = cms.OutputModule("PoolOutputModule",
         'file:out_local_reco.root'
     ),
     outputCommands = cms.untracked.vstring(
-        'keep  *_*_*_*',
+        'drop  *_*_*_*',
+        'keep  *Muon*_*_*_*',
+        'keep  *_standAloneMuons_*_*',
+        'keep  *_genParticles_*_*',
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('localreco_step', 'globalreco_step')

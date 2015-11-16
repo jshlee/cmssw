@@ -31,11 +31,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-
-
-
 class FreeTrajectoryState;
 class MagneticField;
+class SteppingHelixPropagator;
 class trackerGEM : public edm::stream::EDProducer<> {
 public:
     /// Constructor
@@ -48,8 +46,8 @@ public:
     
     virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
-
-
+    const GEMSegment* findGEMSegment(const reco::Track&, const GEMSegmentCollection&, int station, const SteppingHelixPropagator*);
+    
     FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
 				   int , const AlgebraicSymMatrix66& ,
 				   const MagneticField* );

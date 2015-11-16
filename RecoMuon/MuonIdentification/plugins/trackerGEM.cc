@@ -59,11 +59,10 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
   const SteppingHelixPropagator* ThisshProp;
   ThisshProp = new SteppingHelixPropagator(&*bField,alongMomentum);
 
-
   Handle<GEMSegmentCollection> gemSegments;
   ev.getByToken(gemSegmentsToken_,gemSegments);
 
-  Handle <TrackCollection > generalTracks;
+  Handle<TrackCollection > generalTracks;
   ev.getByToken(generalTracksToken_,generalTracks);
 
   std::auto_ptr<std::vector<Muon> > muons( new std::vector<Muon> ); 
@@ -76,162 +75,47 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
     //Remove later
     if (std::abs(thisTrack->eta()) < 1.5) continue;
 
-    float zSign = thisTrack->pz() > 0 ? 1.0f : -1.0f;
+    std::cout << "**********************************************************"<<std::endl;
+    std::cout << "trying match to track pt = " << thisTrack->pt()
+	 << " eta = " << thisTrack->eta()
+	 << " phi = " << thisTrack->phi()
+	 <<std::endl;
+     
+    const GEMSegment* foundGE11 = findGEMSegment(*thisTrack, *gemSegments, 1, ThisshProp);
+    const GEMSegment* foundGE21 = findGEMSegment(*thisTrack, *gemSegments, 3, ThisshProp);
 
-    int SegmentNumber = 0;
-    reco::Muon MuonCandidate;
-    double ClosestDelR2 = 999.;
-    for (auto thisSegment = gemSegments->begin(); thisSegment != gemSegments->end(); 
-	 ++thisSegment,++SegmentNumber){
-      //GEMDetId id = thisSegment->gemDetId();
-      // should be segment det ID, but not working currently
-      GEMDetId id = thisSegment->specificRecHits()[0].gemId();
+    if (!foundGE11 && !foundGE21) continue;
+    if (foundGE11) std::cout << "foundGE11.eta() = " << foundGE11->localDirection().eta() <<std::endl;
+    if (foundGE21) std::cout << "foundGE21.eta() = " << foundGE21->localDirection().eta() <<std::endl;
+    		     
+    TrackRef thisTrackRef(generalTracks,TrackNumber);
+    	   
+    // temp settting the muon to track p4
+    Particle::Charge q = thisTrackRef->charge();
+    Particle::LorentzVector p4(thisTrackRef->px(), thisTrackRef->py(), thisTrackRef->pz(), thisTrackRef->p());
+    Particle::Point vtx(thisTrackRef->vx(),thisTrackRef->vy(), thisTrackRef->vz());
 
-      //cout << "thisSegment->nRecHits() "<< thisSegment->nRecHits()<< endl;
-      //cout << "thisSegment->specificRecHits().size() "<< thisSegment->specificRecHits().size()<< endl;
-      //cout << "id.station() "<< id.station()<< endl;
-      auto roll = gemGeom->etaPartition(id); 
+    reco::Muon MuonCandidate = reco::Muon(q, p4, vtx);
 
-      //      if ( zSign * roll->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
-      if ( zSign * id.region() < 0 ) continue;
-      // add in deltaR cut
-      LocalPoint thisPosition(thisSegment->localPosition());
-      GlobalPoint SegPos(roll->toGlobal(thisPosition));
-      
-      const float zValue = SegPos.z();
-
-      Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
-
-      //Getting the initial variables for propagation
-
-      int chargeReco = thisTrack->charge(); 
-      GlobalVector p3reco, r3reco;
-
-      p3reco = GlobalVector(thisTrack->outerPx(), thisTrack->outerPy(), thisTrack->outerPz());
-      r3reco = GlobalVector(thisTrack->outerX(), thisTrack->outerY(), thisTrack->outerZ());
-
-      AlgebraicSymMatrix66 covReco;
-      //This is to fill the cov matrix correctly
-      AlgebraicSymMatrix55 covReco_curv;
-      covReco_curv = thisTrack->outerStateCovariance();
-      FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, &*bField);
-      getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
-
-      //Now we propagate and get the propagated variables from the propagated state
-      SteppingHelixStateInfo startrecostate(initrecostate);
-      SteppingHelixStateInfo lastrecostate;
-
-      //const SteppingHelixPropagator* ThisshProp = 
-      //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-
-      
-	
-      //lastrecostate = ThisshProp->propagate(startrecostate, *plane);
-      //lastrecostate = ThisshProp->propagateWithPath(startrecostate, *plane);
-      ThisshProp->propagate(startrecostate, *plane,lastrecostate);
-	
-      FreeTrajectoryState finalrecostate;
-      lastrecostate.getFreeState(finalrecostate);
-
-      AlgebraicSymMatrix66 covFinalReco;
-      GlobalVector p3FinalReco_glob, r3FinalReco_globv;
-      getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
-
-
-      //To transform the global propagated track to local coordinates
-
-
-      GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-
-      LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
-      LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
-
-      //LocalPoint thisPosition(thisSegment->localPosition());
-      //LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
-
-      //The same goes for the error
-      AlgebraicMatrix thisCov(4,4,0);   
-      for (int i = 1; i <=4; i++){
-	for (int j = 1; j <=4; j++){
-	  thisCov(i,j) = thisSegment->parametersError()(i,j);
-	}
-      }
-
-      /////////////////////////////////////////////////////////////////////////////////////////
-
-
-      LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
-      JacobianCartesianToLocal jctl(roll->surface(),ltp);
-      AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
-
-      AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
-      AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
-      for(int i=0; i<5; ++i) {
-	for(int j=0; j<5; ++j) {
-	  C[i][j] = Ctmp[i][j]; 
-
-	}
-      }  
-
-      Double_t sigmax = sqrt(C[3][3]+thisSegment->localPositionError().xx() );      
-      Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
-
-      bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
-	
-
-      // if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
-      // if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
-
-      // if ( std::abs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
-
-
-      if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (maxPullX_ * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < maxDiffX_ ) ) X_MatchFound = true;
-      if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullY_ * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffY_ ) ) Y_MatchFound = true;
-
-      if (reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisSegment->localDirection()).phi()) < maxDiffPhiDirection_) Dir_MatchFound = true;
-
-      //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
-      if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
-	   
-	TrackRef thisTrackRef(generalTracks,TrackNumber);
-	   
-	//GlobalPoint SegPos(roll->toGlobal(thisSegment->localPosition()));
-	GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-	   
-	double thisDelR2 = reco::deltaR2(SegPos,TkPos);
-	if (thisDelR2 < ClosestDelR2){
-	  ClosestDelR2 = thisDelR2;
-	  // temp settting the muon to track p4
-	  Particle::Charge q = thisTrackRef->charge();
-	  Particle::LorentzVector p4(thisTrackRef->px(), thisTrackRef->py(), thisTrackRef->pz(), thisTrackRef->p());
-	  Particle::Point vtx(thisTrackRef->vx(),thisTrackRef->vy(), thisTrackRef->vz());
-
-	  MuonCandidate = reco::Muon(q, p4, vtx);
-
-	  MuonCandidate.setTrack(thisTrackRef);
-	  // need to make track from gem seg
-	  MuonCandidate.setOuterTrack(thisTrackRef);
-	  MuonCandidate.setType(thisSegment->nRecHits());
-	      
-	  //MuonCandidate.setGlobalTrackPosAtSurface(r3FinalReco_glob);
-	  //MuonCandidate.setGlobalTrackMomAtSurface(p3FinalReco_glob);
-	  //MuonCandidate.setLocalTrackPosAtSurface(r3FinalReco);
-	  //MuonCandidate.setLocalTrackMomAtSurface(p3FinalReco);
-	  //MuonCandidate.setGlobalTrackCov(covFinalReco);
-	  //MuonCandidate.setLocalTrackCov(C);
-	}
-      }
-    }//End loop for (auto thisSegment = gemSegments->begin(); thisSegment != gemSegments->end(); ++thisSegment,++SegmentNumber)
-
-    //As long as the delR of the MuonCandidate is sensible, store the track-segment pair
-    if (ClosestDelR2 < 500.) {
-      muons->push_back(MuonCandidate);
-    }
+    MuonCandidate.setTrack(thisTrackRef);
+    // need to make track from gem seg
+    MuonCandidate.setOuterTrack(thisTrackRef);
+    //MuonCandidate.setType(thisSegment->nRecHits());
+    
+    //MuonCandidate.setGlobalTrackPosAtSurface(r3FinalReco_glob);
+    //MuonCandidate.setGlobalTrackMomAtSurface(p3FinalReco_glob);
+    //MuonCandidate.setLocalTrackPosAtSurface(r3FinalReco);
+    //MuonCandidate.setLocalTrackMomAtSurface(p3FinalReco);
+    //MuonCandidate.setGlobalTrackCov(covFinalReco);
+    //MuonCandidate.setLocalTrackCov(C);
+    
+    muons->push_back(MuonCandidate);
   }
-
+  
   // put collection in event
 
   ev.put(muons);
+  delete ThisshProp;
 }
 
 FreeTrajectoryState
@@ -280,11 +164,191 @@ void trackerGEM::getFromFTS(const FreeTrajectoryState& fts,
 
 }
 
-
 void trackerGEM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   iSetup.get<MuonGeometryRecord>().get(gemGeom);
 }
 
+const GEMSegment* trackerGEM::findGEMSegment(const reco::Track& track, const GEMSegmentCollection& gemSegments, int station, const SteppingHelixPropagator* shPropagator)
+{
+  int SegmentNumber = 0;
+  double ClosestDelR2 = 999.;
+  
+  for (auto thisSegment = gemSegments.begin(); thisSegment != gemSegments.end(); 
+       ++thisSegment,++SegmentNumber){
+    //GEMDetId id = thisSegment->gemDetId();
+    // should be segment det ID, but not working currently
+    GEMDetId id = thisSegment->specificRecHits()[0].gemId();
 
+    if (id.station() != station) continue;
+    float zSign = track.pz() > 0 ? 1.0f : -1.0f;
+    if ( zSign * id.region() < 0 ) continue;
+    //cout << "thisSegment->nRecHits() "<< thisSegment->nRecHits()<< endl;
+    //cout << "thisSegment->specificRecHits().size() "<< thisSegment->specificRecHits().size()<< endl;
+    //cout << "id.station() "<< id.station()<< endl;
+
+    LocalPoint thisPosition(thisSegment->localPosition());
+    LocalVector thisDirection(thisSegment->localDirection());
+
+    // change to first rec hit
+    // currently segment Y looks very wrong
+    for (auto rechit :thisSegment->specificRecHits()){
+      GEMDetId rechitid = rechit.gemId();
+      //auto rechitroll = gemGeom->etaPartition(rechitid); 
+      if (rechitid.layer() == 1){
+	id = rechitid;
+	thisPosition = rechit.localPosition();
+      }
+    }
+    
+    auto roll = gemGeom->etaPartition(id); 
+
+    GlobalPoint SegPos(roll->toGlobal(thisPosition));
+    
+    //      if ( zSign * roll->toGlobal(thisSegment->localPosition()).z() < 0 ) continue;
+    // add in deltaR cut
+      
+    const float zValue = SegPos.z();
+
+    Plane *plane = new Plane(Surface::PositionType(0,0,zValue),Surface::RotationType());
+
+    //Getting the initial variables for propagation
+
+    int chargeReco = track.charge(); 
+    GlobalVector p3reco, r3reco;
+
+    p3reco = GlobalVector(track.outerPx(), track.outerPy(), track.outerPz());
+    r3reco = GlobalVector(track.outerX(), track.outerY(), track.outerZ());
+
+    AlgebraicSymMatrix66 covReco;
+    //This is to fill the cov matrix correctly
+    AlgebraicSymMatrix55 covReco_curv;
+    covReco_curv = track.outerStateCovariance();
+    FreeTrajectoryState initrecostate = getFTS(p3reco, r3reco, chargeReco, covReco_curv, shPropagator->magneticField());
+    getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
+
+    //Now we propagate and get the propagated variables from the propagated state
+    SteppingHelixStateInfo startrecostate(initrecostate);
+    SteppingHelixStateInfo lastrecostate;
+
+    //const SteppingHelixPropagator* shPropagator = 
+    //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
+
+      
+	
+    //lastrecostate = shPropagator->propagate(startrecostate, *plane);
+    //lastrecostate = shPropagator->propagateWithPath(startrecostate, *plane);
+    shPropagator->propagate(startrecostate, *plane,lastrecostate);
+	
+    FreeTrajectoryState finalrecostate;
+    lastrecostate.getFreeState(finalrecostate);
+
+    AlgebraicSymMatrix66 covFinalReco;
+    GlobalVector p3FinalReco_glob, r3FinalReco_globv;
+    getFromFTS(finalrecostate, p3FinalReco_glob, r3FinalReco_globv, chargeReco, covFinalReco);
+
+    //To transform the global propagated track to local coordinates
+    GlobalPoint r3FinalReco_glob(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
+
+    LocalPoint r3FinalReco = roll->toLocal(r3FinalReco_glob);
+    LocalVector p3FinalReco=roll->toLocal(p3FinalReco_glob);
+
+    //LocalPoint thisPosition(thisSegment->localPosition());
+    //LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
+
+    //The same goes for the error
+    AlgebraicMatrix thisCov(4,4,0);   
+    for (int i = 1; i <=4; i++){
+      for (int j = 1; j <=4; j++){
+	thisCov(i,j) = thisSegment->parametersError()(i,j);
+      }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+
+    LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
+    JacobianCartesianToLocal jctl(roll->surface(),ltp);
+    AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
+
+    AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
+    AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force
+    for(int i=0; i<5; ++i) {
+      for(int j=0; j<5; ++j) {
+	C[i][j] = Ctmp[i][j]; 
+
+      }
+    }  
+
+    Double_t sigmax = sqrt(C[3][3]+thisSegment->localPositionError().xx() );      
+    Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
+
+    bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
+	
+
+    // if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
+    // if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
+
+    // if ( std::abs(p3FinalReco_glob.phi()-roll->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
+
+
+    if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (maxPullX_ * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < maxDiffX_ ) ) X_MatchFound = true;
+    if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullY_ * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffY_ ) ) Y_MatchFound = true;
+    if (std::abs(reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisDirection).phi())) < maxDiffPhiDirection_) Dir_MatchFound = true;
+    LocalPoint gemLocalPosition(0,0,0);
+    GlobalPoint gemPosition(roll->toGlobal(gemLocalPosition));
+
+    std::cout <<" station = "<< station
+	      <<" roll = "<< id.roll()
+	      <<" gem Y = "<< gemPosition.y()
+	      <<" gem hit Y = "<< SegPos.y()
+	      <<" track Y = "<< r3FinalReco_glob.y()
+	      <<" deltaX = "<< thisPosition.x()-r3FinalReco.x()
+	      <<" deltaY = "<< thisPosition.y()-r3FinalReco.y()
+	      <<" deltaPhi = "<< reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisSegment->localDirection()).phi())
+	      <<" deltaEta = "<< p3FinalReco_glob.eta() - roll->toGlobal(thisSegment->localDirection()).eta()
+	      << std::endl;
+    
+    std::cout <<" segment = "<< id.station()
+	      <<" chamber = "<< id.chamber()
+	      <<" roll = "<< id.roll()
+	      <<" x,y,z = "<< thisPosition.x()
+	      <<", "<< thisPosition.y()
+	      <<", "<< thisPosition.z()
+      	      << std::endl;
+
+    for (auto rechit :thisSegment->specificRecHits()){
+      GEMDetId rechitid = rechit.gemId();
+      //auto rechitroll = gemGeom->etaPartition(rechitid); 
+      std::cout <<" rec hit = "<< rechitid.station()
+		<<" chamber = "<< rechitid.chamber()
+		<<" roll = "<< rechitid.roll()
+		<<" x,y,z = "<< rechit.localPosition().x()
+		<<", "<< rechit.localPosition().y()
+		<<", "<< rechit.localPosition().z()
+		<<" layer = "<< rechitid.layer()
+		<< std::endl;
+
+    }
+      
+    //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
+    if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
+      
+      //GlobalPoint SegPos(roll->toGlobal(thisSegment->localPosition()));
+      GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
+	   
+      double thisDelR2 = reco::deltaR2(SegPos,TkPos);
+      if (thisDelR2 < ClosestDelR2){
+	ClosestDelR2 = thisDelR2;
+      }
+    }
+    if (ClosestDelR2 < 500.){
+      std::cout <<" found match ClosestDelR2 = "<< ClosestDelR2
+		<< std::endl;
+
+      return &(*thisSegment);
+    }
+  }
+  return NULL;
+}
 DEFINE_FWK_MODULE(trackerGEM);
