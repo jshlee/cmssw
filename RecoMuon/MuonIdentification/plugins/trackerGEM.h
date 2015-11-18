@@ -66,7 +66,9 @@ private:
 
 
     edm::ESHandle<GEMGeometry> gemGeom;
-    double maxPullX_, maxDiffX_, maxPullY_, maxDiffY_, maxDiffPhiDirection_;
+    double maxPullXGE11_, maxDiffXGE11_, maxPullYGE11_, maxDiffYGE11_,
+      maxPullXGE21_, maxDiffXGE21_, maxPullYGE21_, maxDiffYGE21_,
+      maxDiffPhiDirection_;
     edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken_;
     edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
 

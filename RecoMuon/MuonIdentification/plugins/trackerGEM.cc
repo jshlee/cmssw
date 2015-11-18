@@ -38,10 +38,14 @@ trackerGEM::trackerGEM(const edm::ParameterSet& iConfig) {
   gemSegmentsToken_ = consumes<GEMSegmentCollection >(iConfig.getParameter<edm::InputTag>("gemSegmentsToken"));
   generalTracksToken_ = consumes<reco::TrackCollection >(iConfig.getParameter<edm::InputTag>("generalTracksToken"));
 
-  maxPullX_   = iConfig.getParameter<double>("maxPullX");
-  maxDiffX_   = iConfig.getParameter<double>("maxDiffX");
-  maxPullY_   = iConfig.getParameter<double>("maxPullY");
-  maxDiffY_   = iConfig.getParameter<double>("maxDiffY");
+  maxPullXGE11_   = iConfig.getParameter<double>("maxPullXGE11");
+  maxDiffXGE11_   = iConfig.getParameter<double>("maxDiffXGE11");
+  maxPullYGE11_   = iConfig.getParameter<double>("maxPullYGE11");
+  maxDiffYGE11_   = iConfig.getParameter<double>("maxDiffYGE11");
+  maxPullXGE21_   = iConfig.getParameter<double>("maxPullXGE21");
+  maxDiffXGE21_   = iConfig.getParameter<double>("maxDiffXGE21");
+  maxPullYGE21_   = iConfig.getParameter<double>("maxPullYGE21");
+  maxDiffYGE21_   = iConfig.getParameter<double>("maxDiffYGE21");
   maxDiffPhiDirection_ = iConfig.getParameter<double>("maxDiffPhiDirection");
 
   produces<std::vector<reco::Muon> >();
@@ -285,16 +289,20 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
     Double_t sigmay = sqrt(C[4][4]+thisSegment->localPositionError().yy() );
 
     bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
-	
-
-    // if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (3.0 * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < 2.0 ) ) X_MatchFound = true;
-    // if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (3.0 * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < 2.0 ) ) Y_MatchFound = true;
-
-    // if ( std::abs(p3FinalReco_glob.phi()-chamber->toGlobal(thisSegment->localDirection()).phi()) < 0.15) Dir_MatchFound = true;
-
-
-    if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (maxPullX_ * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < maxDiffX_ ) ) X_MatchFound = true;
-    if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullY_ * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffY_ ) ) Y_MatchFound = true;
+    
+    if (station == 1){
+      if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (maxPullXGE11_ * sigmax)) &&
+	   (std::abs(thisPosition.x()-r3FinalReco.x()) < maxDiffXGE11_ ) ) X_MatchFound = true;
+      if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullYGE11_ * sigmay)) &&
+	   (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffYGE11_ ) ) Y_MatchFound = true;
+    }
+    if (station == 3){
+      if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (maxPullXGE21_ * sigmax)) &&
+	   (std::abs(thisPosition.x()-r3FinalReco.x()) < maxDiffXGE21_ ) ) X_MatchFound = true;
+      if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullYGE21_ * sigmay)) &&
+	   (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffYGE21_ ) ) Y_MatchFound = true;
+    }
+    
     if (std::abs(reco::deltaPhi(p3FinalReco_glob.phi(),chamber->toGlobal(thisDirection).phi())) < maxDiffPhiDirection_) Dir_MatchFound = true;
     LocalPoint gemLocalPosition(0,0,0);
     GlobalPoint gemPosition(chamber->toGlobal(gemLocalPosition));
