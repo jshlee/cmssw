@@ -81,9 +81,9 @@ void trackerGEM::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     std::cout << "**********************************************************"<<std::endl;
     std::cout << "trying match to track pt = " << thisTrack->pt()
-	 << " eta = " << thisTrack->eta()
-	 << " phi = " << thisTrack->phi()
-	 <<std::endl;
+	      << " eta = " << thisTrack->eta()
+	      << " phi = " << thisTrack->phi()
+	      <<std::endl;
      
     reco::MuonChamberMatch* foundGE11 = findGEMSegment(*thisTrack, *gemSegments, 1, ThisshProp);
     reco::MuonChamberMatch* foundGE21 = findGEMSegment(*thisTrack, *gemSegments, 3, ThisshProp);
@@ -340,7 +340,7 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
       
       //GlobalPoint SegPos(chamber->toGlobal(thisSegment->localPosition()));
       GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-	   
+      
       double thisDelR2 = reco::deltaR2(SegPos,TkPos);
       if (thisDelR2 < ClosestDelR2){
 	ClosestDelR2 = thisDelR2;
@@ -349,7 +349,6 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
     }
   }
   if (matchedGEMSegment){
-
     reco::MuonChamberMatch* matchedChamber = new reco::MuonChamberMatch();
     matchedChamber->id = matchedGEMSegment->specificRecHits()[0].gemId();
     matchedChamber->x = matchedGEMSegment->localPosition().x();
