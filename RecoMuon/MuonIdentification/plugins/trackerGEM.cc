@@ -238,9 +238,6 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
 
     //const SteppingHelixPropagator* shPropagator = 
     //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-
-      
-	
     //lastrecostate = shPropagator->propagate(startrecostate, *plane);
     //lastrecostate = shPropagator->propagateWithPath(startrecostate, *plane);
     shPropagator->propagate(startrecostate, *plane,lastrecostate);
@@ -258,9 +255,6 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
     LocalPoint r3FinalReco = chamber->toLocal(r3FinalReco_glob);
     LocalVector p3FinalReco=chamber->toLocal(p3FinalReco_glob);
 
-    //LocalPoint thisPosition(thisSegment->localPosition());
-    //LocalVector thisDirection(thisSegment->localDirection().x(),thisSegment->localDirection().y(),thisSegment->localDirection().z());  //FIXME
-
     //The same goes for the error
     AlgebraicMatrix thisCov(4,4,0);   
     for (int i = 1; i <=4; i++){
@@ -268,9 +262,7 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
 	thisCov(i,j) = thisSegment->parametersError()(i,j);
       }
     }
-
     /////////////////////////////////////////////////////////////////////////////////////////
-
 
     LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
     JacobianCartesianToLocal jctl(chamber->surface(),ltp);
@@ -302,20 +294,22 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
       if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (maxPullYGE21_ * sigmay)) &&
 	   (std::abs(thisPosition.y()-r3FinalReco.y()) < maxDiffYGE21_ ) ) Y_MatchFound = true;
     }
+    double segLocalPhi = thisDirection.phi()-M_PI/2;
+    if (segLocalPhi < 0) segLocalPhi += M_PI;
     
-    if (std::abs(reco::deltaPhi(p3FinalReco_glob.phi(),chamber->toGlobal(thisDirection).phi())) < maxDiffPhiDirection_) Dir_MatchFound = true;
-    LocalPoint gemLocalPosition(0,0,0);
-    GlobalPoint gemPosition(chamber->toGlobal(gemLocalPosition));
+    if (std::abs(reco::deltaPhi(p3FinalReco.phi(),segLocalPhi))  < maxDiffPhiDirection_) Dir_MatchFound = true;
 
     std::cout <<" station = "<< station
+	      <<" track local phi = "<< p3FinalReco.phi() 
+	      <<" seg local phi = "<< segLocalPhi
+	      <<" deltaPhi = "<< reco::deltaPhi(p3FinalReco.phi(),segLocalPhi)
+	      << std::endl;
+    std::cout <<" station = "<< station
 	      <<" roll = "<< id.roll()
-	      <<" gem Y = "<< gemPosition.y()
 	      <<" gem hit Y = "<< SegPos.y()
 	      <<" track Y = "<< r3FinalReco_glob.y()
 	      <<" deltaX = "<< thisPosition.x()-r3FinalReco.x()
 	      <<" deltaY = "<< thisPosition.y()-r3FinalReco.y()
-	      <<" deltaPhi = "<< reco::deltaPhi(p3FinalReco_glob.phi(),chamber->toGlobal(thisSegment->localDirection()).phi())
-	      <<" deltaEta = "<< p3FinalReco_glob.eta() - chamber->toGlobal(thisSegment->localDirection()).eta()
 	      << std::endl;
     std::cout <<" local Dir eta "<< chamber->toGlobal(thisDirection).eta()
 	      <<" phi "<< chamber->toGlobal(thisDirection).phi()
@@ -337,10 +331,7 @@ reco::MuonChamberMatch* trackerGEM::findGEMSegment(const reco::Track& track, con
       
     //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
     if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
-      
-      //GlobalPoint SegPos(chamber->toGlobal(thisSegment->localPosition()));
       GlobalPoint TkPos(r3FinalReco_globv.x(),r3FinalReco_globv.y(),r3FinalReco_globv.z());
-      
       double thisDelR2 = reco::deltaR2(SegPos,TkPos);
       if (thisDelR2 < ClosestDelR2){
 	ClosestDelR2 = thisDelR2;

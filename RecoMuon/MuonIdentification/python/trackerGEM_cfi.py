@@ -10,7 +10,7 @@ trackerGEM = cms.EDProducer("trackerGEM",
     maxDiffXGE21 = cms.double (2.5),
     maxPullYGE21 = cms.double (2.0),
     maxDiffYGE21 = cms.double (12.0),
-    maxDiffPhiDirection = cms.double (3.14),
+    maxDiffPhiDirection = cms.double (0.5),
     gemSegmentsToken = cms.InputTag("gemSegments"),
     generalTracksToken = cms.InputTag("generalTracks")
 )
