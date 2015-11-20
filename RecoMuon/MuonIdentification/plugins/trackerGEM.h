@@ -3,7 +3,7 @@
 
 /** \class trackerGEM 
  *
- * \author David Nash
+ * \author Jason Lee, based off ME0Muon
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
