@@ -376,7 +376,7 @@ unsigned int MuonIdProducer::chamberId( const DetId& id )
 	       }
 	       break;
          case MuonSubdetId::GEM:
-         {
+	   {
            GEMDetId detId(id.rawId());
            return detId.chamberId().rawId();
          }

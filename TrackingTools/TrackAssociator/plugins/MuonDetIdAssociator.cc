@@ -85,9 +85,7 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
   const std::vector<GeomDet*>& geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
   for(std::vector<GeomDet*>::const_iterator it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it)
     if (GEMChamber* gem = dynamic_cast< GEMChamber*>(*it)) {
-      std::vector< const GEMEtaPartition*> etaPartitions = (gem->etaPartitions());
-      for(std::vector<const GEMEtaPartition*>::iterator e = etaPartitions.begin(); e != etaPartitions.end(); ++e)
-  validIds_.push_back((*e)->id().rawId());
+      validIds_.push_back(gem->id());
     }
   
   return validIds_;

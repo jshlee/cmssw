@@ -714,6 +714,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float distanceY = 0;
       float sigmaX = 0.0;
       float sigmaY = 0.0;
+
       if(const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
          const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
          if(! chamberSpecs) {
@@ -747,18 +748,34 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          float halfWidthAtYPrime = 0.5*narrowWidth+yPrime*tangent;
          distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
          distanceY = fabs(localPoint.y()-yCOWPOffset) - 0.5*length;
-	       sigmaX = distanceX/sqrt(localError.xx());
+	 sigmaX = distanceX/sqrt(localError.xx());
          sigmaY = distanceY/sqrt(localError.yy());     
       } else {
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
-	       sigmaX = distanceX/sqrt(localError.xx());
+	 sigmaX = distanceX/sqrt(localError.xx());
          sigmaY = distanceY/sqrt(localError.yy());
+	 
+	 if(const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
+	   if(gemChamber) {
+	     // gem width and length are interchanged - need to fix
+	     distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().length()/2.;
+	     distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().width()/2.;
+	     sigmaX = distanceX/sqrt(localError.xx());
+	     sigmaY = distanceY/sqrt(localError.yy());
+	     //std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	     //std::cout<<"getTAMuonChamberMatches::GEM width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	   }
+	 }
+	 
       }
       // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
 	       LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,0) << "\n";
+
+	       //std::cout<<"getTAMuonChamberMatches::MATCHED distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	       
          TAMuonChamberMatch match;
          match.tState = stateOnSurface;
          match.localDistanceX = distanceX;
@@ -826,34 +843,46 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    for(std::vector<TAMuonChamberMatch>::iterator matchedChamber = matchedChambers.begin(); 
        matchedChamber != matchedChambers.end(); matchedChamber++)
    {
-	   const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet((*matchedChamber).id);
-	   // DT chamber
-	   if(const DTChamber* chamber = dynamic_cast<const DTChamber*>(geomDet) ) {
-	     // Get the range for the corresponding segments
-	     DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
-	     // Loop over the segments of this chamber
-	     for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-	       if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+     const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet((*matchedChamber).id);
+     // DT chamber
+     if(const DTChamber* chamber = dynamic_cast<const DTChamber*>(geomDet) ) {
+       // Get the range for the corresponding segments
+       DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
+       // Loop over the segments of this chamber
+       for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	 if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
            matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
          }
        }
-	   }
+     }	   
      // CSC Chamber
      else if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
-	     // Get the range for the corresponding segments
-	     CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
-	     // Loop over the segments
-	     for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
-		     if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+       // Get the range for the corresponding segments
+       CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
+       // Loop over the segments
+       for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	 if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
            matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
          }
        }
-	   }
+     }
      // GEM Chamber
      else if(const GEMChamber* chamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
-       findGEMSegment(*matchedChamber, chamber, *gemSegments, 1);
-       findGEMSegment(*matchedChamber, chamber, *gemSegments, 3);
-     }
+       // Get the range for the corresponding segments
+       GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+       // Loop over the segments
+       std::cout<<"TrackDetectorAssociator::GEM::found gem chamber"<<std::endl;
+       for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	 if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+	   std::cout<<"TrackDetectorAssociator::GEM::matched to gem seg"<<std::endl;
+           matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+         }
+       }
+       
+       // std::cout<<"TrackDetectorAssociator:: GEM"<<std::endl;
+       // findGEMSegment(*matchedChamber, chamber, *gemSegments, 1);
+       // findGEMSegment(*matchedChamber, chamber, *gemSegments, 3);
+      }
 
      info.chambers.push_back(*matchedChamber);
    }
@@ -1158,6 +1187,8 @@ void TrackDetectorAssociator::findGEMSegment(TAMuonChamberMatch& matchedChamber,
 
     bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
     double sigmax = 3.0, sigmay = 3.0;
+    std::cout<<"findGEMSegment::matchedChamber.tState.localPosition().x() "<< matchedChamber.tState.localPosition().x()<<std::endl;
+    
     if (station == 1){
       if ( (std::abs(thisPosition.x()-matchedChamber.tState.localPosition().x()) < (4.0 * sigmax)) &&
   	       (std::abs(thisPosition.x()-matchedChamber.tState.localPosition().x()) < 3.0 ) ) X_MatchFound = true;
