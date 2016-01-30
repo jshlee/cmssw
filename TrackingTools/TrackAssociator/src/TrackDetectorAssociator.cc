@@ -97,6 +97,10 @@
 
 #include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
+//temp
+#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+
 using namespace reco;
 
 TrackDetectorAssociator::TrackDetectorAssociator() 
@@ -759,12 +763,23 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	 if(const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
 	   if(gemChamber) {
 	     // gem width and length are interchanged - need to fix
-	     distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().length();
-	     distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().width();
+	     //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	     distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()*4;
 	     sigmaX = distanceX/sqrt(localError.xx());
 	     sigmaY = distanceY/sqrt(localError.yy());
 	     //std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
-	     //std::cout<<"getTAMuonChamberMatches::GEM width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	     // std::cout<<"GEMChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	     // auto& rolls(gemChamber->etaPartitions());
+	     // for (auto roll : rolls){
+	     //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+	     //   auto& parameters(roll->specs()->parameters());
+	     //   double bottomLength(parameters[0]); bottomLength = 2*bottomLength; // bottom is largest length, so furtest away from beamline
+	     //   double topLength(parameters[1]);    topLength    = 2*topLength;    // top is shortest length, so closest to beamline
+	     //   double height(parameters[2]);       height       = 2*height;
+	     //   std::cout<<"GEM roll bottomLength="<< bottomLength <<", topLength="<< topLength <<", height="<< height <<std::endl;
+	      
+	     //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
+	     // }
 	   }
 	 }
 	 
