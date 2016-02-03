@@ -154,7 +154,7 @@ TrackerGEMEfficiencyAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   /// USE HAVE TO USE MUON GUN SAMPLE FOR THIS CODE ///
   /////////////////////////////////////////////////////
 
-  double matching_deltaR = 0.3;
+  double matching_deltaR = 0.1;
 
   /// loop over gen particles = muons ///
   for(reco::GenParticleCollection::const_iterator genpart=genParticles->begin(); genpart != genParticles->end(); ++genpart) {

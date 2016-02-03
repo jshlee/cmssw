@@ -16,8 +16,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #open('Sh_trackerGEM_path.txt').readlines()
         #open('HGC_trackerGEM_path.txt').readlines()
-        'file:/cms/home/jskim/cmssw/CMSSW_6_2_0_SLHC27_gem_into_tracker/src/work/condor/MuonGun_RECO_gem_into_tracker/out_reco_0.root'
+        #'file:/cms/home/jskim/cmssw/CMSSW_6_2_0_SLHC27_gem_into_tracker/src/work/condor/MuonGun_RECO_gem_into_tracker/out_reco_0.root'
         #open('filelist_MuonGun.txt').readlines()
+        'file:/cms/home/jskim/cmssw/CMSSW_6_2_0_SLHC27_gem_into_tracker/src/work/out_reco.root'
     ),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     skipBadFiles = cms.untracked.bool(True),
