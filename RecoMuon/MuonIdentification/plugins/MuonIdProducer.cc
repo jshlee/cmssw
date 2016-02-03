@@ -570,7 +570,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      // timers.push("MuonIdProducer::produce::fillMuonId");
 	        reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
 	        trackerMuon.setType( reco::Muon::TrackerMuon | reco::Muon::RPCMuon );
-          if( isGEMMuon(trackerMuon) ) trackerMuon.setType( reco::Muon::GEMMuon );
+          if( isGEMMuon(trackerMuon) ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
 		      fillMuonId(iEvent, iSetup, trackerMuon, *direction);
 		      // timers.pop();
 	 
@@ -597,7 +597,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		          if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
 			        if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
 			        if (goodRPCMuon) muon->setType( muon->type() | reco::Muon::RPCMuon );
-              if ( isGEMMuon(*muon) ) muon->setType( reco::Muon::GEMMuon );
+              if ( isGEMMuon(*muon) ) muon->setType( muon->type() | reco::Muon::GEMMuon );
 			        LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
 			        break;
 		        }
@@ -796,8 +796,8 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
   for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    if(thischamber->id.subdetId() != 4) continue;
-    if( thischamber->gemsegmentMatches.size() != 0 ) return true;
+    if(thischamber->id.subdetId() == 4) return true;
+    //if( thischamber->gemsegmentMatches.size() != 0 ) return true;
   }
   return false;
 }
