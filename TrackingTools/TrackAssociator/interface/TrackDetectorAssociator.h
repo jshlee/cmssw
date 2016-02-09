@@ -49,6 +49,7 @@
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 
 class TrackDetectorAssociator {
