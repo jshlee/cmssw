@@ -796,8 +796,8 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
   for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    if(thischamber->id.subdetId() != 4) continue;
-    if( thischamber->gemsegmentMatches.size() != 0 ) return true;
+    if(thischamber->id.subdetId() == 4) return true;
+    //if( thischamber->gemsegmentMatches.size() != 0 ) return true;
   }
   return false;
 }
