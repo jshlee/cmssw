@@ -761,11 +761,11 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	sigmaX = distanceX/sqrt(localError.xx());
 	sigmaY = distanceY/sqrt(localError.yy());
 
-	if(detId->subdetId() == 3) {
-	  RPCDetId Rsid = RPCDetId(detId->rawId());
-	  std::cout<< Rsid <<std::endl;
-	  std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
-	}
+	// if(detId->subdetId() == 3) {
+	//   RPCDetId Rsid = RPCDetId(detId->rawId());
+	//   std::cout<< Rsid <<std::endl;
+	//   std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	// }
 	if(const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
 	  if(gemChamber) {
 	    // gem width and length are interchanged - need to fix
@@ -1208,7 +1208,7 @@ void TrackDetectorAssociator::findGEMSegment(TAMuonChamberMatch& matchedChamber,
 
     bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
     double sigmax = 3.0, sigmay = 3.0;
-    std::cout<<"findGEMSegment::matchedChamber.tState.localPosition().x() "<< matchedChamber.tState.localPosition().x()<<std::endl;
+    //    std::cout<<"findGEMSegment::matchedChamber.tState.localPosition().x() "<< matchedChamber.tState.localPosition().x()<<std::endl;
     
     if (station == 1){
       if ( (std::abs(thisPosition.x()-matchedChamber.tState.localPosition().x()) < (4.0 * sigmax)) &&
