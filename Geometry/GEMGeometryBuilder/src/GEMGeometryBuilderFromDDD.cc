@@ -54,7 +54,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  std::cout << "Building the geometry service" << std::endl;
+  //  std::cout << "Building the geometry service" << std::endl;
   LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
   GEMGeometry* geometry = new GEMGeometry();
 
@@ -65,9 +65,9 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
    bool doSubDets = fview.firstChild();
   LogDebug("GEMGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-  std::cout
-    << "fview.logicalPart().name().name() =" << fview.logicalPart().name().name()
-    << std::endl;
+  // std::cout
+  //   << "fview.logicalPart().name().name() =" << fview.logicalPart().name().name()
+  //   << std::endl;
   
   LogDebug("GEMGeometryBuilderFromDDD") <<"start the loop"; 
   int nChambers(0);
