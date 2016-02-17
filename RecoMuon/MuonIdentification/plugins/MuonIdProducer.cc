@@ -944,7 +944,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if ( chamber->id.subdetId() != 3 ) continue; // Consider RPC chambers only
 
 	  reco::MuonChamberMatch matchedChamber;
-	  std::cout << "found rpc match "<< std::endl;
+	  //std::cout << "found rpc match "<< std::endl;
 	  LocalError localError = chamber->tState.localError().positionError();
 	  matchedChamber.x = chamber->tState.localPosition().x();
 	  matchedChamber.y = chamber->tState.localPosition().y();
