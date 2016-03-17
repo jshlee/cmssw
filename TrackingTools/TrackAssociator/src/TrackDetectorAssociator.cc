@@ -755,26 +755,31 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	distanceY = fabs(localPoint.y()-yCOWPOffset) - 0.5*length;
 	sigmaX = distanceX/sqrt(localError.xx());
 	sigmaY = distanceY/sqrt(localError.yy());     
-      } else {
+      }
+      else {
 	distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
 	distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
 	sigmaX = distanceX/sqrt(localError.xx());
 	sigmaY = distanceY/sqrt(localError.yy());
 
 	// if(detId->subdetId() == 3) {
-	//   RPCDetId Rsid = RPCDetId(detId->rawId());
-	//   std::cout<< Rsid <<std::endl;
-	//   std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
-	// }
-	if(const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
-	  if(gemChamber) {
+	//    RPCDetId Rsid = RPCDetId(detId->rawId());
+	//    std::cout<< Rsid <<std::endl;
+	//    std::cout<<"RPCChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	//  }
+	// if(const GEMSuperChamber* gemChamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	//   if(gemChamber) {
+	if(detId->subdetId() == 4) {
+	    
 	    // gem width and length are interchanged - need to fix
-	    //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
-	    distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()*6;
-	    sigmaX = distanceX/sqrt(localError.xx());
-	    sigmaY = distanceY/sqrt(localError.yy());
-	    // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
-	    //  std::cout<<"GEMChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	  distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	  distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();
+	  sigmaX = distanceX/sqrt(localError.xx());
+	  sigmaY = distanceY/sqrt(localError.yy());
+	  // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	  // GEMDetId Rsid = GEMDetId(detId->rawId());
+	  // std::cout<< Rsid <<std::endl;
+	  // std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
 	    // auto& rolls(gemChamber->etaPartitions());
 	    // for (auto roll : rolls){
 	    //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
@@ -786,7 +791,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	      
 	    //   std::cout<<"GEM roll width="<< roll->surface().bounds().width() <<", length="<< roll->surface().bounds().length()<<std::endl;
 	    // }
-	  }
+	    // }
 	}
 	 
       }
@@ -795,7 +800,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
 	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,0) << "\n";
 
-	//std::cout<<"getTAMuonChamberMatches::MATCHED distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	//	if(detId->subdetId() == 4) std::cout<<"getTAMuonChamberMatches::MATCHED distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
 	       
 	TAMuonChamberMatch match;
 	match.tState = stateOnSurface;
@@ -888,7 +893,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	}
       }
       // GEM Chamber
-      else if(const GEMChamber* chamber = dynamic_cast<const GEMChamber*>(geomDet) ) {
+      else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
 	// Get the range for the corresponding segments
 	GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	// Loop over the segments
@@ -1188,7 +1193,7 @@ bool TrackDetectorAssociator::crossedIP( const reco::Track& track )
   return crossed;
 }
 
-void TrackDetectorAssociator::findGEMSegment(TAMuonChamberMatch& matchedChamber, const GEMChamber* chamber, const GEMSegmentCollection& gemSegments, int station){
+void TrackDetectorAssociator::findGEMSegment(TAMuonChamberMatch& matchedChamber, const GEMSuperChamber* chamber, const GEMSegmentCollection& gemSegments, int station){
 
   GEMSegmentCollection::range range = gemSegments.get(chamber->id());
   GEMSegmentRef matched_ref;
