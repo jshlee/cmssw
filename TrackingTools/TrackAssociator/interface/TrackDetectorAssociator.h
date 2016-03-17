@@ -47,6 +47,10 @@
 
 #include "FWCore/Utilities/interface/Visibility.h"
 
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
 
 class TrackDetectorAssociator {
  public:
@@ -121,6 +125,8 @@ class TrackDetectorAssociator {
 						      const int);
    
    static bool                crossedIP(const reco::Track& track);
+
+   void findGEMSegment(TAMuonChamberMatch& matchedChamber, const GEMChamber* chamber, const GEMSegmentCollection& gemSegments, int station);
 
  private:
    DetIdAssociator::MapRange getMapRange( const std::pair<float,float>& delta,
@@ -197,6 +203,7 @@ class TrackDetectorAssociator {
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
+   edm::ESHandle<GEMGeometry> gemGeom;
    
    edm::ESWatcher<IdealMagneticFieldRecord>     theMagneticFeildWatcher_;
 };

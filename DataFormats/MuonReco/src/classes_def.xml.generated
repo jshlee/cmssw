@@ -67,6 +67,7 @@
   </class>
   <class name="reco::MuonGEMSegmentMatch" ClassVersion="11">
    <version ClassVersion="11" checksum="201354193"/>
+   <version ClassVersion="10" checksum="4193465224"/>
   </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>

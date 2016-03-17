@@ -70,6 +70,7 @@ class TrackAssociatorParameters {
    edm::InputTag theHORecHitCollectionLabel;
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
+   edm::InputTag theGEMSegmentCollectionLabel;
    
    // Specify if we want to widen the search pass of the crossed
    // calorimeter elements taking into account uncertainty

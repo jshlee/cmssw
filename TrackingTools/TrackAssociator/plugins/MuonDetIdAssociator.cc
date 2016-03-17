@@ -27,6 +27,7 @@
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <deque>
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 void MuonDetIdAssociator::check_setup() const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
@@ -77,6 +78,14 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
       std::vector< const RPCRoll*> rolls = (rpc->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
 	validIds_.push_back((*r)->id().rawId());
+    }
+
+  // GEM
+  if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot GEMGeometry\n";
+  const std::vector<GeomDet*>& geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
+  for(std::vector<GeomDet*>::const_iterator it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it)
+    if (GEMSuperChamber* gem = dynamic_cast< GEMSuperChamber*>(*it)) {
+      validIds_.push_back(gem->id());
     }
   
   return validIds_;
