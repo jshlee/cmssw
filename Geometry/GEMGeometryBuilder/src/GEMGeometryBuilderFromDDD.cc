@@ -189,22 +189,26 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 	const GEMEtaPartition* p(geometry->etaPartition(id));	
 	const BoundPlane& bps = p->surface();
 	const GEMEtaPartitionSpecs* specs = p->specs();
-	if (p->id().roll() == 1){
+	if (id == fId){
 	  pos = bps.position();// local position relative to first roll
 	  rot = bps.rotation();// local rotation relative to first roll
-	  te = specs->parameters()[0];// half top edge set to first roll
+	  te = specs->parameters()[1];// half top edge set to first roll
 	}
-	//std::cout << "GEMGeometryBuilderFromDDD::id " << id <<std::endl;
+	// std::cout << "GEMGeometryBuilderFromDDD::id " << id <<std::endl;
+	// std::cout << "GEMGeometryBuilderFromDDD::be " << specs->parameters()[0]
+       	// 	<< " te " << specs->parameters()[1]
+       	// 	<< " ap " << specs->parameters()[2]
+       	// 	<< std::endl;
 	
-	be = specs->parameters()[1];// half bottom edge set to last roll	
-	ap += specs->parameters()[2];// sum of apothem
+	be = specs->parameters()[0];// half bottom edge set to last roll	
+	ap += specs->parameters()[2] + 0.025;// sum of apothem + gap size
 	LogDebug("GEMGeometryBuilderFromDDD") << "Adding eta partition " << id << " size to GEM chamber" << std::endl;
       }
-      // std::cout << "GEMGeometryBuilderFromDDD::chamberId " << chamberId <<std::endl;
-      // std::cout << "GEMGeometryBuilderFromDDD::be " << be
-      // 		<< " te " << te
-      // 		<< " ap " << ap
-      // 		<< std::endl;
+       // std::cout << "GEMGeometryBuilderFromDDD::chamberId " << chamberId <<std::endl;
+       // std::cout << "GEMGeometryBuilderFromDDD::be " << be
+       // 		<< " te " << te
+       // 		<< " ap " << ap
+       // 		<< std::endl;
 
       Bounds* bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
       BoundPlane* bp = new BoundPlane(pos, rot, bounds);

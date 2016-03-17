@@ -772,14 +772,14 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	if(detId->subdetId() == 4) {
 	    
 	    // gem width and length are interchanged - need to fix
-	  distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
+	  //distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width();
 	  distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length();
 	  sigmaX = distanceX/sqrt(localError.xx());
 	  sigmaY = distanceY/sqrt(localError.yy());
 	  // std::cout<<"getTAMuonChamberMatches::GEM distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
 	  // GEMDetId Rsid = GEMDetId(detId->rawId());
 	  // std::cout<< Rsid <<std::endl;
-	  // std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
+	  //std::cout<<"GEMSuperChamber width="<< geomDet->surface().bounds().width() <<", length="<< geomDet->surface().bounds().length() <<std::endl;
 	    // auto& rolls(gemChamber->etaPartitions());
 	    // for (auto roll : rolls){
 	    //   //const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
@@ -800,7 +800,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
 	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,0) << "\n";
 
-	//	if(detId->subdetId() == 4) std::cout<<"getTAMuonChamberMatches::MATCHED distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
+	if(detId->subdetId() == 4) std::cout<<"getTAMuonChamberMatches::MATCHED distanceX="<< distanceX <<", distanceY="<< distanceY <<std::endl;
 	       
 	TAMuonChamberMatch match;
 	match.tState = stateOnSurface;
