@@ -43,24 +43,29 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // reserve some space
   std::vector<unsigned int> values;
   values.reserve(muons->size());
+
   std::vector<reco::MuonCosmicCompatibility> compValues;
   compValues.reserve(muons->size());
-  for(reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
-    unsigned int foundPartner(0);
-    if ( muon->innerTrack().isNonnull() ){
-	    for ( unsigned int i=0; i<inputTrackCollections_.size(); ++i ){
-	      edm::Handle<reco::TrackCollection> tracks;
-	      iEvent.getByLabel(inputTrackCollections_.at(i), tracks);
-	      if ( muonid::findOppositeTrack(tracks,*muon->innerTrack()).isNonnull() ){
-	        foundPartner = i+1;
-	        break;
-	      }
+  
+  for(reco::MuonCollection::const_iterator muon = muons->begin(); 
+      muon != muons->end(); ++muon)
+    {
+      unsigned int foundPartner(0);
+      if ( muon->innerTrack().isNonnull() ){
+	for ( unsigned int i=0; i<inputTrackCollections_.size(); ++i )
+	  {
+	    edm::Handle<reco::TrackCollection> tracks;
+	    iEvent.getByLabel(inputTrackCollections_.at(i), tracks);
+	    if ( muonid::findOppositeTrack(tracks,*muon->innerTrack()).isNonnull() ){
+	      foundPartner = i+1;
+	      break;
 	    }
+	  }
+      }
+      values.push_back(foundPartner);
+
+      compValues.push_back(compatibilityFiller_.fillCompatibility(*muon, iEvent, iSetup));
     }
-    values.push_back(foundPartner);
- 
-    compValues.push_back(compatibilityFiller_.fillCompatibility(*muon, iEvent, iSetup));
-  }
 
   // create and fill value map
   std::auto_ptr<edm::ValueMap<unsigned int> > out(new edm::ValueMap<unsigned int>());
