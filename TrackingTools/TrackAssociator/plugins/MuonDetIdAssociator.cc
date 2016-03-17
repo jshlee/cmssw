@@ -84,7 +84,7 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
   if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot GEMGeometry\n";
   const std::vector<GeomDet*>& geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
   for(std::vector<GeomDet*>::const_iterator it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it)
-    if (GEMChamber* gem = dynamic_cast< GEMChamber*>(*it)) {
+    if (GEMSuperChamber* gem = dynamic_cast< GEMSuperChamber*>(*it)) {
       validIds_.push_back(gem->id());
     }
   
