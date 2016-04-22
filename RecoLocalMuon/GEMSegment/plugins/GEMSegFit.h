@@ -66,7 +66,8 @@ public:
 
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   GEMSegFit(const GEMSuperChamber* chamber, std::map<uint32_t, const GEMEtaPartition*> gemetapartmap, GEMSetOfHits hits) : 
-  gemetapartmap_( gemetapartmap ), hits_( hits ), scaleXError_( 1.0 ), gemchamber_(chamber), fitdone_( false ) 
+  gemetapartmap_( gemetapartmap ), hits_( hits ), uslope_(.0), vslope_(.0),
+    chi2_(.0), ndof_(0), scaleXError_( 1.0 ), gemchamber_(chamber), fitdone_( false )
     {
       // --- LogDebug info about reading of GEM Eta Partition map ------------------------------------------
       edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::ctor] cached the gemetapartmap";

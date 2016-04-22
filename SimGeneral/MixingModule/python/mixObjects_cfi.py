@@ -35,7 +35,7 @@ mixSimHits = cms.PSet(
         'TrackerHitsTOBLowTof'),
     crossingFrames = cms.untracked.vstring(
         'MuonCSCHits', 
-        'MuonDTHits',
+        'MuonDTHits', 
         'MuonRPCHits'), 
     #crossingFrames = cms.untracked.vstring(
     #    'BSCHits',
@@ -62,15 +62,6 @@ if eras.fastSim.isChosen():
         'MuonDTHits', 
         'MuonRPCHits', 
         'TrackerHits')
-    
-# Phase-2 GEM customs
-## if eras.phase2_muon.isChosen() or eras.phase2dev_muon.isChosen():
-##     mixSimHits.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-##     mixSimHits.subdets.append('MuonGEMHits')
-##     mixSimHits.crossingFrames.append('MuonGEMHits')
-##     mixSimHits.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-##     mixSimHits.subdets.append('MuonME0Hits')
-##     mixSimHits.crossingFrames.append('MuonME0Hits')    
 
 mixCaloHits = cms.PSet(
     input = cms.VInputTag(  # note that this list needs to be in the same order as the subdets
@@ -237,6 +228,14 @@ def _modifyMixSimHitsForPhase2( object ):
     object.mixSH.subdets.append('MuonME0Hits')
     object.mixSH.crossingFrames.append('MuonME0Hits')
 
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()) )
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) )
+    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) )
+    object.mixCH.subdets.append( hgceeDigitizer.hitCollection.value() )
+    object.mixCH.subdets.append( hgchebackDigitizer.hitCollection.value() )
+    object.mixCH.subdets.append( hgchefrontDigitizer.hitCollection.value() )    
+
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
-eras.phase2dev_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
+
