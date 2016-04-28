@@ -81,7 +81,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
 
   // GEM
   if (includeGEM_){
-    if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
+    if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot GEMGeometry\n";
     auto const & geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
     for(auto it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it){
       if (auto gem = dynamic_cast<const GEMSuperChamber*>(*it)) {
