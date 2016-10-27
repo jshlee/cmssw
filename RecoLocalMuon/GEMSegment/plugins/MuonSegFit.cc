@@ -14,22 +14,19 @@
 bool MuonSegFit::fit(void) {
   if ( fitdone() ) return fitdone_; // don't redo fit unnecessarily
   short n = nhits();
-  switch ( n ) {
-  case 1:
+  if (n < 2){
     edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::fit] - cannot fit just 1 hit!!";
-    break;
-  case 2:
+  }
+  else if (n == 2){
     fit2();
-    break;
-  case 3:
-  case 4:
-  case 5:
-  case 6:
+  }
+  else if (2*n <= MaxHits2){
     fitlsq();
-    break;
-  default:
-    edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::fit] - cannot fit more than 6 hits!!"; // should make this :: "cannot fit more than 4 hits!!"
-  }  
+  }
+  else {
+    edm::LogVerbatim("MuonSegFit") << "[MuonSegFit::fit] - cannot fit more than "<< MaxHits2/2 <<" hits!!";
+  }
+  
   return fitdone_;
 }
 
@@ -305,10 +302,8 @@ MuonSegFit::SMatrixSym12 MuonSegFit::weightMatrix() {
 
   int row = 0;
   
-  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {    
+  for (MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
     // Note scaleXError allows rescaling the x error if necessary
-    if (row > 11) break; // temp due to max size of matrix
-
     matrix(row, row)   = scaleXError()*(*it)->localPositionError().xx();
     matrix(row, row+1) = (*it)->localPositionError().xy();
     ++row;
@@ -332,7 +327,6 @@ MuonSegFit::SMatrix12by4 MuonSegFit::derivativeMatrix() {
   int row = 0;
   
   for( MuonRecHitContainer::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
-    if (row > 11) break; // temp due to max size of matrix
     LocalPoint  lp         = (*it)->localPosition();
     
     float z = lp.z();

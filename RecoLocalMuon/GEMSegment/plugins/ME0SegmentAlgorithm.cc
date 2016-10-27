@@ -312,7 +312,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
     const LocalPoint lp = refPart->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
-
+    
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
     //muonRecHits.push_back(newRH);
@@ -320,12 +320,11 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::make_unique<MuonSegFit>(muonRecHits);
-  //  bool goodfit = sfit_->fit();
-  sfit_->fit();
+  bool goodfit = sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
   // quit function if fit was not OK  
-  //if(!goodfit) return;
+  if(!goodfit) return;
   
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
@@ -357,5 +356,3 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   me0segs.push_back(tmp);
   return;
 }
-
-

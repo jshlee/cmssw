@@ -163,7 +163,6 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
       }
   }
-
   else if (geoId.subdetId()  == MuonSubdetId::ME0) {
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;
     if(enableME0Measurement)
@@ -174,7 +173,6 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 	ME0DetId chamberId(geoId.rawId());
     
 	// Get the ME0-Segment which relies on this chamber
-	// Getting rechits right now, not segments - maybe it should be segments?
 	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
 
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
