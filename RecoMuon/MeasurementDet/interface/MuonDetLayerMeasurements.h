@@ -22,7 +22,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -135,7 +135,7 @@ class MuonDetLayerMeasurements {
   edm::EDGetTokenT<DTRecSegment4DCollection> dtToken_;
   edm::EDGetTokenT<CSCSegmentCollection> cscToken_;
   edm::EDGetTokenT<RPCRecHitCollection> rpcToken_;
-  edm::EDGetTokenT<GEMRecHitCollection> gemToken_;
+  edm::EDGetTokenT<GEMSegmentCollection> gemToken_;
   edm::EDGetTokenT<ME0SegmentCollection> me0Token_;
 
 
@@ -149,7 +149,7 @@ class MuonDetLayerMeasurements {
   edm::Handle<DTRecSegment4DCollection> theDTRecHits;
   edm::Handle<CSCSegmentCollection>     theCSCRecHits;
   edm::Handle<RPCRecHitCollection>      theRPCRecHits;
-  edm::Handle<GEMRecHitCollection>      theGEMRecHits;
+  edm::Handle<GEMSegmentCollection>      theGEMRecHits;
   edm::Handle<ME0SegmentCollection>      theME0RecHits;
 
   void checkDTRecHits();
