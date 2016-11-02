@@ -60,7 +60,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
 
   unsigned int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
-    if ( (*iter)->isCSC() )
+    if ( (*iter)->isCSC() || (*iter)->isGEM()  )
     {
 //std::cout << **iter << std::endl;
       theEndcap.add(*iter);
@@ -68,6 +68,10 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
       ++num_endcap;
     }
   }
+
+
+
+
 
   // don't do dim-2 seeds in the overlap
   if ( num_bar >1 || (num_bar==1 && (num_endcap==0 || theBarrel.firstRecHit()->dimension() == 4))) {

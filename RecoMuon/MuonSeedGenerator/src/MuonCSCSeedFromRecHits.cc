@@ -1,6 +1,7 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -33,7 +34,14 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end();
         iter != end; ++iter)
   {
+
+//    std::cout<<" new "<<(*iter)->isCSC() << " "<< (*iter)->isGEM()<<std::endl;
     int station = CSCDetId((*iter)->geographicalId().rawId()).station();
+    if((*iter)->isGEM()) 
+         {  station=GEMDetId((*iter)->geographicalId().rawId()).station();
+            if (station==3) {station=2;}  
+          }
+
     if(station == 1)
     {
       station1Hits.push_back(*iter);
