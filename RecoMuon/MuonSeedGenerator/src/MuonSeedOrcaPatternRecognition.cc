@@ -88,7 +88,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // get the GEM layers
   vector<const DetLayer*> gemForwardLayers = muonLayers->forwardGEMLayers();
   vector<const DetLayer*> gemBackwardLayers = muonLayers->backwardGEMLayers(); 
-  //std::cout<<"gem "<<gemForwardLayers.size()<<" "<<gemBackwardLayers.size()<<std::endl;
 
   // Backward (z<0) EndCap disk
   const DetLayer* ME4Bwd = cscBackwardLayers[4];
@@ -111,17 +110,16 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   const DetLayer* MB1DL = dtLayers[0];
 
   // Backward (z<0) EndCap disk
-  const DetLayer* GE2l2Bwd = gemBackwardLayers[3];
-  const DetLayer* GE2l1Bwd = gemBackwardLayers[2];
-  const DetLayer* GE12Bwd  = gemBackwardLayers[1];
-  const DetLayer* GE11Bwd  = gemBackwardLayers[0];
+  const DetLayer* GE21Bwd = gemBackwardLayers[3];
+  const DetLayer* GE11Bwd = gemBackwardLayers[0];
   // Forward (z>0) EndCap disk
-  const DetLayer* GE2l2Fwd = gemForwardLayers[3];
-  const DetLayer* GE2l1Fwd = gemForwardLayers[2];
-  const DetLayer* GE12Fwd  = gemForwardLayers[1];
-  const DetLayer* GE11Fwd  = gemForwardLayers[0];
+  const DetLayer* GE21Fwd = gemForwardLayers[3];
+  const DetLayer* GE11Fwd = gemForwardLayers[0];
 
-
+//  GEM
+  std::cout<<"gem "<<gemForwardLayers.size()<<" "<<gemBackwardLayers.size()<<std::endl;
+std::cout << "muonMeasurements->recHits(GE21Bwd,event).size() " << muonMeasurements->recHits(GE21Bwd,event).size()<< std::endl;
+std::cout << "muonMeasurements->recHits(GE11Bwd,event).size() " << muonMeasurements->recHits(GE11Bwd,event).size()<< std::endl;
   
   // instantiate the accessor
   // Don not use RPC for seeding
@@ -149,37 +147,17 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
                  filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE2l2Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE2l1Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE12Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
-
-/*
-  MuonRecHitContainer lk11 = muonMeasurements->recHits(ME11Bwd,event);
-  MuonRecHitContainer lk12 = muonMeasurements->recHits(ME12Bwd,event);
-  MuonRecHitContainer lk2 = muonMeasurements->recHits(ME2Bwd,event);
-  MuonRecHitContainer lk3 = muonMeasurements->recHits(ME3Bwd,event);
-  MuonRecHitContainer lk4 = muonMeasurements->recHits(ME4Bwd,event);
-
-  MuonRecHitContainer lg1 = muonMeasurements->recHits(GE2l2Bwd,event);
-  MuonRecHitContainer lg2 = muonMeasurements->recHits(GE2l1Bwd,event);
-  MuonRecHitContainer lg3 = muonMeasurements->recHits(GE12Bwd,event);
-  MuonRecHitContainer lg4 = muonMeasurements->recHits(GE11Bwd,event);
-std::cout<<"xx  "<<lk11.size()<<" "<<lk12.size()<<" "<<lk2.size()<<" "<<lk3.size()<<" "<<lk4.size()<<std::endl;
-std::cout<<lg1.size()<<" "<<lg2.size()<<" "<<lg3.size()<<" "<<lg4.size()<<std::endl;
-*/
-
 
   endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE2l2Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE2l1Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE12Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut),
                  filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
@@ -271,13 +249,8 @@ std::cout<<lg1.size()<<" "<<lg2.size()<<" "<<lg3.size()<<" "<<lg4.size()<<std::e
 
     tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-
-//  GEM
-    tmp = filterSegments(muonMeasurements->recHits(GE2l2Bwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE2l1Bwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE12Bwd,event), endcapdThetaCut);
+    
+    tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
     tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -299,16 +272,10 @@ std::cout<<lg1.size()<<" "<<lg2.size()<<" "<<lg3.size()<<" "<<lg4.size()<<std::e
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
 //  GEM
-    tmp = filterSegments(muonMeasurements->recHits(GE2l2Fwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE2l1Fwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE12Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
     tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-
-
 
     tmp = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -333,7 +300,6 @@ std::cout<<lg1.size()<<" "<<lg2.size()<<" "<<lg3.size()<<" "<<lg4.size()<<std::e
       result.push_back(singleSegmentContainer);
     }
   }
-
 }
 
 
@@ -351,8 +317,7 @@ bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
 void MuonSeedOrcaPatternRecognition::endcapPatterns(
   const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
   const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-  const MuonRecHitContainer & me4,  const MuonRecHitContainer & ge2l2,
-  const MuonRecHitContainer & ge2l1, const MuonRecHitContainer & ge12,
+  const MuonRecHitContainer & me4,  const MuonRecHitContainer & ge21,
   const MuonRecHitContainer & ge11, const  MuonRecHitContainer & mb1,
   const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
   bool * MB1, bool * MB2, bool * MB3,
@@ -363,10 +328,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   dumpLayer("ME2 ", me2);
   dumpLayer("ME12 ", me12);
   dumpLayer("ME11 ", me11);
-
-  dumpLayer("GE2L2", ge2l2);
-  dumpLayer("GE2L1", ge2l1);
-  dumpLayer("GE12 ", ge12);
+  dumpLayer("GE21 ", ge21);
   dumpLayer("GE11 ", ge11);
 
 
@@ -379,10 +341,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   rememberCrackSegments(me3,  crackSegments);
   rememberCrackSegments(me4,  crackSegments);
 
-
-  rememberCrackSegments(ge2l2, crackSegments);
-  rememberCrackSegments(ge2l1, crackSegments);
-  rememberCrackSegments(ge12, crackSegments);
+  rememberCrackSegments(ge21, crackSegments);
   rememberCrackSegments(ge11, crackSegments);
 
 
@@ -456,18 +415,18 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
 
 // GEM Qiang:  to add sorting later
   MuonRecHitContainer listg1 = ge11;
-  MuonRecHitContainer listg2 = ge12;
-  MuonRecHitContainer listg5 = ge2l1;
-  MuonRecHitContainer listg6 = ge2l2;
-  bool* GE2L2 = zero(listg6.size());
-  bool* GE2L1 = zero(listg5.size());
-  bool* GE12 = zero(listg2.size());
+  MuonRecHitContainer listg2 = ge21;
   bool* GE11 = zero(listg1.size());
+  bool* GE21 = zero(listg2.size());
 
   // creates list of compatible track segments
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
     std::cout<<"------------------"<<std::endl;
+    if ( (*iter)->isGEM()  ){
+      std::cout <<"MuonSeedOrcaPatternRecognition " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
+    }
+    
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);
     std::cout<<"c1 "<<seedSegments.size()<<std::endl;
@@ -480,13 +439,9 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     complete(seedSegments, list5, ME5);
     std::cout<<"c5 "<<seedSegments.size()<<" "<<list5.size()<<std::endl;
     complete(seedSegments, listg1,GE11); //Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<std::endl;
-    complete(seedSegments, listg2,GE12); //Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<std::endl;
-    complete(seedSegments, listg5,GE2L1);//Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<std::endl;
-    complete(seedSegments, listg6,GE2L2);//Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<std::endl;
+    std::cout<<"g1 "<<seedSegments.size()<<" "<<listg1.size()<<std::endl;
+    complete(seedSegments, listg2,GE21); //Qiang
+    std::cout<<"g1 "<<seedSegments.size()<<" "<<listg2.size()<<std::endl;
     complete(seedSegments, mb3, MB3);
     complete(seedSegments, mb2, MB2);
     complete(seedSegments, mb1, MB1);
@@ -505,9 +460,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
       complete(seedSegments, list4, ME4);
       complete(seedSegments, list5, ME5);
       complete(seedSegments, listg1,GE11); //Qiang
-      complete(seedSegments, listg2,GE12); //Qiang
-      complete(seedSegments, listg5,GE2L1);//Qiang
-      complete(seedSegments, listg6,GE2L2);//Qiang
+      complete(seedSegments, listg2,GE21); //Qiang
       complete(seedSegments, mb3, MB3);
       complete(seedSegments, mb2, MB2);
       complete(seedSegments, mb1, MB1);
@@ -524,9 +477,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         complete(seedSegments, list4, ME4);
         complete(seedSegments, list5, ME5);
         complete(seedSegments, listg1,GE11); //Qiang
-        complete(seedSegments, listg2,GE12); //Qiang
-        complete(seedSegments, listg5,GE2L1);//Qiang
-        complete(seedSegments, listg6,GE2L2);//Qiang
+        complete(seedSegments, listg2,GE21); //Qiang
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
@@ -542,9 +493,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         seedSegments.push_back(list4[counter]);
         complete(seedSegments, list5, ME5);
         complete(seedSegments, listg1,GE11); //Qiang
-        complete(seedSegments, listg2,GE12); //Qiang
-        complete(seedSegments, listg5,GE2L1);//Qiang
-        complete(seedSegments, listg6,GE2L2);//Qiang
+        complete(seedSegments, listg2,GE21); //Qiang
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
@@ -559,9 +508,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   if ( ME2 ) delete [] ME2;
 
 // GEM
-  if ( GE2L2 ) delete [] GE2L2;
-  if ( GE2L1 ) delete [] GE2L1;
-  if ( GE12 ) delete [] GE12;
+  if ( GE21 ) delete [] GE21;
   if ( GE11 ) delete [] GE11;
 
   if(!patterns.empty())
@@ -582,6 +529,14 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
        }
     }
   }
+  for (unsigned int i =0; i < result.size(); ++i){
+    for ( MuonRecHitContainer::const_iterator iter = result[i].begin(); iter!= result[i].end(); iter++ ){
+      if ( (*iter)->isGEM()  ){
+	std::cout <<"MuonSeedOrcaPatternRecognition " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
+      }
+    }
+  }
+  
 }
 
 
@@ -592,9 +547,12 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
   MuonPatternRecoDumper theDumper;
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
   ConstMuonRecHitPointer first = seedSegments[0]; // first rechit of seed
-  GlobalPoint ptg2 = first->globalPosition(); // its global pos +v
+  GlobalPoint ptg2 = first->globalPosition(); // its global pos +v   
   for (unsigned nr = 0; nr < recHits.size(); ++nr ){
     MuonRecHitPointer recHit(recHits[nr]);
+    if ( recHit->isGEM()  )    
+      std::cout <<"MuonSeedOrcaPatternRecognition::complete " <<  GEMDetId(recHit->geographicalId()) << std::endl;
+    
     GlobalPoint ptg1(recHit->globalPosition());
     std::cout<<ptg1.eta()<<" xy "<<ptg2.eta()<<std::endl;
     float deta = fabs (ptg1.eta()-ptg2.eta());
@@ -742,11 +700,13 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
 {
   MuonPatternRecoDumper theDumper;
 
-  LogTrace(metname) << name << std::endl;
+  //LogTrace(metname)
+    std::cout << name << std::endl;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
+    //LogTrace(metname)
+      std::cout<< theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
 
@@ -789,7 +749,7 @@ MuonPatternRecoDumper theDumper;
     }
     else if((*segmentItr)->isGEM())
     {
-//std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
+      std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
 //      if(fabs(dtheta) < dThetaCut)
 //      {
 //std::cout<<"isGEM2 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;    

@@ -10,6 +10,9 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//temp
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
+
 using namespace std;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -62,16 +65,13 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isCSC() || (*iter)->isGEM()  )
     {
-//std::cout << **iter << std::endl;
+      if ((*iter)->isGEM()) 
+	std::cout <<"MuonSeedFinder::seeds " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
       theEndcap.add(*iter);
       theOverlap.add(*iter);
       ++num_endcap;
     }
   }
-
-
-
-
 
   // don't do dim-2 seeds in the overlap
   if ( num_bar >1 || (num_bar==1 && (num_endcap==0 || theBarrel.firstRecHit()->dimension() == 4))) {

@@ -147,19 +147,35 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
 	// Create the chamber Id
 	GEMDetId chamberId(geoId.rawId());
-
+	//GEMDetId chamberId = gemId.superChamberId();
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
-
 	// Get the GEM-Segment which relies on this chamber
 	GEMSegmentCollection::range range = theGEMRecHits->get(chamberId);
 
-	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
+	//LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements")
+	std::cout << "Number of GEM rechits available =  " << theGEMRecHits->size()
 							   <<", from chamber: "<< chamberId<<std::endl;
 
 	// Create the MuonTransientTrackingRecHit
 	for (GEMSegmentCollection::const_iterator rechit = range.first; 
-	     rechit!=range.second; ++rechit)
+	     rechit!=range.second; ++rechit){
 	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	  
+	  std::cout<< "MuonDetLayerMeasurements "<< rechit->gemDetId() <<std::endl;
+	  for (auto hit : rechit->recHits()){
+	    std::cout<< " rechit "<< GEMDetId(hit->geographicalId()) <<std::endl;	    
+	  }
+	  MuonRecHitPointer mpoint = MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit);
+	  std::cout<< "mpoint "<< GEMDetId(mpoint->geographicalId()) <<std::endl;
+	  for (auto hit : mpoint->recHits()){
+	    std::cout<< " mpoint hits "<< GEMDetId(hit->geographicalId()) <<std::endl;	    
+	  }
+	  
+	}
+	for ( MuonRecHitContainer::const_iterator iter = result.begin(); iter!= result.end(); iter++ ){
+	  std::cout <<"MuonDetLayerMeasurements " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
+	}
+	
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
       }
   }

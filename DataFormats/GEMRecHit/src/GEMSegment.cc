@@ -17,7 +17,8 @@ namespace {
     else if (id.station()==2 || id.station()==3) station = 3;
     else station = 0; 
     layer = 0;
-    return GEMDetId(id.region(),id.ring(),station,layer,id.chamber(),id.roll());
+    // need to fix station no. later
+    return GEMDetId(id.region(),id.ring(),station,layer,id.chamber(),0);
   }
 }
 

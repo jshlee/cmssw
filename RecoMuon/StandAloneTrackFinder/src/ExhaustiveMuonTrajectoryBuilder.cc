@@ -3,6 +3,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 
+//temp
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
+
 
 ExhaustiveMuonTrajectoryBuilder::ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, 
 								 const MuonServiceProxy* proxy,
@@ -35,16 +38,30 @@ ExhaustiveMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
   TrajectorySeed::range range = seed.recHits();
   TrajectoryContainer result;
   // Make a new seed based on each segment, using the original pt and sigmapt
+  std::cout<< "ExhaustiveMuonTrajectoryBuilder::trajectories start loop" <<std::endl;
   for(TrajectorySeed::const_iterator recHitItr = range.first;
       recHitItr != range.second; ++recHitItr)
   {
-    const GeomDet * geomDet = theService->trackingGeometry()->idToDet((*recHitItr).geographicalId());
+    DetId geoId = (*recHitItr).geographicalId();
+    //const GeomDet * geomDet = theService->trackingGeometry()->idToDet(geoId);
+    std::cout<< "ExhaustiveMuonTrajectoryBuilder::trajectories " << geoId.subdetId() <<std::endl;
+    // // hack for now
+    // if (geoId.subdetId() == 4) {      
+    //   std::cout<< "ExhaustiveMuonTrajectoryBuilder::trajectories " << GEMDetId(geoId) <<std::endl;
+    //   if (GEMDetId(geoId).layer() == 0)
+    // 	geoId = GEMDetId(geoId).superChamberId();
+    // }
+    const GeomDet * geomDet = theService->trackingGeometry()->idToDet(geoId);
+    // if (geomDet) std::cout<<"ExhaustiveMuonTrajectoryBuilder::trajectories geomDet found" <<std::endl;
+    // else continue; 
+    // std::cout << "ExhaustiveMuonTrajectorxyBuilder::trajectories " << geoId.subdetId() << std::cout;
     MuonTransientTrackingRecHit::MuonRecHitPointer muonRecHit 
       = MuonTransientTrackingRecHit::specificBuild(geomDet,&*recHitItr);
     TrajectorySeed tmpSeed(theSeeder.createSeed(pt, sigmapt, muonRecHit));
     TrajectoryContainer trajectories(theTrajBuilder.trajectories(tmpSeed));
     result.insert(result.end(), trajectories.begin(), trajectories.end());
   }
+  std::cout<< "ExhaustiveMuonTrajectoryBuilder::trajectories end loop" <<std::endl;
   return result;
 }
 

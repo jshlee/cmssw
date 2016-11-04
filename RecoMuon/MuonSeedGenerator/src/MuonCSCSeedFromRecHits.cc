@@ -37,10 +37,10 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
 
 //    std::cout<<" new "<<(*iter)->isCSC() << " "<< (*iter)->isGEM()<<std::endl;
     int station = CSCDetId((*iter)->geographicalId().rawId()).station();
-    if((*iter)->isGEM()) 
-         {  station=GEMDetId((*iter)->geographicalId().rawId()).station();
-            if (station==3) {station=2;}  
-          }
+    if ((*iter)->isGEM()) {
+      station=GEMDetId((*iter)->geographicalId().rawId()).station();
+      if (station==3) {station=2;}
+    }
 
     if(station == 1)
     {
@@ -139,9 +139,17 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
             sigmapt = maxpt;
           }
 
+	  DetId geoId = (*itr2)->geographicalId();
+	  if (geoId.subdetId() == 4) {      
+	    std::cout<< "MuonCSCSeedFromRecHits::makeSeed " << GEMDetId(geoId) <<std::endl;
+	  }
+	  
+	  std::cout<< "MuonCSCSeedFromRecHits::makeSeed pt "<< pt <<std::endl;
           // get the position and direction from the higher-quality segment
           ConstMuonRecHitPointer bestSeg = bestEndcapHit(theRhits);
+	    std::cout<< "MuonCSCSeedFromRecHits::makeSeed 1" <<std::endl;
           seed = createSeed(pt, sigmapt, bestSeg);
+	    std::cout<< "MuonCSCSeedFromRecHits::makeSeed 2" <<std::endl;
 
           //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
           return true;
@@ -193,16 +201,20 @@ MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) co
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
 
   for ( MuonRecHitContainer::const_iterator iter = endcapHits.begin(); iter!= endcapHits.end(); iter++ ){
-    if ( !(*iter)->isCSC() ) continue;
+    if ( !(*iter)->isCSC() && !(*iter)->isGEM() ) continue;
 
     // tmp compar. Glob-Dir for the same tr-segm:
+    std::cout<< "MuonCSCSeedFromRecHits::bestEndcapHit (*iter)->isGEM() "<< (*iter)->isGEM() <<std::endl;
+    std::cout<< "MuonCSCSeedFromRecHits::bestEndcapHit (*iter)->isCSC() "<< (*iter)->isCSC() <<std::endl;
 
     meit = *iter;
 
     quality = segmentQuality(meit);
+    std::cout<< "MuonCSCSeedFromRecHits::bestEndcapHit quality "<< quality <<std::endl;
 
     dPhiGloDir = fabs ( deltaPhi(meit->globalPosition().barePhi(), meit->globalDirection().barePhi()) );
 
+    std::cout<< "MuonCSCSeedFromRecHits::bestEndcapHit dPhiGloDir "<< dPhiGloDir <<std::endl;
     if(!me1){
       me1 = meit;
       quality1 = quality;
