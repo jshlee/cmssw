@@ -420,19 +420,12 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);
-    std::cout<<"c1 "<<seedSegments.size()<<std::endl;
     complete(seedSegments, list2, ME2);
-    std::cout<<"c2 "<<seedSegments.size()<<" "<<list2.size()<<std::endl;
     complete(seedSegments, list3, ME3);
-    std::cout<<"c3 "<<seedSegments.size()<<" "<<list3.size()<<std::endl;
     complete(seedSegments, list4, ME4);
-    std::cout<<"c4 "<<seedSegments.size()<<" "<<list4.size()<<std::endl;
     complete(seedSegments, list5, ME5);
-    std::cout<<"c5 "<<seedSegments.size()<<" "<<list5.size()<<std::endl;
-    complete(seedSegments, listg1,GE11); //Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<" "<<listg1.size()<<std::endl;
-    complete(seedSegments, listg2,GE21); //Qiang
-    std::cout<<"g1 "<<seedSegments.size()<<" "<<listg2.size()<<std::endl;
+    complete(seedSegments, listg1,GE11); //GEM
+    complete(seedSegments, listg2,GE21); //GEM
     complete(seedSegments, mb3, MB3);
     complete(seedSegments, mb2, MB2);
     complete(seedSegments, mb1, MB1);
@@ -450,8 +443,8 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
       complete(seedSegments, list3, ME3);
       complete(seedSegments, list4, ME4);
       complete(seedSegments, list5, ME5);
-      complete(seedSegments, listg1,GE11); //Qiang
-      complete(seedSegments, listg2,GE21); //Qiang
+      complete(seedSegments, listg1,GE11); //GEM
+      complete(seedSegments, listg2,GE21); //GEM
       complete(seedSegments, mb3, MB3);
       complete(seedSegments, mb2, MB2);
       complete(seedSegments, mb1, MB1);
@@ -533,11 +526,9 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
   GlobalPoint ptg2 = first->globalPosition(); // its global pos +v   
   for (unsigned nr = 0; nr < recHits.size(); ++nr ){
     MuonRecHitPointer recHit(recHits[nr]);
-    if ( recHit->isGEM()  )    
-      std::cout <<"MuonSeedOrcaPatternRecognition::complete " <<  GEMDetId(recHit->geographicalId()) << std::endl;
     
     GlobalPoint ptg1(recHit->globalPosition());
-    std::cout<<ptg1.eta()<<" xy "<<ptg2.eta()<<std::endl;
+    //std::cout<<ptg1.eta()<<" xy "<<ptg2.eta()<<std::endl;
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
     float dphi = fabs( deltaPhi(ptg1.barePhi(), ptg2.barePhi()) );
