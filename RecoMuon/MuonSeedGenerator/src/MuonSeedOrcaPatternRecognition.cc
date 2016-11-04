@@ -115,11 +115,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // Forward (z>0) EndCap disk
   const DetLayer* GE21Fwd = gemForwardLayers[3];
   const DetLayer* GE11Fwd = gemForwardLayers[0];
-
-//  GEM
-  std::cout<<"gem "<<gemForwardLayers.size()<<" "<<gemBackwardLayers.size()<<std::endl;
-std::cout << "muonMeasurements->recHits(GE21Bwd,event).size() " << muonMeasurements->recHits(GE21Bwd,event).size()<< std::endl;
-std::cout << "muonMeasurements->recHits(GE11Bwd,event).size() " << muonMeasurements->recHits(GE11Bwd,event).size()<< std::endl;
   
   // instantiate the accessor
   // Don not use RPC for seeding
@@ -422,10 +417,6 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   // creates list of compatible track segments
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
-    std::cout<<"------------------"<<std::endl;
-    if ( (*iter)->isGEM()  ){
-      std::cout <<"MuonSeedOrcaPatternRecognition " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
-    }
     
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);
@@ -529,14 +520,6 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
        }
     }
   }
-  for (unsigned int i =0; i < result.size(); ++i){
-    for ( MuonRecHitContainer::const_iterator iter = result[i].begin(); iter!= result[i].end(); iter++ ){
-      if ( (*iter)->isGEM()  ){
-	std::cout <<"MuonSeedOrcaPatternRecognition " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
-      }
-    }
-  }
-  
 }
 
 
@@ -700,13 +683,11 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
 {
   MuonPatternRecoDumper theDumper;
 
-  //LogTrace(metname)
-    std::cout << name << std::endl;
+  LogTrace(metname) << name << std::endl;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    //LogTrace(metname)
-      std::cout<< theDumper.dumpMuonId((**segmentItr).geographicalId());
+  LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
 

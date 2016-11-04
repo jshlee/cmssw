@@ -65,8 +65,6 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isCSC() || (*iter)->isGEM()  )
     {
-      if ((*iter)->isGEM()) 
-	std::cout <<"MuonSeedFinder::seeds " <<  GEMDetId((*iter)->geographicalId()) << std::endl;
       theEndcap.add(*iter);
       theOverlap.add(*iter);
       ++num_endcap;

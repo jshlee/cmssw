@@ -85,8 +85,7 @@ MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seed
                              const edm::EventSetup& es){
   
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
-  //LogTrace(metname)
-    std::cout <<"SA Recostruction starting from: "<<seeds->size()<<endl;  
+  LogTrace(metname)<<"SA Recostruction starting from: "<<seeds->size()<<endl;  
   
   // Percolate the event 
   setEvent(event);
