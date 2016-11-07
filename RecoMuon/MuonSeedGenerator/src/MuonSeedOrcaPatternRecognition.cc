@@ -108,13 +108,6 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   const DetLayer* MB3DL = dtLayers[2];
   const DetLayer* MB2DL = dtLayers[1];
   const DetLayer* MB1DL = dtLayers[0];
-
-  // Backward (z<0) EndCap disk
-  const DetLayer* GE21Bwd = gemBackwardLayers[3];
-  const DetLayer* GE11Bwd = gemBackwardLayers[0];
-  // Forward (z>0) EndCap disk
-  const DetLayer* GE21Fwd = gemForwardLayers[3];
-  const DetLayer* GE11Fwd = gemForwardLayers[0];
   
   // instantiate the accessor
   // Don not use RPC for seeding
@@ -137,26 +130,54 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut),
-                 list8, list7, list6,
-                 MB1, MB2, MB3, result);
+  if (gemBackwardLayers.size() + gemForwardLayers.size() == 0){
+    endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
+		   MuonRecHitContainer(),
+		   MuonRecHitContainer(),
+		   list8, list7, list6,
+		   MB1, MB2, MB3, result);
 
-  endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut),
-                 list8, list7, list6,
-                 MB1, MB2, MB3, result);
+    endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
+		   MuonRecHitContainer(),
+		   MuonRecHitContainer(),
+		   list8, list7, list6,
+		   MB1, MB2, MB3, result);
+  }
+  else {
+    // Backward (z<0) EndCap disk
+    const DetLayer* GE21Bwd = gemBackwardLayers[3];
+    const DetLayer* GE11Bwd = gemBackwardLayers[0];
+    // Forward (z>0) EndCap disk
+    const DetLayer* GE21Fwd = gemForwardLayers[3];
+    const DetLayer* GE11Fwd = gemForwardLayers[0];
+    endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut),
+		   list8, list7, list6,
+		   MB1, MB2, MB3, result);
 
+    endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut),
+		   filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut),
+		   list8, list7, list6,
+		   MB1, MB2, MB3, result);
+  }
 
   // ----------    Barrel only
   
@@ -244,12 +265,15 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
 
     tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
-    
-    tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
 
+    if (gemBackwardLayers.size()){//  GEM
+      const DetLayer* GE21Bwd = gemBackwardLayers[3];
+      const DetLayer* GE11Bwd = gemBackwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+      tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+    }
 
     tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -266,11 +290,14 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     tmp = filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-//  GEM
-    tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
-    tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
-    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    if (gemForwardLayers.size()){//  GEM
+      const DetLayer* GE21Fwd = gemForwardLayers[3];
+      const DetLayer* GE11Fwd = gemForwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+      tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+    }
 
     tmp = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -708,8 +735,6 @@ MuonPatternRecoDumper theDumper;
     }
     else if((*segmentItr)->isCSC()) 
     {
-//       CSCDetId pid = (*segmentItr)->geographicalId();
-//      if(fabs(dtheta) < dThetaCut && pid.station()!=1)
       if(fabs(dtheta) < dThetaCut)
       {
         result.push_back(*segmentItr);
@@ -721,18 +746,17 @@ MuonPatternRecoDumper theDumper;
     }
     else if((*segmentItr)->isGEM())
     {
-      std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
-//      if(fabs(dtheta) < dThetaCut)
-//      {
-//std::cout<<"isGEM2 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;    
-        result.push_back(*segmentItr);
-//      }
-//      else
-//      {
-//         LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
-//      }
+      //std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
+      if(fabs(dtheta) < dThetaCut)
+      {
+	//std::cout<<"isGEM2 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;    
+	result.push_back(*segmentItr);
+      }
+      else
+      {
+	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+      }
     }
-
   }
   filterOverlappingChambers(result);
   return result;

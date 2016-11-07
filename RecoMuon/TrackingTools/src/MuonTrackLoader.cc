@@ -39,6 +39,7 @@
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 
 using namespace edm;
 using namespace std;
@@ -80,9 +81,15 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
             hits.push_back(&hit);
         }
         else if (subdet == (uint16_t) MuonSubdetId::GEM) {
-            hits.push_back(&hit);
+	    if (hit.dimension() == 2) { // GEM rechit
+                hits.push_back(&hit);
+            } else if (hit.dimension() == 4) { // GEM segment
+                hits = hit.recHits();
+            }
         }
 	else if (subdet == (uint16_t) MuonSubdetId::ME0) { //segment
+	  std::cout << "MuonTrackLoader::unpackHit ME0 "<< hit.recHits().size()
+		    << std::endl;	  
             hits = hit.recHits();
         }
     }
