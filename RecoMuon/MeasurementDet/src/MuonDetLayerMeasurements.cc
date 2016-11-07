@@ -277,14 +277,10 @@ void MuonDetLayerMeasurements::checkGEMRecHits()
     theEvent->getByToken(gemRHToken_, theGEMRecHits);
     theGEMEventCacheID = cacheID;
   }
-  if(!theGEMRecHits.isValid())
+  if(!theGEMRecHits.isValid() && !theGEMSegments.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM RecHits";
   }
-  if(!theGEMSegments.isValid())
-  {
-    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM Segments";
-  }  
 }
 
 void MuonDetLayerMeasurements::checkME0RecHits()
