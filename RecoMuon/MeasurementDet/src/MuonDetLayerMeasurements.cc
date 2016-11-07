@@ -6,8 +6,7 @@
  *  \modified by D. Nash to include ME0s
  *
  *  \modified by C. Calabria & A.Sharma to include GEMs
- *
- *
+ *  \modified by J. Lee to include both GEMRecHits and GEMSegments
  */
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
@@ -30,6 +29,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
  						   edm::InputTag gemlabel,
+ 						   edm::InputTag gemRHlabel,
 						   edm::InputTag me0label,
 						   edm::ConsumesCollector& iC,
 						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0): 
@@ -41,6 +41,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
+  theGEMSegments(),
   theGEMRecHits(),
   theDTEventCacheID(0),
   theCSCEventCacheID(0),
@@ -53,7 +54,8 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
   cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
   rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
-  gemToken_ = iC.consumes<GEMSegmentCollection>(gemlabel);
+  gemSegToken_ = iC.consumes<GEMSegmentCollection>(gemlabel);
+  gemRHToken_ = iC.consumes<GEMRecHitCollection>(gemRHlabel);
   me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
 
   static int procInstance(0);
@@ -147,18 +149,30 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
 	// Create the chamber Id
 	GEMDetId chamberId(geoId.rawId());
-    
-	// Get the GEM-Segment which relies on this chamber
-	GEMSegmentCollection::range range = theGEMRecHits->get(chamberId);
 
-	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
-							   <<", from chamber: "<< chamberId<<std::endl;
-
-	// Create the MuonTransientTrackingRecHit
-	for (GEMSegmentCollection::const_iterator rechit = range.first; 
-	     rechit!=range.second; ++rechit){
-	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
-	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	if (chamberId.layer() == 0){
+	  // Get the GEMSegment which relies on this chamber
+	  GEMSegmentCollection::range range = theGEMSegments->get(chamberId);
+	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMSegments->size()
+							     <<", from chamber: "<< chamberId<<std::endl;
+	  // Create the MuonTransientTrackingRecHit
+	  for (GEMSegmentCollection::const_iterator rechit = range.first;
+	       rechit!=range.second; ++rechit){
+	    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
+	    result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	  }
+	}
+	else {
+	  // Get the GEMRecHit which relies on this chamber
+	  GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
+	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
+							     <<", from chamber: "<< chamberId<<std::endl;
+	  // Create the MuonTransientTrackingRecHit
+	  for (GEMRecHitCollection::const_iterator rechit = range.first;
+	       rechit!=range.second; ++rechit){
+	    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On GEM iteration " <<std::endl;
+	    result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	  }
 	}
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
       }
@@ -259,13 +273,18 @@ void MuonDetLayerMeasurements::checkGEMRecHits()
   if (cacheID == theGEMEventCacheID) return;
 
   {
-    theEvent->getByToken(gemToken_, theGEMRecHits);
+    theEvent->getByToken(gemSegToken_, theGEMSegments);
+    theEvent->getByToken(gemRHToken_, theGEMRecHits);
     theGEMEventCacheID = cacheID;
   }
   if(!theGEMRecHits.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM RecHits";
   }
+  if(!theGEMSegments.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM Segments";
+  }  
 }
 
 void MuonDetLayerMeasurements::checkME0RecHits()

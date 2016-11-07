@@ -60,7 +60,7 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
 theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.getParameter<double>("deltaEtaCrackSearchWindow") : 0.25)
 {
 
-  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),theGEMRecSegmentLabel,edm::InputTag(),
+  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),theGEMRecSegmentLabel,edm::InputTag(),edm::InputTag(),
 						   iC,
 						   enableDTMeasurement,enableCSCMeasurement,false,enableGEMMeasurement,false);
 }
