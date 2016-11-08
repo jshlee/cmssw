@@ -88,8 +88,6 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
             }
         }
 	else if (subdet == (uint16_t) MuonSubdetId::ME0) { //segment
-	  std::cout << "MuonTrackLoader::unpackHit ME0 "<< hit.recHits().size()
-		    << std::endl;	  
             hits = hit.recHits();
         }
     }

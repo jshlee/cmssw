@@ -187,6 +187,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 	ME0DetId chamberId(geoId.rawId());
     
 	// Get the ME0-Segment which relies on this chamber
+	// Getting rechits right now, not segments - maybe it should be segments?
 	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
 
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()

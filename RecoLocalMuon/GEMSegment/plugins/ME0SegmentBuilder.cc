@@ -69,7 +69,8 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     std::vector<ME0Segment> segv = algo->run(ensemble, me0RecHits);
     ME0DetId mid(enIt->first);
     
-    ME0DetId midchamber(mid.chamberId());
+    // segment is defined from first partition of first layer
+    ME0DetId midchamber(ME0DetId(mid.region(),1,mid.chamber(),1));
 
     #ifdef EDM_ML_DEBUG
     LogDebug("ME0SegmentBuilder") << "found " << segv.size() << " segments in chamber " << mid;
