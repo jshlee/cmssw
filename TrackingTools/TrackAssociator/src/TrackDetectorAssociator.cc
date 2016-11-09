@@ -823,6 +823,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	  if (parameters.useME0){
 	    if (const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
 	      // Get the range for the corresponding segments
+	      std::cout << "TrackDetectorAssociator::ME0 " << chamber->id()<<std::endl;
 	      ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
 	      // Loop over the segments
 	      for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {

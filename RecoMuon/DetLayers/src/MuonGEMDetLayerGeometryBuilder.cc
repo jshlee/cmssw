@@ -37,11 +37,16 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
 	for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++ ) chambers.push_back(chamber);
 
-	//for(int roll = GEMDetId::minRollId; roll <= GEMDetId::maxRollId; ++roll){
-	for(int roll = GEMDetId::minRollId; roll <= 8; ++roll){
-	  rolls.push_back(roll);
-	  if (layer == 0) break; // super chamber doesnt have rolls
+	// layer 0 is super chamber, it doesnt have rolls
+	if (layer == 0){
+	  rolls.push_back(0);
 	}
+	else {
+	  for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll) {
+	    rolls.push_back(roll);
+	  }
+	}
+	
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
 
 	if (ringLayer) result[iendcap].push_back(ringLayer);
