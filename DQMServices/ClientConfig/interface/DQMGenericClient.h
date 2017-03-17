@@ -36,7 +36,7 @@ class DQMGenericClient : public DQMEDHarvester
   struct EfficOption
   {
     std::string name, title;
-    std::string numerator, denominator;
+    std::string numerator, denominator, events;
     int type;
     bool isProfile;
   };
@@ -70,7 +70,8 @@ class DQMGenericClient : public DQMEDHarvester
                          const std::string& efficMEName, 
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
-                         const std::string& simMEName, 
+                         const std::string& simMEName,
+                         const std::string& evtMEName,
                          const int type=1,
                          const bool makeProfile = false);
   void computeResolution(DQMStore::IBooker& ibooker,
@@ -95,7 +96,7 @@ class DQMGenericClient : public DQMEDHarvester
 			  const std::string& cdName,
                           bool ascending=true);
 
-  void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
+  void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME, MonitorElement * rmsME);
 
  private:
   unsigned int verbose_;
@@ -112,7 +113,7 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
 
-  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1, const int numEvts=1);
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,
