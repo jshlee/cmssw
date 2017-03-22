@@ -257,7 +257,6 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		selector_=TrackingParticleSelector( param.getParameter<double>( "ptMinTP" ),
 				param.getParameter<double>( "minRapidityTP" ),
 				param.getParameter<double>( "maxRapidityTP" ),
-                param.getParameter<bool>( "useAbsEta" ),
 				param.getParameter<double>( "tipTP" ),
 				param.getParameter<double>( "lipTP" ),
 				param.getParameter<int>( "minHitTP" ),
