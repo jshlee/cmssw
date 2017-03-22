@@ -92,6 +92,7 @@ class CSCRecHitDBuilder
    * Cache geometry for current event
    */
   const CSCGeometry* geom_;
+  int stationNotToUse_;
   /* 
    * Cache conditions data for current event - cannot be const because we need to update bad channels words
    */
