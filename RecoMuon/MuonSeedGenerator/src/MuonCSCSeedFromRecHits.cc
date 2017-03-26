@@ -127,7 +127,6 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         double pt = pts[0];
         double sigmapt = pts[1];
         double minpt = 3.;
-
         // if too small, probably an error.  Keep trying.
         if(fabs(pt) > minpt)
         {
@@ -164,6 +163,9 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   int Nchi2 = 0;
   int quality = 0;
   int nhits = segment->recHits().size();
+
+  if (segment->isGEM()) return 5;//gem only has 2 hits... 
+  
   if ( segment->chi2()/(nhits*2.-4.) > 3. ) Nchi2 = 1;
   if ( segment->chi2()/(nhits*2.-4.) > 9. ) Nchi2 = 2;
 
