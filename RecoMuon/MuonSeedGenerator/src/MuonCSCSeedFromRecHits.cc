@@ -1,6 +1,8 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -34,6 +36,14 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
         iter != end; ++iter)
   {
     int station = CSCDetId((*iter)->geographicalId().rawId()).station();
+    if ((*iter)->isGEM()) {
+      station=GEMDetId((*iter)->geographicalId().rawId()).station();
+      if (station==3) {station=2;}
+    }
+    if ((*iter)->isME0()) {
+      station=1;//ME0DetId((*iter)->geographicalId().rawId()).station();
+    }
+
     if(station == 1)
     {
       station1Hits.push_back(*iter);
@@ -117,7 +127,6 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         double pt = pts[0];
         double sigmapt = pts[1];
         double minpt = 3.;
-
         // if too small, probably an error.  Keep trying.
         if(fabs(pt) > minpt)
         {
@@ -154,6 +163,9 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   int Nchi2 = 0;
   int quality = 0;
   int nhits = segment->recHits().size();
+
+  if (segment->isGEM()) return 5;//gem only has 2 hits... 
+  
   if ( segment->chi2()/(nhits*2.-4.) > 3. ) Nchi2 = 1;
   if ( segment->chi2()/(nhits*2.-4.) > 9. ) Nchi2 = 2;
 
@@ -185,7 +197,7 @@ MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) co
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
 
   for ( MuonRecHitContainer::const_iterator iter = endcapHits.begin(); iter!= endcapHits.end(); iter++ ){
-    if ( !(*iter)->isCSC() ) continue;
+    if ( !(*iter)->isCSC() && !(*iter)->isGEM() && !(*iter)->isME0() ) continue;
 
     // tmp compar. Glob-Dir for the same tr-segm:
 
