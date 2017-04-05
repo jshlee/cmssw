@@ -31,7 +31,8 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
       
     for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {      
-      for(int layer = GEMDetId::minLayerId+1; layer <= GEMDetId::maxLayerId; ++layer) { 
+      int layer = GEMDetId::minLayerId;
+      //for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
 
 	vector<int> rolls, rings, chambers; 
 	for(int ring = GEMDetId::minRingId; ring <= GEMDetId::maxRingId; ++ring) rings.push_back(ring);
@@ -39,11 +40,16 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	  chambers.push_back(chamber);
 	for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll)
 	  rolls.push_back(roll);
-	
+
+	//superchamber, no rolls
+	if (layer == 0){
+	  rolls.clear();
+	  rolls.push_back(0);
+	}
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
 
 	if (ringLayer) result[iendcap].push_back(ringLayer);
-      }
+	//}
     }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 

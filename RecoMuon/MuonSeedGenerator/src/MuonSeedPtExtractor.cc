@@ -2,6 +2,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "TMath.h"
 #include <sstream>
@@ -137,7 +139,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   // ways in which the hits could be in the wrong order
   if( (outerHit->isDT() && innerHit->isCSC())
    || (outerHit->isDT() && innerHit->isDT() && (innerPoint.perp() > outerPoint.perp())) 
-   || (outerHit->isCSC() && innerHit->isCSC() && (fabs(innerPoint.z()) > fabs(outerPoint.z()))) )
+   || ((outerHit->isCSC() || outerHit->isGEM() || outerHit->isME0()) && (innerHit->isCSC() || innerHit->isGEM() || innerHit->isME0()) && (fabs(innerPoint.z()) > fabs(outerPoint.z()))) )
   {
     innerHit = secondHit;
     outerHit = firstHit;
@@ -150,8 +152,9 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
 
   double etaInner = innerPoint.eta();
   double etaOuter = outerPoint.eta();
-  //std::cout<<" inner pos = "<< innerPoint << " phi eta " << phiInner << " " << etaInner << std::endl;
-  //std::cout<<" outer pos = "<< outerPoint << " phi eta " << phiOuter << " " << etaOuter << std::endl;
+  
+  // std::cout<<" inner pos = "<< innerPoint << " phi eta " << phiInner << " " << etaInner << std::endl;
+  // std::cout<<" outer pos = "<< outerPoint << " phi eta " << phiOuter << " " << etaOuter << std::endl;
   //double thetaInner = firstHit->globalPosition().theta();
   // if some of the segments is missing r-phi measurement then we should
   // use only the 4D phi estimate (also use 4D eta estimate only)
@@ -251,6 +254,23 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       os << cscId.station() << ring;
       combination = "SME_"+os.str();
     }
+    else if(innerHit->isGEM())
+    {
+      GEMDetId gemId(detId_inner);
+      std::ostringstream os;
+      int ring = gemId.ring();
+      //if(ring == 4) ring = 1;
+      os << gemId.station() << ring;
+      combination = "SME_"+os.str();
+    }
+    else if(innerHit->isME0())
+    {
+      ME0DetId me0Id(detId_inner);
+      std::ostringstream os;
+      int ring = 1;//me0Id.ring(); me0 only in ring 1
+      os << me0Id.station() << ring;
+      combination = "SME_"+os.str();
+    }
     else
     {
       throw cms::Exception("MuonSeedPtExtractor") << "Bad hit DetId";
@@ -335,6 +355,9 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
 	pTestimate[0] = fabs(pTestimate[0]);
 	pTestimate[1] = fabs(pTestimate[1]);
       }
+      // if(innerHit->isGEM() || innerHit->isME0() ){
+      //  	pTestimate[0] = pTestimate[1] = 100;
+      // }
       pTestimate[0] *= double(sign);
     }
   }
@@ -343,7 +366,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     pTestimate[0] = pTestimate[1] = 100;
     // hmm
   }
-  // std::cout<<" pTestimate[0] = "<<pTestimate[0]<<" pTestimate[1] = "<<pTestimate[1]<<std::endl;
+  
+  //  std::cout<<" pTestimate[0] = "<<pTestimate[0]<<" pTestimate[1] = "<<pTestimate[1]<<std::endl;
   /*
                               MuonRecHitContainer_clusters[cluster][iHit+1]->isDT());
           if(specialCase){
@@ -366,12 +390,20 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
     //std::cout<<"first (DT) St/W/S = "<<dtCh.station()<<"/"<<dtCh.wheel()<<"/"<<dtCh.sector()<<"/"<<std::endl;
     result = -1 * dtCh.station();
   }
-  else if( hit->isCSC() ){
+  else if( hit->isCSC()){
     CSCDetId cscID(detId);
     //std::cout<<"first (CSC) E/S/R/C = "<<cscID.endcap()<<"/"<<cscID.station()<<"/"<<cscID.ring()<<"/"<<cscID.chamber()<<std::endl;
     result = cscID.station();
     if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
        result = 0;
+  }
+  else if( hit->isGEM()){
+    GEMDetId gemID(detId);
+    //std::cout<<"first (GEM) E/S/R/C = "<<gemID.endcap()<<"/"<<gemID.station()<<"/"<<gemID.ring()<<"/"<<gemID.chamber()<<std::endl;
+    result = gemID.station();
+  }
+  else if( hit->isME0()){
+    result = 0;
   }
   else if(hit->isRPC()){
   }
