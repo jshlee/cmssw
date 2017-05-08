@@ -59,6 +59,7 @@ TPNtuplizer::TPNtuplizer(edm::ParameterSet const& conf) :
   tpSelector_ = TrackingParticleSelector(conf_.getParameter<double>("ptMinTP"),
                                          conf_.getParameter<double>("minRapidityTP"),
                                          conf_.getParameter<double>("maxRapidityTP"),
+                                         conf_.getParameter<bool>("useAbsEta"),
                                          conf_.getParameter<double>("tipTP"),
                                          conf_.getParameter<double>("lipTP"),
                                          conf_.getParameter<int>("minHitTP"),

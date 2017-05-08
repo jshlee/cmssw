@@ -13,10 +13,28 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class MuonTrackProducer : public edm::stream::EDProducer<> {
   public:
     explicit MuonTrackProducer(const edm::ParameterSet&);
+    std::vector<double> findSimVtx(edm::Event& iEvent);
+    bool isGlobalTightMuon(const reco::MuonCollection::const_iterator muonRef);
+    bool isTrackerTightMuon(const reco::MuonCollection::const_iterator muonRef);
+    bool isIsolatedMuon(const reco::MuonCollection::const_iterator muonRef);
+    bool isME0MuonSel(reco::MuonCollection::const_iterator muon, double pullXCut, double dXCut, double pullYCut, double dYCut, double dPhiCut);
+    bool isLoose(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
+    bool isTight(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
+    bool isTightClassic(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
+    bool isLooseMod(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
+    bool isTightMod(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
+    bool isLooseModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
+    bool isTightModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
+    bool isTightModExtSim(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
     virtual ~MuonTrackProducer();
 
   private:
@@ -27,6 +45,11 @@ class MuonTrackProducer : public edm::stream::EDProducer<> {
     edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
 
     edm::EDGetTokenT<reco::MuonCollection> muonsToken;
+    edm::EDGetTokenT<reco::VertexCollection> vtx_Token;
+    edm::EDGetTokenT<reco::GenParticleCollection> genP_Token;
+    edm::EDGetTokenT<reco::BeamSpot> bs_Token;
+
+    bool useIPxy, useIPz;
     edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
     edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
 

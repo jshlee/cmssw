@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 // #include "IOMC/Input/interface/MCFileSource.h"
 
@@ -18,6 +20,7 @@
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunProducer.h"
 #include "IOMC/ParticleGuns/interface/RandomtXiGunProducer.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomPtAndDxyGunProducer.h"
+#include "IOMC/ParticleGuns/interface/FlatRandomPtAndD0GunProducer.h"
 
 
 // particle gun prototypes
@@ -55,3 +58,5 @@ using edm::RandomtXiGunProducer;
 DEFINE_FWK_MODULE(RandomtXiGunProducer);
 using edm::FlatRandomPtAndDxyGunProducer;
 DEFINE_FWK_MODULE(FlatRandomPtAndDxyGunProducer);
+using edm::FlatRandomPtAndD0GunProducer;
+DEFINE_FWK_MODULE(FlatRandomPtAndD0GunProducer);

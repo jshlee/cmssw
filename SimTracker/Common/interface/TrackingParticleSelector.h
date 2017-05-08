@@ -16,10 +16,10 @@ class TrackingParticleSelector {
 
 public:
   TrackingParticleSelector(){}
-  TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
+  TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,bool useAbsEta,
 			     double tip,double lip,int minHit, bool signalOnly, bool intimeOnly, bool chargedOnly, bool stableOnly,
 			     const std::vector<int>& pdgId = std::vector<int>()) :
-    ptMin2_( ptMin*ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
+    ptMin2_( ptMin*ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ), useAbsEta_(useAbsEta),
     tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
@@ -56,10 +56,15 @@ public:
     }
 
     auto etaOk = [&](const TrackingParticle& p)->bool{ float eta= etaFromXYZ(p.px(),p.py(),p.pz()); return (eta>= minRapidity_) & (eta<=maxRapidity_);};
+    auto absetaOk = [&](const TrackingParticle& p)->bool{ float eta= std::fabs(etaFromXYZ(p.px(),p.py(),p.pz())); return (eta>= minRapidity_) & (eta<=maxRapidity_);};
+      
+    bool etaRangeOk = etaOk(tp);
+    if(useAbsEta_) etaRangeOk = absetaOk(tp);
+      
     return (
  	    tp.numberOfTrackerLayers() >= minHit_ &&
 	    tp.p4().perp2() >= ptMin2_ &&
-            etaOk(tp) &&
+            etaRangeOk &&
             std::abs(tp.vertex().z()) <= lip_ &&   // vertex last to avoid to load it if not striclty necessary...
 	    tp.vertex().perp2() <= tip2_
 	    );
@@ -67,8 +72,10 @@ public:
 
 private:
   double ptMin2_;
+  bool useAbsEta;
   float minRapidity_;
   float maxRapidity_;
+  bool useAbsEta_;
   double tip2_;
   double lip_;
   int    minHit_;
@@ -93,6 +100,7 @@ namespace reco {
  	  cfg.getParameter<double>( "ptMin" ),
 	  cfg.getParameter<double>( "minRapidity" ),
 	  cfg.getParameter<double>( "maxRapidity" ),
+      cfg.getParameter<bool>( "useAbsEta" ),
 	  cfg.getParameter<double>( "tip" ),
 	  cfg.getParameter<double>( "lip" ),
 	  cfg.getParameter<int>( "minHit" ),

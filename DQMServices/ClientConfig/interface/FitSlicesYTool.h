@@ -27,11 +27,14 @@ class FitSlicesYTool {
   void getFittedMeanWithError(MonitorElement*);
   /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
   void getFittedSigmaWithError(MonitorElement*);
+  /// Fill the ME with the RMS value (with error) of each slice 
+  void getRMS(MonitorElement*);
  private:
   TH1* h0;
   TH1* h1;
   TH1* h2;
   TH1* h3;
+  TH2F* h2D;
 };
 
 #endif

@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # Modified from Configuration/Generator/python/SingleMuPt10_cfi.py
 generator = cms.EDFilter("Pythia8PtGun",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(200.0),
-        MinPt = cms.double(0.9),
+        MaxPt = cms.double(250.0),
+        MinPt = cms.double(0.5),
         ParticleID = cms.vint32(-13,-13),
         AddAntiParticle = cms.bool(True),
         MaxEta = cms.double(4.0),
