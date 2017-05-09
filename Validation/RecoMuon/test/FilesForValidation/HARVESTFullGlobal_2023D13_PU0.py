@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('HARVESTING',eras.Phase2C1)
+process = cms.Process('HARVESTING',eras.Phase2C2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -15,7 +15,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D13Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -29,14 +29,18 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring(
                             
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_1.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_2.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_3.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_4.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_5.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_6.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_7.root',
-                                      'file:/lustre/cms/store/user/calabria/RelValZMM_14/crab_Val_900_pre1_2023D4_PU0_D3_2/161215_105525/0000/step31_inDQM_8.root'
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_1.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_10.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_11.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_12.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_2.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_3.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_4.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_5.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_6.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_7.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_8.root',
+'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_9.root'
                             
                             )
 )
@@ -61,7 +65,7 @@ process.configurationMetadata = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.dqmSaver.workflow = "/Global/CMSSW_9_0_0_pre1/RECO_PU0_D3_ZMM"
+process.dqmSaver.workflow = "/Global/CMSSW_9_1_0_pre3/RECO_PU0_D13_ZMM"
 
 # Path and EndPath definitions
 process.dqmHarvestingPOGMC = cms.Path(process.DQMOffline_SecondStep_PrePOGMC)
