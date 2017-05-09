@@ -19,6 +19,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+
 class MuonTrackProducer : public edm::stream::EDProducer<> {
   public:
     explicit MuonTrackProducer(const edm::ParameterSet&);
@@ -26,7 +30,8 @@ class MuonTrackProducer : public edm::stream::EDProducer<> {
     bool isGlobalTightMuon(const reco::MuonCollection::const_iterator muonRef);
     bool isTrackerTightMuon(const reco::MuonCollection::const_iterator muonRef);
     bool isIsolatedMuon(const reco::MuonCollection::const_iterator muonRef);
-    bool isME0MuonSel(reco::MuonCollection::const_iterator muon, double pullXCut, double dXCut, double pullYCut, double dYCut, double dPhiCut);
+    bool isME0MuonSel(reco::MuonCollection::const_iterator, double, double, double, double, double);
+    bool isME0MuonSelNew(reco::MuonCollection::const_iterator, double, double, double, edm::Event&, const edm::EventSetup&);
     bool isLoose(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
     bool isTight(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
     bool isTightClassic(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);

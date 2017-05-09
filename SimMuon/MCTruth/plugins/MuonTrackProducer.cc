@@ -271,6 +271,62 @@ bool MuonTrackProducer::isME0MuonSel(reco::MuonCollection::const_iterator muon, 
     
 }
 
+bool MuonTrackProducer::isME0MuonSelNew(reco::MuonCollection::const_iterator muon, double dEtaCut, double dPhiCut, double dPhiBendCut, edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+    
+    bool result = false;
+    bool isME0 = muon->isME0Muon();
+    
+    if(isME0){
+        
+        double deltaEta = 999;
+        double deltaPhi = 999;
+        double deltaPhiBend = 999;
+        
+        bool eta_MatchFound = false, phi_MatchFound = false, bend_MatchFound = false;
+        
+        const std::vector<reco::MuonChamberMatch>& chambers = muon->matches();
+        for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber ){
+            
+            for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->me0Matches.begin(); segment != chamber->me0Matches.end(); ++segment ){
+                
+                if (chamber->detector() == 5){
+                    
+                    LocalPoint trk_loc_coord(chamber->x, chamber->y, 0);
+                    LocalPoint seg_loc_coord(segment->x, segment->y, 0);
+                    LocalVector trk_loc_vec(chamber->dXdZ, chamber->dYdZ, 1);
+                    
+                    edm::ESHandle<ME0Geometry> hGeom;
+                    iSetup.get<MuonGeometryRecord>().get(hGeom);
+                    const ME0Geometry* ME0Geometry_ =( &*hGeom);
+                    const ME0Chamber * me0chamber = ME0Geometry_->chamber(chamber->detector());
+                    
+                    GlobalPoint trk_glb_coord = me0chamber->toGlobal(trk_loc_coord);
+                    GlobalPoint seg_glb_coord = me0chamber->toGlobal(seg_loc_coord);
+                    
+                    double segDPhi = segment->me0SegmentRef->deltaPhi();
+                    double trackDPhi = me0chamber->computeDeltaPhi(trk_loc_coord, trk_loc_vec);
+                    
+                    deltaEta = fabs(trk_glb_coord.eta() - seg_glb_coord.eta() );
+                    deltaPhi = fabs(trk_glb_coord.phi() - seg_glb_coord.phi() );
+                    deltaPhiBend = fabs(segDPhi - trackDPhi);
+                    
+                }
+            }
+        }
+        
+        if ( deltaEta < dEtaCut ) eta_MatchFound = true;
+        if ( deltaPhi < dPhiCut ) phi_MatchFound = true;
+        if ( deltaPhiBend < dPhiBendCut ) bend_MatchFound = true;
+        
+        result = eta_MatchFound && phi_MatchFound && bend_MatchFound;
+        
+    }
+    
+    return result;
+    
+}
+
 bool MuonTrackProducer::isLoose(edm::Event& iEvent, reco::MuonCollection::const_iterator muon)
 {
   bool isPF = muon->isPFMuon();
