@@ -10,7 +10,7 @@ gemRecHitsValidation = cms.EDAnalyzer('GEMRecHitsValidation',
     # st1 xmin xmax, st2 xmin xmax, st1 ymin ymax, st2 ymin ymax
     RangeGlobalZR = cms.untracked.vdouble(564,574,792,802,110,290,120,390), 
     nBinGlobalXY = cms.untracked.int32(720), 
-    detailPlot = cms.bool(False),
+    detailPlot = cms.bool(True),
 )
 
 gemRecHitTrackValidation = cms.EDAnalyzer('GEMRecHitTrackMatch',
@@ -27,7 +27,7 @@ gemRecHitTrackValidation = cms.EDAnalyzer('GEMRecHitTrackMatch',
   gemMinPt = cms.untracked.double(5.0),
   gemMinEta = cms.untracked.double(1.55),
   gemMaxEta = cms.untracked.double(2.45),
-  detailPlot = cms.bool(False),
+  detailPlot = cms.bool(True),
 )
 
 gemLocalRecoValidation = cms.Sequence( gemRecHitsValidation+gemRecHitTrackValidation )
