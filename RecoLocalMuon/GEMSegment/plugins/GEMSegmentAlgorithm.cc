@@ -63,7 +63,18 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
   std::vector<GEMSegment>          segments_temp;
   std::vector<GEMSegment>          segments;
   ProtoSegments rechits_clusters; // this is a collection of groups of rechits
-  
+
+  rechits_clusters = this->simpleChain(ensemble, rechits );
+  for(auto sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
+    // clear the buffer for the subset of segments:
+    segments_temp.clear();
+    // build the subset of segments:
+    this->buildSegments(ensemble, (*sub_rechits), segments_temp);
+    // add the found subset of segments to the collection of all segments in this chamber:
+    segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
+  }
+  return segments;
+    
   if(preClustering) {
     // run a pre-clusterer on the given rechits to split obviously separated segment seeds:
     if(preClustering_useChaining){
@@ -97,6 +108,74 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
   }
 }
 
+GEMSegmentAlgorithm::ProtoSegments 
+GEMSegmentAlgorithm::simpleChain(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
+
+  ProtoSegments rechits_chains; 
+  ProtoSegments seeds;  
+  seeds.reserve(rechits.size());
+  std::vector<bool> usedCluster(rechits.size(),false);
+  
+  // split rechits into subvectors and return vector of vectors:
+  // Loop over rechits
+  // Create one seed per hit
+  for ( unsigned int i=0; i<rechits.size(); ++i)
+    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
+  
+  // merge chains that are too close ("touch" each other)
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
+    
+    size_t bestMatchN = 0;
+    float bestMatchX = 10.0;
+    const EnsembleHitContainer& newChain = seeds[NNN];
+    GEMDetId newID = newChain[0]->gemId();
+    const GEMEtaPartition * newRHEP = (ensemble.second.find(newID.rawId()))->second;
+    GlobalPoint newPos = newRHEP->toGlobal(newChain[0]->localPosition());
+    //std::cout << "new chain "<< NNN<<newID.chamberId() << std::endl;
+    
+    for(size_t MMM = 0; MMM < seeds.size(); ++MMM) {
+      if (NNN == MMM) continue;
+      if(usedCluster[MMM] || usedCluster[NNN]) continue;
+
+      // compare last hit with new hit
+      const EnsembleHitContainer& oldChain = seeds[MMM];
+      size_t iRH_old = oldChain.size() -1;
+      GEMDetId oldID = oldChain[iRH_old]->gemId();
+
+      // only 1 hit per layer
+      if (oldID.chamberId() == newID.chamberId()) continue;	  
+      //std::cout << "old chain "<< MMM << " size "<< iRH_old <<oldID.chamberId() << std::endl;
+      const GEMEtaPartition * oldRHEP = (ensemble.second.find(oldID.rawId()))->second;
+      GlobalPoint oldPos = oldRHEP->toGlobal(oldChain[iRH_old]->localPosition());
+      // new hit is added behined old last hit
+      if (std::abs(newPos.z()) - std::abs(oldPos.z()) < 0.0001) continue;
+      float newMatch = (newPos.x() - oldPos.x())*(newPos.x() - oldPos.x()) + (newPos.y() - oldPos.y())*(newPos.y() - oldPos.y());
+      if (newMatch < bestMatchX){
+	bestMatchX = newMatch;
+	bestMatchN = MMM;
+      }
+    }
+    if (bestMatchX < 4.0){
+      // merge chains!
+      // merge by adding seed NNN to seed MMM and erasing seed NNN      
+      // add seed NNN to MMM (lower to larger number)
+      seeds[bestMatchN].insert(seeds[bestMatchN].end(),seeds[NNN].begin(),seeds[NNN].end());
+      usedCluster[NNN] = true;
+    }
+  }
+
+  // hand over the final seeds to the output
+  // would be more elegant if we could do the above step with
+  // erasing the merged ones, rather than the
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
+    if(usedCluster[NNN]) continue; //skip seeds that have been marked as used up in merging
+    rechits_chains.push_back(seeds[NNN]);
+  }
+
+  //***************************************************************
+
+  return rechits_chains;
+}
 
 // ********************************************************************;
 GEMSegmentAlgorithm::ProtoSegments 
@@ -202,7 +281,6 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
 
   return rechits_clusters;
 }
-
 
 GEMSegmentAlgorithm::ProtoSegments 
 GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
@@ -314,6 +392,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   proto_segment.clear();
   
   // select hits from the ensemble and sort it
+  //std::cout << "[GEMSegmentAlgorithm::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits\n";
   const GEMSuperChamber * suCh   = ensemble.first;
   for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
     proto_segment.push_back(*rh);
@@ -322,6 +401,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
     const GEMEtaPartition * thePartition   = (ensemble.second.find((*rh)->gemId()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
     const LocalPoint lp = suCh->toLocal(gp);
+    //std::cout<< "[RecHit :: gp = "<<gp<< std::endl;
     
     GEMRecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
@@ -390,6 +470,11 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] will now wrap fit info in GEMSegment dataformat";
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, bx);
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
+  double gptheta = suCh->toGlobal(tmp.localPosition()).theta();
+  double gdtheta = suCh->toGlobal(tmp.localDirection()).theta();
+  double dtheta = gdtheta - gptheta;
+  //  std::cout << "[GEMSegmentAlgorithm::buildSegments] "<<tmp<<std::endl;
+  //  std::cout<<"GEMSegmentAlgorithm "<<suCh->id()<< " " <<fabs(dtheta)<<" dir "<< gdtheta <<" pos "<< gptheta <<std::endl;
 
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;

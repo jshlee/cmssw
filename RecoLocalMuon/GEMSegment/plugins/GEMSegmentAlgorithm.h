@@ -49,6 +49,8 @@ private:
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
   ProtoSegments chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
 
+  ProtoSegments simpleChain(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
+
   bool isGoodToMerge(const GEMEnsemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
