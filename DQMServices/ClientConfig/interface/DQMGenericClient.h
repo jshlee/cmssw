@@ -37,13 +37,14 @@ class DQMGenericClient : public DQMEDHarvester
     none = 0,
     efficiency,
     fakerate,
-    simpleratio
+    simpleratio,
+    yield
   };
 
   struct EfficOption
   {
     std::string name, title;
-    std::string numerator, denominator;
+    std::string numerator, denominator, events;
     EfficType type;
 
     bool isProfile;
@@ -79,6 +80,7 @@ class DQMGenericClient : public DQMEDHarvester
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName,
+                         const std::string& evtMEName,
                          const EfficType type=EfficType::efficiency,
 
                          const bool makeProfile = false);
@@ -121,7 +123,7 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
 
-  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency, const int numEvts=1);
 
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,

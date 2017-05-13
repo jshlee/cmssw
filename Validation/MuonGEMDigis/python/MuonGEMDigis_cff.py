@@ -52,7 +52,7 @@ gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
 )
 
 gemGeometryChecker = cms.EDAnalyzer('GEMCheckGeometry',
-  detailPlot = cms.bool(False), 
+  detailPlot = cms.bool(True),
 )
 
 gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation+gemDigiTrackValidation+gemGeometryChecker)
