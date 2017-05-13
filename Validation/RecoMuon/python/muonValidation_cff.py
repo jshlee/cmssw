@@ -848,11 +848,11 @@ displacedStaMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 displacedStaMuonTrackVMuonAssoc.label = ('displacedStandAloneMuons',)
 displacedStaMuonTrackVMuonAssoc.usetracker = False
 displacedStaMuonTrackVMuonAssoc.usemuon = True
-displacedStaMuonTrackVMuonAssoc.tipTP = 300000.
-displacedStaMuonTrackVMuonAssoc.lipTP = 300000.
+displacedStaSeedTrackVMuonAssoc.tipTP = cms.double(85.)
+displacedStaSeedTrackVMuonAssoc.lipTP = cms.double(210.)
 displacedStaMuonTrackVMuonAssoc.vertexSrc = ""
-displacedStaMuonTrackVMuonAssoc.prodRho = 350.
-displacedStaMuonTrackVMuonAssoc.prodZ = 500.
+#displacedStaMuonTrackVMuonAssoc.prodRho = 350.
+#displacedStaMuonTrackVMuonAssoc.prodZ = 500.
 
 displacedGlbMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedGlbMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedGlbMuonAssociation'

@@ -64,6 +64,11 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
                              
     "yield_sgn 'Average bkg yield vs #eta' num_assoc(recoToSim)_eta_SgnMu num_reco_eta yield numEvt",
     "yieldPt_sgn 'Average bkg yield vs p_{T}' num_assoc(recoToSim)_pT_SgnMu num_reco_pT yield numEvt",
+    "yieldPt_sgn_24 'Average bkg yield vs p_{T}' num_assoc(recoToSim)_pT_SgnMu_24 num_reco_pT_24 yield numEvt",
+    "yieldPt_sgn_28 'Average bkg yield vs p_{T}' num_assoc(recoToSim)_pT_SgnMu_28 num_reco_pT_28 yield numEvt",
+    "yieldP_sgn 'Average bkg yield vs p' num_assoc(recoToSim)_pT_SgnMu num_reco_pT yield numEvt",
+    "yieldP_sgn_24 'Average bkg yield vs p' num_assoc(recoToSim)_p_SgnMu_24 num_reco_p_24 yield numEvt",
+    "yieldP_sgn_28 'Average bkg yield vs p' num_assoc(recoToSim)_p_SgnMu_28 num_reco_p_28 yield numEvt",
 
     "effic_Q05 'Efficiency vs #eta (Quality>0.5)' num_assoc(simToReco)_eta_Q05 num_simul_eta",
     "effic_Q05Pt10 'Efficiency vs #eta (Quality>0.5, pT > 10 GeV/c)' num_assoc(simToReco)_eta_pt10 num_simul_eta_pt10",
