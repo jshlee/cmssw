@@ -5,6 +5,7 @@
  */
 
 #include "GEMClusterContainer.h"
+#include "GEMEtaPartitionMask.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 class GEMCluster;
@@ -12,10 +13,7 @@ class GEMClusterizer{
  public:
   GEMClusterizer();
   ~GEMClusterizer();
-  GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange);
-
- private:
-  GEMClusterContainer doActualAction(GEMClusterContainer& initialclusters);
+  GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange, const EtaPartitionMask& mask);
 
  private:
   GEMClusterContainer cls;

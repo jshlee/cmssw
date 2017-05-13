@@ -304,11 +304,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    {
      DetId detId( DetId::Tracker, 0 );
      m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
-     
-     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-     record.getRecord<TrackerTopologyRcd>().get( trackerTopologyHandle );
-     m_trackerTopology = trackerTopologyHandle.product();
-     
+
      addPixelBarrelGeometry();
      addPixelForwardGeometry();
 
@@ -320,10 +316,10 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    
    if( m_muon )
    {
-     addDTGeometry();
-     addCSCGeometry();
-     addRPCGeometry();
-     addME0Geometry();
+     // addDTGeometry();
+     // addCSCGeometry();
+     // addRPCGeometry();
+     // addME0Geometry();
      addGEMGeometry();
    }
 

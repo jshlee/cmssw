@@ -16,14 +16,12 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {
   //  theSync = GEMTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
   //config.getParameter<ParameterSet>("tTrigModeConfig"));
 }
 
 GEMRecHitBaseAlgo::~GEMRecHitBaseAlgo(){}
-
 
 // Build all hits in the range associated to the layerId, at the 1st step.
 edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& roll,
@@ -32,12 +30,10 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
                                                          const EtaPartitionMask& mask) {
   edm::OwnVector<GEMRecHit> result; 
 
-
   GEMClusterizer clizer;
-  GEMClusterContainer tcls = clizer.doAction(digiRange);
+  GEMClusterContainer tcls = clizer.doAction(digiRange, mask);
   GEMMaskReClusterizer mrclizer;
   GEMClusterContainer cls = mrclizer.doAction(gemId,tcls,mask);
-
 
   for (GEMClusterContainer::const_iterator cl = cls.begin();
        cl != cls.end(); cl++){
@@ -45,14 +41,15 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
     LocalError tmpErr;
     LocalPoint point;
     // Call the compute method
+    
     bool OK = this->compute(roll, *cl, point, tmpErr);
     if (!OK) continue;
 
     // Build a new pair of 1D rechit 
     int firstClustStrip= cl->firstStrip();
-    int clusterSize=cl->clusterSize(); 
-    GEMRecHit*  recHit = new GEMRecHit(gemId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
+    int clusterSize=cl->clusterSize();
 
+    GEMRecHit*  recHit = new GEMRecHit(gemId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
 
     result.push_back(recHit);
   }

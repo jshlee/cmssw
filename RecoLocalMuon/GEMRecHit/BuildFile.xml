@@ -10,6 +10,7 @@
 <use   name="DataFormats/GEMDigi"/>
 <use   name="DataFormats/Common"/>
 <use   name="CondFormats/RPCObjects"/>
+<use   name="CondFormats/GEMObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/GEMGeometry"/>

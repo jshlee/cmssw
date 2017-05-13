@@ -820,7 +820,6 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
     }
   }
   php.copiesInLayers_ = copiesInLayers;
-  php.nSectors_       = (int)(php.waferCopy_.size());
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalWaferHexagon: # of columns " << incm << " # of rows " 
 	    << inrm << " and " << kount << ":" << ntot  << " wafers; R "

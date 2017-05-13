@@ -51,7 +51,10 @@ def simGeoLoad(score):
     elif score == "2023":
        versionCheck(options.version)
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023" + options.version + "XML_cfi")
- 
+
+    elif score == "GEMCosmic":
+       process.load('Geometry.GEMGeometry.GeometryGEMCosmicStand_cff')
+       
     else:
       help()
 

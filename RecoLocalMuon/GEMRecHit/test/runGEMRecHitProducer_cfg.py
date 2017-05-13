@@ -67,10 +67,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Fix DT and CSC Alignment #
 ############################
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
-process = fixDTAlignmentConditions(process)
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
-process = fixCSCAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
+#process = fixDTAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
+#process = fixCSCAlignmentConditions(process)
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
 ##########################################################
@@ -97,10 +97,10 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
     recAlgoConfig = cms.PSet(),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
     gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
-    # maskSource = cms.string('File'),
-    # maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
-    # deadSource = cms.string('File'),
-    # deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
+     maskSource = cms.string('File'),
+     maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
+     deadSource = cms.string('File'),
+     deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
 )
 
 ### Input and Output Files
@@ -115,7 +115,7 @@ process.source = cms.Source("PoolSource",
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco_test.root'
+        'file:out_local_reco.root'
         # 'file:out_local_reco_100GeV_1000evts.root'
         # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),
@@ -129,7 +129,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0LocalReco)
+process.rechit_step  = cms.Path(process.localreco+process.gemRecHits)#+process.me0LocalReco)
 #process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0RecHits)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)

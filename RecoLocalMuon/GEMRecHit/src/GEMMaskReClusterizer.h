@@ -21,7 +21,7 @@ class GEMMaskReClusterizer
    GEMMaskReClusterizer();
    ~GEMMaskReClusterizer();
    GEMClusterContainer doAction(const GEMDetId& ,GEMClusterContainer& , const EtaPartitionMask& );
-   int get(const EtaPartitionMask& ,int );
+   bool get(const EtaPartitionMask& ,int );
 
 };
 

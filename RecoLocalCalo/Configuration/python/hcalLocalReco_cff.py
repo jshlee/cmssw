@@ -24,6 +24,10 @@ from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 # copy for cosmics
 _default_hfreco = hfreco.clone()
 
+# copies for cosmics
+_default_hbheprereco = hbheprereco.clone()
+_default_hfreco = hfreco.clone()
+
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase1_hcalLocalRecoSequence.insert(0,hfprereco)
 
