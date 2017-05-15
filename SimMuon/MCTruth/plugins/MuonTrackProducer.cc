@@ -46,7 +46,7 @@ std::vector<double> MuonTrackProducer::findSimVtx(edm::Event& iEvent){
 		//double etaGen = itg->eta();
 		//std::cout<<"id "<<id<<" "<<status<<" "<<nMothers<<" "<<phiGen<<" "<<etaGen<<std::endl;
 
-		if((abs(id) == 23 || abs(id) == 22) && status == 3){//For DY samples
+		if((abs(id) == 23 || abs(id) == 22) && status == 22){//For DY samples
 
 	 		vtxCoord[0] = 1;
 
