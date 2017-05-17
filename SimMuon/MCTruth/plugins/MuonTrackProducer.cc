@@ -255,15 +255,15 @@ bool MuonTrackProducer::isME0MuonSel(reco::MuonCollection::const_iterator muon, 
                   pullY    = fabs(chamber->y - segment->y ) / std::sqrt(chamber->yErr + segment->yErr);
                   deltaPhi = fabs(atan(chamber->dXdZ) - atan(segment->dXdZ));
                   
+                  if ( (pullX < pullXCut) || (deltaX < dXCut) ) X_MatchFound = true;
+                  if ( (pullY < pullYCut) || (deltaY < dYCut) ) Y_MatchFound = true;
+                  if ( deltaPhi < dPhiCut ) Dir_MatchFound = true;
+                  
+                  if (X_MatchFound && Y_MatchFound && Dir_MatchFound) result = true;
+                  
               }
           }
       }
-    
-      if ( (pullX < pullXCut) || (deltaX < dXCut) ) X_MatchFound = true;
-      if ( (pullY < pullYCut) || (deltaY < dYCut) ) Y_MatchFound = true;
-      if ( deltaPhi < dPhiCut ) Dir_MatchFound = true;
-    
-      result = X_MatchFound && Y_MatchFound && Dir_MatchFound;
       
   }
     
@@ -271,7 +271,7 @@ bool MuonTrackProducer::isME0MuonSel(reco::MuonCollection::const_iterator muon, 
     
 }
 
-bool MuonTrackProducer::isME0MuonSelNew(reco::MuonCollection::const_iterator muon, double dEtaCut, double dPhiCut, double dPhiBendCut, edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MuonTrackProducer::isME0MuonSelNew(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon, double dEtaCut, double dPhiCut, double dPhiBendCut)
 {
     
     bool result = false;
@@ -282,9 +282,7 @@ bool MuonTrackProducer::isME0MuonSelNew(reco::MuonCollection::const_iterator muo
         double deltaEta = 999;
         double deltaPhi = 999;
         double deltaPhiBend = 999;
-        
-        bool eta_MatchFound = false, phi_MatchFound = false, bend_MatchFound = false;
-        
+
         const std::vector<reco::MuonChamberMatch>& chambers = muon->matches();
         for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber ){
             
@@ -311,15 +309,11 @@ bool MuonTrackProducer::isME0MuonSelNew(reco::MuonCollection::const_iterator muo
                     deltaPhi = fabs(trk_glb_coord.phi() - seg_glb_coord.phi() );
                     deltaPhiBend = fabs(segDPhi - trackDPhi);
                     
+                    if (deltaEta < dEtaCut && deltaPhi < dPhiCut && deltaPhiBend < dPhiBendCut) result = true;
+                    
                 }
             }
         }
-        
-        if ( deltaEta < dEtaCut ) eta_MatchFound = true;
-        if ( deltaPhi < dPhiCut ) phi_MatchFound = true;
-        if ( deltaPhiBend < dPhiBendCut ) bend_MatchFound = true;
-        
-        result = eta_MatchFound && phi_MatchFound && bend_MatchFound;
         
     }
     
@@ -350,7 +344,7 @@ bool MuonTrackProducer::isLooseModExt(edm::Event& iEvent, reco::MuonCollection::
     bool isPF = isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
     bool isGLB = muon->isGlobalMuon();
     bool isTrk = muon->isTrackerMuon();
-    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.5);
+    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
     double eta = muon->eta();
     bool result = false;
     
@@ -653,7 +647,7 @@ bool MuonTrackProducer::isTightMod(edm::Event& iEvent, reco::MuonCollection::con
     return result;
 }
 
-bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
+bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
 {
     bool resultTight = false;
     bool result = false;
@@ -769,8 +763,11 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, reco::MuonCollection::
         
     }
     
-    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
     double eta = muon->eta();
+    double mom = muon->p();
+    double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.05);
+    double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0065);
+    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.06, dPhiCut_, dPhiBendCut_);
     
     if(fabs(eta) > 0 && fabs(eta) < 2.4) result = resultTight;
     else if(fabs(eta) > 2.4) result = isME0;
@@ -970,7 +967,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       bool looseMod = isLooseMod(iEvent, muon);
       bool tightMod = isTightMod(iEvent, muon, useIPxy, useIPz);
       bool looseModExt = isLooseModExt(iEvent, muon);
-      bool tightModExt = isTightModExt(iEvent, muon, useIPxy, useIPz);
+      bool tightModExt = isTightModExt(iEvent, iSetup, muon, useIPxy, useIPz);
       bool tightModExtSim = isTightModExtSim(iEvent, muon);
       bool usingInner = false;
         

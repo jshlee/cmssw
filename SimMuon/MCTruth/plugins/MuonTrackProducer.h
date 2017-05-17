@@ -26,20 +26,20 @@
 class MuonTrackProducer : public edm::stream::EDProducer<> {
   public:
     explicit MuonTrackProducer(const edm::ParameterSet&);
-    std::vector<double> findSimVtx(edm::Event& iEvent);
-    bool isGlobalTightMuon(const reco::MuonCollection::const_iterator muonRef);
-    bool isTrackerTightMuon(const reco::MuonCollection::const_iterator muonRef);
-    bool isIsolatedMuon(const reco::MuonCollection::const_iterator muonRef);
+    std::vector<double> findSimVtx(edm::Event&);
+    bool isGlobalTightMuon(const reco::MuonCollection::const_iterator);
+    bool isTrackerTightMuon(const reco::MuonCollection::const_iterator);
+    bool isIsolatedMuon(const reco::MuonCollection::const_iterator);
     bool isME0MuonSel(reco::MuonCollection::const_iterator, double, double, double, double, double);
-    bool isME0MuonSelNew(reco::MuonCollection::const_iterator, double, double, double, edm::Event&, const edm::EventSetup&);
-    bool isLoose(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
-    bool isTight(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
-    bool isTightClassic(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
-    bool isLooseMod(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
-    bool isTightMod(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
-    bool isLooseModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
-    bool isTightModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz);
-    bool isTightModExtSim(edm::Event& iEvent, reco::MuonCollection::const_iterator muon);
+    bool isME0MuonSelNew(edm::Event&, const edm::EventSetup&, reco::MuonCollection::const_iterator, double, double, double);
+    bool isLoose(edm::Event&, reco::MuonCollection::const_iterator);
+    bool isTight(edm::Event&, reco::MuonCollection::const_iterator, bool, bool);
+    bool isTightClassic(edm::Event&, reco::MuonCollection::const_iterator, bool, bool);
+    bool isLooseMod(edm::Event&, reco::MuonCollection::const_iterator);
+    bool isTightMod(edm::Event&, reco::MuonCollection::const_iterator, bool, bool);
+    bool isLooseModExt(edm::Event&, reco::MuonCollection::const_iterator);
+    bool isTightModExt(edm::Event&, const edm::EventSetup&, reco::MuonCollection::const_iterator, bool, bool);
+    bool isTightModExtSim(edm::Event&, reco::MuonCollection::const_iterator);
     virtual ~MuonTrackProducer();
 
   private:
