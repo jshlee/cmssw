@@ -245,10 +245,10 @@ bool MuonTrackProducer::isME0MuonSel(reco::MuonCollection::const_iterator muon, 
       const std::vector<reco::MuonChamberMatch>& chambers = muon->matches();
       for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber ){
           
-          for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->me0Matches.begin(); segment != chamber->me0Matches.end(); ++segment ){
+          if (chamber->detector() == 5){
+          
+              for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->me0Matches.begin(); segment != chamber->me0Matches.end(); ++segment ){
               
-              if (chamber->detector() == 5){
-                  
                   deltaX   = fabs(chamber->x - segment->x );
                   deltaY   = fabs(chamber->y - segment->y );
                   pullX    = fabs(chamber->x - segment->x ) / std::sqrt(chamber->xErr + segment->xErr);
@@ -286,10 +286,10 @@ bool MuonTrackProducer::isME0MuonSelNew(edm::Event& iEvent, const edm::EventSetu
         const std::vector<reco::MuonChamberMatch>& chambers = muon->matches();
         for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber ){
             
-            for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->me0Matches.begin(); segment != chamber->me0Matches.end(); ++segment ){
+            if (chamber->detector() == 5){
+            
+                for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->me0Matches.begin(); segment != chamber->me0Matches.end(); ++segment ){
                 
-                if (chamber->detector() == 5){
-                    
                     LocalPoint trk_loc_coord(chamber->x, chamber->y, 0);
                     LocalPoint seg_loc_coord(segment->x, segment->y, 0);
                     LocalVector trk_loc_vec(chamber->dXdZ, chamber->dYdZ, 1);
@@ -297,7 +297,7 @@ bool MuonTrackProducer::isME0MuonSelNew(edm::Event& iEvent, const edm::EventSetu
                     edm::ESHandle<ME0Geometry> hGeom;
                     iSetup.get<MuonGeometryRecord>().get(hGeom);
                     const ME0Geometry* ME0Geometry_ =( &*hGeom);
-                    const ME0Chamber * me0chamber = ME0Geometry_->chamber(chamber->detector());
+                    const ME0Chamber * me0chamber = ME0Geometry_->chamber(chamber->id);
                     
                     GlobalPoint trk_glb_coord = me0chamber->toGlobal(trk_loc_coord);
                     GlobalPoint seg_glb_coord = me0chamber->toGlobal(seg_loc_coord);
@@ -768,6 +768,7 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
     double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.05);
     double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0065);
     bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.06, dPhiCut_, dPhiBendCut_);
+//    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
     
     if(fabs(eta) > 0 && fabs(eta) < 2.4) result = resultTight;
     else if(fabs(eta) > 2.4) result = isME0;
