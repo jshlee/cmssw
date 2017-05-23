@@ -75,11 +75,6 @@ postValidation_trackingOnly = cms.Sequence(
 
 postValidation_muons = cms.Sequence(
     recoMuonPostProcessors
-    + MuonGEMHitsPostProcessors
-    + MuonGEMDigisPostProcessors
-    + MuonGEMRecHitsPostProcessors
-    + MuonME0DigisPostProcessors
-    + MuonME0SegPostProcessors
     + rpcRecHitPostValidation_step
 )
 
@@ -106,7 +101,7 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
-_run3_postValidation = postValidation.copy()
+_run3_postValidation = postValidation_muons.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors
 _run3_postValidation += MuonGEMDigisPostProcessors
 _run3_postValidation += MuonGEMRecHitsPostProcessors
