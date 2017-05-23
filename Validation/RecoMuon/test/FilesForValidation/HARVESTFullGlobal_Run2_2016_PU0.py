@@ -50,6 +50,8 @@ process.configurationMetadata = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
+process.dqmSaver.workflow = "/Global/CMSSW_9_1_1/RECO_PU0_2016_ZMM"
+
 # Path and EndPath definitions
 process.validationHarvestingHI = cms.Path(process.postValidationHI)
 process.alcaHarvesting = cms.Path()
