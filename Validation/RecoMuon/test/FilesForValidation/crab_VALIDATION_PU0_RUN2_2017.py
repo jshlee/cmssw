@@ -1,13 +1,13 @@
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
-config.General.requestName = 'Val_910_pre2_RUN2_3'
-config.General.workArea = 'crabProjects_VAL_RUN2_3'
+config.General.requestName = 'Val_911_RUN2_2017_1'
+config.General.workArea = 'crabProjects_VAL_RUN2_2017_1'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName ='Val_Run2.py'
-config.Data.inputDataset='/RelValZMM_13/CMSSW_9_1_0_pre2-90X_upgrade2017_realistic_v20-v1/GEN-SIM-RECO'
+config.JobType.psetName ='Val_Run2_2017_2.py'
+config.Data.inputDataset='/RelValZMM_13/CMSSW_9_1_0_pre3-91X_upgrade2017_realistic_v3-v1/GEN-SIM-RECO'
 
 config.Data.splitting = 'FileBased'
 config.Data.inputDBS = 'global'
