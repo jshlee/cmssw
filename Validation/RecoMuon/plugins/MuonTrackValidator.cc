@@ -1204,57 +1204,57 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
 		  }
 
-//		  if (isSignalMuon) {
-//
-//			int hitsPdgId = tpRtS->pdgId();
-//			int hitsStatus = tpRtS->status();
-//			double prodRho = tpRtS->vertex().Rho();
-//			double prodZ = tpRtS->vz();
-//			edm::LogVerbatim("MuonTrackValidator") << "\t Particle pdgId = "<< hitsPdgId << " status:" << hitsStatus << " produced at rho = " << prodRho << ", z = " << prodZ;
-//
-//                	reco::GenParticleRef genp   = tpRtS->genParticles()[0];
-//                	reco::GenParticleRef genMom = genp->numberOfMothers() > 0 ? genp->motherRef() : reco::GenParticleRef();
-//                    //cout << "\t Number of mothers: "<< genp->numberOfMothers() << std::endl;
-//                	if (genMom.isNonnull()) {
-//
-//                    		int momPdgId  = genMom->pdgId();
-//                    		int momStatus = genMom->status();
-//                    		double momRho = genMom->vertex().Rho(); 
-//                            double momZ = genMom->vz();
-//                    		edm::LogVerbatim("MuonTrackValidator") << "\t Particle pdgId = "<<hitsPdgId << ", has GEN mother pdgId = " << momPdgId << ", mom status: " << momStatus;
-//                    		reco::GenParticleRef genGMom = genMom->numberOfMothers() > 0 ? genMom->motherRef() : reco::GenParticleRef();
-//                            //cout << "\t\t Number of gmoms: " << genMom->numberOfMothers() << std::endl;
-//                    		if (genGMom.isNonnull()) {
-//
-//                        		int gmomPdgId = genGMom->pdgId();
-//                                int gmomStatus = genGMom->status();
-//                        		edm::LogVerbatim("MuonTrackValidator") << "\t\t mother prod. vertex rho = " << momRho << ", z = " << momZ << ", grand-mom pdgId = " << gmomPdgId << ", status: " << gmomStatus;
-//
-//                    			reco::GenParticleRef genGGMom = genGMom->numberOfMothers() > 0 ? genGMom->motherRef() : reco::GenParticleRef();
-//                                //cout << "\t\t Number of ggmoms: " << genGMom->numberOfMothers() << std::endl;
-//                    			if (genGGMom.isNonnull()) {
-//
-//                        			int ggmomPdgId = genGGMom->pdgId();
-//                        			int ggmomStatus = genGGMom->status();
-//                        			edm::LogVerbatim("MuonTrackValidator") << "\t\t grand-grand-mom pdgId = " << ggmomPdgId << ", status: " << ggmomStatus;
-//
-//                    				reco::GenParticleRef genGGGMom = genGGMom->numberOfMothers() > 0 ? genGGMom->motherRef() : reco::GenParticleRef();
-//                                    //cout << "\t\t Number of gggmoms: " << genGGMom->numberOfMothers() << std::endl;
-//                    				if (genGGGMom.isNonnull()) {
-//
-//                        				int gggmomPdgId = genGGGMom->pdgId();
-//                        				int gggmomStatus = genGGGMom->status();
-//                        				edm::LogVerbatim("MuonAssociatorByHitsHelper") << "\t\t grand-grand-grand-mom pdgId = " << gggmomPdgId << ", status: " << gggmomStatus;
-//
-//                    				}	
-//
-//                    			}
-//
-//                    		}
-//
-//                	}
-//
-//		  }
+		  if (isSignalMuon) {
+
+			int hitsPdgId = tpRtS->pdgId();
+			int hitsStatus = tpRtS->status();
+			double prodRho = tpRtS->vertex().Rho();
+			double prodZ = tpRtS->vz();
+			edm::LogVerbatim("MuonTrackValidator") << "\t Particle pdgId = "<< hitsPdgId << " status:" << hitsStatus << " produced at rho = " << prodRho << ", z = " << prodZ;
+
+                	reco::GenParticleRef genp   = tpRtS->genParticles()[0];
+                	reco::GenParticleRef genMom = genp->numberOfMothers() > 0 ? genp->motherRef() : reco::GenParticleRef();
+                    //cout << "\t Number of mothers: "<< genp->numberOfMothers() << std::endl;
+                	if (genMom.isNonnull()) {
+
+                    		int momPdgId  = genMom->pdgId();
+                    		int momStatus = genMom->status();
+                    		double momRho = genMom->vertex().Rho(); 
+                            double momZ = genMom->vz();
+                    		edm::LogVerbatim("MuonTrackValidator") << "\t Particle pdgId = "<<hitsPdgId << ", has GEN mother pdgId = " << momPdgId << ", mom status: " << momStatus;
+                    		reco::GenParticleRef genGMom = genMom->numberOfMothers() > 0 ? genMom->motherRef() : reco::GenParticleRef();
+                            //cout << "\t\t Number of gmoms: " << genMom->numberOfMothers() << std::endl;
+                    		if (genGMom.isNonnull()) {
+
+                        		int gmomPdgId = genGMom->pdgId();
+                                int gmomStatus = genGMom->status();
+                        		edm::LogVerbatim("MuonTrackValidator") << "\t\t mother prod. vertex rho = " << momRho << ", z = " << momZ << ", grand-mom pdgId = " << gmomPdgId << ", status: " << gmomStatus;
+
+                    			reco::GenParticleRef genGGMom = genGMom->numberOfMothers() > 0 ? genGMom->motherRef() : reco::GenParticleRef();
+                                //cout << "\t\t Number of ggmoms: " << genGMom->numberOfMothers() << std::endl;
+                    			if (genGGMom.isNonnull()) {
+
+                        			int ggmomPdgId = genGGMom->pdgId();
+                        			int ggmomStatus = genGGMom->status();
+                        			edm::LogVerbatim("MuonTrackValidator") << "\t\t grand-grand-mom pdgId = " << ggmomPdgId << ", status: " << ggmomStatus;
+
+                    				reco::GenParticleRef genGGGMom = genGGMom->numberOfMothers() > 0 ? genGGMom->motherRef() : reco::GenParticleRef();
+                                    //cout << "\t\t Number of gggmoms: " << genGGMom->numberOfMothers() << std::endl;
+                    				if (genGGGMom.isNonnull()) {
+
+                        				int gggmomPdgId = genGGGMom->pdgId();
+                        				int gggmomStatus = genGGGMom->status();
+                        				edm::LogVerbatim("MuonAssociatorByHitsHelper") << "\t\t grand-grand-grand-mom pdgId = " << gggmomPdgId << ", status: " << gggmomStatus;
+
+                    				}	
+
+                    			}
+
+                    		}
+
+                	}
+
+          }
 		  if (!useMCTruth_ || (useMCTruth_ && isSignalMuon)) {
 
 			Track_is_matched = true;

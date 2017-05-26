@@ -1102,9 +1102,9 @@ muonValidation_seq = cms.Sequence(
     #GLB muon
 	+ glbMuonTrackVMuonAssoc
     #STA muon update at the vtx + timing
- 	+staUpdMuonTrackVSel2MuonAssoc2StTime
+ 	+ staUpdMuonTrackVSel2MuonAssoc2StTime
     #STA muon update at the vtx + timing with sim pT > 5 GeV
-    +staUpdMuonTrackVSel2MuonAssoc2StTime05
+    + staUpdMuonTrackVSel2MuonAssoc2StTime05
     #Loose ID
 	+ looseMuonTrackVSel0MuonAssoc
     #Loose ID with sim pT > 5 GeV
@@ -1166,8 +1166,8 @@ muonValidationRefit_seq = cms.Sequence(
 )
 
 muonValidationDisplaced_seq = cms.Sequence(
-    seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
-    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
+#    seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
+    tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
 #    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
     +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
 )

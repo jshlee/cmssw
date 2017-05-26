@@ -211,6 +211,69 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 #process.Tracer = cms.Service("Tracer")
 
+
+
+process.MessageLogger.suppressInfo = cms.untracked.vstring(
+
+    'tpToStaUpdMuonAssociation',
+    'tpToGlbMuonAssociation',
+    'tpToDisplacedStaMuonAssociation',
+#    + tpToME0MuonMuonAssociation
+#    + tpToGEMMuonMuonAssociation
+#    + tpToStaUpdSel2MuonAssociation2StTime
+#    + tpToLooseSel0MuonAssociation
+#    + tpToLooseModSel0MuonAssociation
+    'tpToLooseModExtSel0MuonAssociation',
+#    + tpToTightSel0MuonAssociation
+#    + tpToTightModSel0MuonAssociation
+#    'tpToTightModExtSel0MuonAssociation',
+#    + tpToTightClassicSel0MuonAssociation
+#    + tpToTightClassicNoIPzSel0MuonAssociation
+#    + tpToTightModExtSimSel0MuonAssociation
+    #STAMuon updated at the vtx
+	'staUpdMuonTrackVMuonAssoc',
+#    #GLB muon
+	'glbMuonTrackVMuonAssoc',
+#    #Displaced STA muon
+    'displacedStaMuonTrackVMuonAssoc',
+    #STA muon update at the vtx + timing
+# 	+staUpdMuonTrackVSel2MuonAssoc2StTime
+    #STA muon update at the vtx + timing with sim pT > 5 GeV
+#    +staUpdMuonTrackVSel2MuonAssoc2StTime05
+    #Loose ID
+#	+ looseMuonTrackVSel0MuonAssoc
+    #Loose ID with sim pT > 5 GeV
+#	+ looseMuonTrackVSel05SimMuonAssoc
+    #Tight ID
+#	+ tightMuonTrackVSel0MuonAssoc
+    #Tight ID with sim pT > 5 GeV
+#	+ tightMuonTrackVSel05SimMuonAssoc
+    #Loose ID with PFMuon selections by hand
+#	+ looseModMuonTrackVSel0MuonAssoc
+    #Loose ID with PFMuon selections by hand with ME0Muon
+    'looseModExtMuonTrackVSel0MuonAssoc',
+    #Loose ID with PFMuon selections by hand and with pT > 5 GeV
+#	+ looseModMuonTrackVSel05SimMuonAssoc
+    #Loose ID with PFMuon selections by hand and with pT > 5 GeV with ME0Muon
+    'looseModExtMuonTrackVSel05SimMuonAssoc',
+    #Tight ID with PFMuon selections by hand
+#	+ tightModMuonTrackVSel0MuonAssoc
+    #Tight ID with PFMuon selections by hand with ME0Muon
+    'tightModExtMuonTrackVSel0MuonAssoc',
+#    + tightClassicMuonTrackVSel0MuonAssoc
+#    + tightClassicNoIPzMuonTrackVSel0MuonAssoc
+#    + tightModExtSimMuonTrackVSel0MuonAssoc
+    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV
+#    + tightModMuonTrackVSel05SimMuonAssoc
+    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV and with ME0Muon
+#    'tightModExtMuonTrackVSel05SimMuonAssoc',
+#    + tightClassicMuonTrackVSel05SimMuonAssoc
+#    + tightClassicNoIPzMuonTrackVSel05SimMuonAssoc
+#    + tightModExtSimMuonTrackVSel05SimMuonAssoc
+
+)
+
+
 ############################################################
 
 process.maxEvents = cms.untracked.PSet(
@@ -284,19 +347,19 @@ process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("ran
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.muonValidation_seq = cms.Sequence()
-process.muonValidationDisplaced_seq = cms.Sequence(
-#    process.tpToDisplacedStaMuonAssociation +
-#    process.displacedStaMuonTrackVMuonAssoc
-    process.selectedVertices*
-    process.bestMuonLooseMod *
-    process.tpToLooseModSel0MuonAssociation *
-    process.looseModMuonTrackVSel0MuonAssoc
-)
-process.recoMuonValidation = cms.Sequence(
-   process.muonValidation_seq +
-   process.muonValidationDisplaced_seq
-)
+#process.muonValidation_seq = cms.Sequence()
+#process.muonValidationDisplaced_seq = cms.Sequence(
+##    process.tpToDisplacedStaMuonAssociation +
+##    process.displacedStaMuonTrackVMuonAssoc
+#    process.selectedVertices*
+#    process.bestMuonLooseMod *
+#    process.tpToLooseModSel0MuonAssociation *
+#    process.looseModMuonTrackVSel0MuonAssoc
+#)
+#process.recoMuonValidation = cms.Sequence(
+#   process.muonValidation_seq +
+#   process.muonValidationDisplaced_seq
+#)
 process.gemMuonValidation = cms.Sequence()
 process.me0MuonValidation = cms.Sequence()
 
