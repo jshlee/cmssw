@@ -29,9 +29,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring(
                             
-    '/store/user/calabria/RelValZMM_13/crab_Val_910_pre3_RUN2_7/170515_161420/0000/step31_1.root',
-    '/store/user/calabria/RelValZMM_13/crab_Val_910_pre3_RUN2_7/170515_161420/0000/step31_2.root',
-    '/store/user/calabria/RelValZMM_13/crab_Val_910_pre3_RUN2_7/170515_161420/0000/step31_3.root',
+    '/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_2/170526_082912/0000/step31_1.root',
+    '/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_2/170526_082912/0000/step31_2.root',
+    '/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_2/170526_082912/0000/step31_3.root',
                             
                             )
 )

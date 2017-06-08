@@ -26,7 +26,22 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step3.root'),
+    fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/06DB069F-233F-E711-BB95-0025905A607A.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10F25F3C-253F-E711-9ECD-0CC47A7C35B2.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/1E787C33-233F-E711-998E-0CC47A7C35B2.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/32E2E793-243F-E711-9769-0CC47A4D75EC.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/46B5BC11-223F-E711-9D0B-0CC47A4D76D0.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/66972C1F-253F-E711-81A1-0025905A60EE.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/8E912784-253F-E711-8064-0CC47A4C8E1E.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/9CE30B0B-233F-E711-863D-0025905A6132.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/9EA8EAE7-223F-E711-8F3E-0025905B859A.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/A03B45A2-233F-E711-8E59-0025905A60EE.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/A0A626E7-233F-E711-8287-0CC47A7C3458.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/AEABD696-243F-E711-8BD5-0CC47A745250.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/BE1074B8-223F-E711-ABF3-0CC47A4D7674.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/DE717AB8-223F-E711-8FF1-0CC47A4D75EE.root',
+'/store/relval/CMSSW_9_1_1/RelValTenMuExtendedE_0_200/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/EC6FC7E3-253F-E711-BC4C-0CC47A4C8E70.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
