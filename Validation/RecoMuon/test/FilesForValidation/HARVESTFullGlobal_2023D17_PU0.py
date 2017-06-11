@@ -29,18 +29,18 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring(
                             
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_1.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_10.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_11.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_12.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_2.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_3.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_4.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_5.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_6.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_7.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_8.root',
-'/store/user/calabria/RelValZMM_14/crab_Val_910_pre3_PU0_D13_1/170508_135456/0000/step31_9.root'
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_1.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_10.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_11.root',
+#'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_12.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_2.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_3.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_4.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_5.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_6.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_7.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_8.root',
+'/store/user/calabria/RelValTTbar_14TeV/crab_Val_911_PU0_D17_tt/170608_164922/0000/step31_9.root'
                             
                             )
 )
@@ -65,7 +65,7 @@ process.configurationMetadata = cms.untracked.PSet(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.dqmSaver.workflow = "/Global/CMSSW_9_1_1/RECO_PU0_D17_ZMM"
+process.dqmSaver.workflow = "/Global/CMSSW_9_1_1/RECO_PU0_D17_tt"
 
 # Path and EndPath definitions
 process.dqmHarvestingPOGMC = cms.Path(process.DQMOffline_SecondStep_PrePOGMC)
