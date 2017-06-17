@@ -341,15 +341,18 @@ bool MuonTrackProducer::isLooseMod(edm::Event& iEvent, reco::MuonCollection::con
 
 bool MuonTrackProducer::isLooseModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon)
 {
-    bool isPF = isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
+//    bool isPF = isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
+    bool isPF = muon->isPFMuon();
     bool isGLB = muon->isGlobalMuon();
     bool isTrk = muon->isTrackerMuon();
     bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
     double eta = muon->eta();
     bool result = false;
     
-    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = isPF && (isGLB || isTrk);
-    else if(fabs(eta) > 2.4) result = isME0;
+//    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = isPF && (isGLB || isTrk);
+//    else if(fabs(eta) > 2.4) result = isME0;
+    
+    result = isPF && (isGLB || isTrk || isME0);
     
     return result;
 }
@@ -652,7 +655,44 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
     bool resultTight = false;
     bool result = false;
     
-    if (muon->muonBestTrack().isNonnull() && muon->innerTrack().isNonnull() && muon->globalTrack().isNonnull()){
+    bool trkLayMeas = false;
+    bool isGlb = false;
+    bool isPF = false;
+    bool chi2 = false;
+    bool validHits = false;
+    bool matchedSt = false;
+    bool ipxy = false;
+    bool ipz = false;
+    bool validPxlHit = false;
+    
+    bool highPurity = false;
+    
+    bool glbExist = muon->globalTrack().isNonnull();
+    bool bestExist = muon->muonBestTrack().isNonnull();
+    bool innerExist = muon->innerTrack().isNonnull();
+    
+    if(glbExist && bestExist && innerExist){
+        
+        isGlb = muon->isGlobalMuon();
+        //      isPF= isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
+        isPF = muon->isPFMuon();
+        chi2 = muon->globalTrack()->normalizedChi2() < 10.;
+        validHits = muon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0;
+        matchedSt = muon->numberOfMatchedStations() > 1;
+        
+    }
+    
+    if(innerExist){
+        
+        trkLayMeas = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+        highPurity = muon->innerTrack()->quality(reco::Track::highPurity);
+        validPxlHit = muon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+        //validPxlHit = muon->innerTrack()->hitPattern().pixelLayersWithMeasurement(3,2) > 0;
+        //validPxlHit = muon->innerTrack()->hitPattern().pixelLayersWithMeasurement(4,3) > 0;
+        
+    }
+    
+    if (bestExist || glbExist || innerExist){
         
         std::vector<double> vtxCoord = findSimVtx(iEvent);
         GlobalPoint point(vtxCoord[1],vtxCoord[2],vtxCoord[3]);
@@ -707,16 +747,7 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
         bool ipzSimBool = ipzSim < 0.5;
         //std::cout<<"vx: "<<point.x()<<" vy: "<<point.y()<<" vz: "<<point.z()<<" |Dxy|: "<<ipxySim<<" "<<ipxySimBool<<" |Dz|: "<<ipzSim<<" "<<ipzSimBool<<std::endl;
         //std::cout<<"vx: "<<pointDY.x()<<" vy: "<<pointDY.y()<<" vz: "<<pointDY.z()<<" |Dxy|: "<<ipxySim<<" "<<ipxySimBool<<" |Dz|: "<<ipzSim<<" "<<ipzSimBool<<std::endl;
-        
-        bool trkLayMeas = muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
-        bool isGlb = muon->isGlobalMuon();
-        bool isPF= isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
-        bool chi2 = muon->globalTrack()->normalizedChi2() < 10.;
-        bool validHits = muon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0;
-        bool matchedSt = muon->numberOfMatchedStations() > 1;
-        
-        bool ipxy = false;
-        bool ipz = false;
+
         if(useIPxy == true){
             
             if(vertices->size() !=0 && vtxCoord[0] > 0.5 && vtxCoord[0] < 1.5){
@@ -753,25 +784,21 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
         }
         else if(useIPz == false) ipz = true;
         
-        bool validPxlHit = muon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-        //bool validPxlHit = muon->innerTrack()->hitPattern().pixelLayersWithMeasurement(3,2) > 0;
-        //bool validPxlHit = muon->innerTrack()->hitPattern().pixelLayersWithMeasurement(4,3) > 0;
-        
-        //std::cout<<trkLayMeas<<" "<<isGlb<<" "<<isPF<<" "<<chi2<<" "<<validHits<<" "<<matchedSt<<" "<<ipxy<<" "<<ipz<<" "<<validPxlHit<<std::endl;
-        
-        if(trkLayMeas && isGlb && isPF && chi2 && validHits && matchedSt && ipxy && ipz && validPxlHit) resultTight = true;
-        
     }
+    
+    //std::cout<<trkLayMeas<<" "<<isGlb<<" "<<isPF<<" "<<chi2<<" "<<validHits<<" "<<matchedSt<<" "<<ipxy<<" "<<ipz<<" "<<validPxlHit<<std::endl;
+    if(trkLayMeas && isGlb && isPF && chi2 && validHits && matchedSt && ipxy && ipz && validPxlHit) resultTight = true;
     
     double eta = muon->eta();
     double mom = muon->p();
     double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.05);
     double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0065);
-    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.06, dPhiCut_, dPhiBendCut_);
-//    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
+    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.06, dPhiCut_, dPhiBendCut_) && ipxy && ipz && validPxlHit && highPurity;
     
-    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = resultTight;
-    else if(fabs(eta) > 2.4) result = isME0;
+//    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = resultTight;
+//    else if(fabs(eta) > 2.4) result = isME0;
+    
+    result = resultTight || isME0;
     
     return result;
 }
