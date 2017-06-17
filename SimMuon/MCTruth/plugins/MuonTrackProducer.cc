@@ -352,7 +352,7 @@ bool MuonTrackProducer::isLooseModExt(edm::Event& iEvent, reco::MuonCollection::
 //    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = isPF && (isGLB || isTrk);
 //    else if(fabs(eta) > 2.4) result = isME0;
     
-    result = isPF && (isGLB || isTrk || isME0);
+    result = ( isPF && (isGLB || isTrk ) ) || isME0;
     
     return result;
 }
