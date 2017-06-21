@@ -346,7 +346,7 @@ bool MuonTrackProducer::isLooseModExt(edm::Event& iEvent, reco::MuonCollection::
     bool isGLB = muon->isGlobalMuon();
     bool isTrk = muon->isTrackerMuon();
     bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
-    double eta = muon->eta();
+//    double eta = muon->eta();
     bool result = false;
     
 //    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = isPF && (isGLB || isTrk);
@@ -789,7 +789,7 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
     //std::cout<<trkLayMeas<<" "<<isGlb<<" "<<isPF<<" "<<chi2<<" "<<validHits<<" "<<matchedSt<<" "<<ipxy<<" "<<ipz<<" "<<validPxlHit<<std::endl;
     if(trkLayMeas && isGlb && isPF && chi2 && validHits && matchedSt && ipxy && ipz && validPxlHit) resultTight = true;
     
-    double eta = muon->eta();
+//    double eta = muon->eta();
     double mom = muon->p();
     double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.05);
     double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0065);
