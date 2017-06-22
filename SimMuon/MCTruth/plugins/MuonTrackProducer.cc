@@ -339,22 +339,25 @@ bool MuonTrackProducer::isLooseMod(edm::Event& iEvent, reco::MuonCollection::con
     return ( isPF && ( isGLB || isTrk ) );
 }
 
-bool MuonTrackProducer::isLooseModExt(edm::Event& iEvent, reco::MuonCollection::const_iterator muon)
+std::vector<bool> MuonTrackProducer::isLooseModExt(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon)
 {
 //    bool isPF = isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
     bool isPF = muon->isPFMuon();
     bool isGLB = muon->isGlobalMuon();
     bool isTrk = muon->isTrackerMuon();
-    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
-//    double eta = muon->eta();
-    bool result = false;
     
-//    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = isPF && (isGLB || isTrk);
-//    else if(fabs(eta) > 2.4) result = isME0;
+    double mom = muon->p();
+    double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.056);
+    double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0096);
+    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.077, dPhiCut_, dPhiBendCut_);
+    bool looseID = isPF && (isGLB || isTrk);
+//    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
     
-    result = ( isPF && ( isGLB || isTrk ) ) || isME0;
+    std::vector<bool> allResults;
+    allResults.push_back(looseID);
+    allResults.push_back(isME0);
     
-    return result;
+    return allResults;
 }
 
 bool::MuonTrackProducer::isTightClassic(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
@@ -650,10 +653,9 @@ bool MuonTrackProducer::isTightMod(edm::Event& iEvent, reco::MuonCollection::con
     return result;
 }
 
-bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
+std::vector<bool> MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
 {
-    bool resultTight = false;
-    bool result = false;
+    bool tightID = false;
     
     bool trkLayMeas = false;
     bool isGlb = false;
@@ -664,21 +666,21 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
     bool ipxy = false;
     bool ipz = false;
     bool validPxlHit = false;
-    
     bool highPurity = false;
     
     bool glbExist = muon->globalTrack().isNonnull();
     bool bestExist = muon->muonBestTrack().isNonnull();
     bool innerExist = muon->innerTrack().isNonnull();
     
-    if(glbExist && bestExist && innerExist){
-        
-        isGlb = muon->isGlobalMuon();
-        //      isPF= isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
-        isPF = muon->isPFMuon();
+    isGlb = muon->isGlobalMuon();
+    //isPF= isGlobalTightMuon(muon) || isTrackerTightMuon(muon) || isIsolatedMuon(muon);
+    isPF = muon->isPFMuon();
+    matchedSt = muon->numberOfMatchedStations() > 1;
+
+    if(glbExist){
+
         chi2 = muon->globalTrack()->normalizedChi2() < 10.;
         validHits = muon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0;
-        matchedSt = muon->numberOfMatchedStations() > 1;
         
     }
     
@@ -787,20 +789,18 @@ bool MuonTrackProducer::isTightModExt(edm::Event& iEvent, const edm::EventSetup&
     }
     
     //std::cout<<trkLayMeas<<" "<<isGlb<<" "<<isPF<<" "<<chi2<<" "<<validHits<<" "<<matchedSt<<" "<<ipxy<<" "<<ipz<<" "<<validPxlHit<<std::endl;
-    if(trkLayMeas && isGlb && isPF && chi2 && validHits && matchedSt && ipxy && ipz && validPxlHit) resultTight = true;
+    if(trkLayMeas && isGlb && isPF && chi2 && validHits && matchedSt && ipxy && ipz && validPxlHit) tightID = true;
     
-//    double eta = muon->eta();
     double mom = muon->p();
-    double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.05);
-    double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0065);
-    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.06, dPhiCut_, dPhiBendCut_) && ipxy && ipz && validPxlHit && highPurity;
+    double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.032);
+    double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0041);
+    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.048, dPhiCut_, dPhiBendCut_) && ipxy && ipz && validPxlHit && highPurity;
     
-//    if(fabs(eta) > 0 && fabs(eta) < 2.4) result = resultTight;
-//    else if(fabs(eta) > 2.4) result = isME0;
-    
-    result = resultTight || isME0;
-    
-    return result;
+    std::vector<bool> allResults;
+    allResults.push_back(tightID);
+    allResults.push_back(isME0);
+
+    return allResults;
 }
 
 bool MuonTrackProducer::isTightModExtSim(edm::Event& iEvent, reco::MuonCollection::const_iterator muon)
@@ -994,8 +994,8 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       bool tight = isTight(iEvent, muon, useIPxy, useIPz);
       bool looseMod = isLooseMod(iEvent, muon);
       bool tightMod = isTightMod(iEvent, muon, useIPxy, useIPz);
-      bool looseModExt = isLooseModExt(iEvent, muon);
-      bool tightModExt = isTightModExt(iEvent, iSetup, muon, useIPxy, useIPz);
+      std::vector<bool> looseModExt = isLooseModExt(iEvent, iSetup, muon);
+      std::vector<bool> tightModExt = isTightModExt(iEvent, iSetup, muon, useIPxy, useIPz);
       bool tightModExtSim = isTightModExtSim(iEvent, muon);
       bool usingInner = false;
         
@@ -1061,9 +1061,9 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       else if (trackType == "globalTrackLooseModExt") {
           
-          if(looseModExt){
-              
-              if( fabs(muon->eta()) < 2.4 && muon->globalTrack().isNonnull() )
+           if(looseModExt[0]){
+          
+              if( muon->globalTrack().isNonnull() )
               {
                   trackref = muon->globalTrack();
                   usingInner = false;
@@ -1075,11 +1075,19 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
               }
               else continue;
               
-          }
+           }
+           else if(looseModExt[1]){
+
+              if ( muon->innerTrack().isNonnull() )
+              {
+                  trackref = muon->innerTrack();
+                  usingInner = true;
+              }
+              else continue;
           
-          //if (muon->muonBestTrack().isNonnull() && loose) trackref = muon->muonBestTrack();
-          else continue;
-          
+           }
+           else continue;
+        
       }
       else if (trackType == "globalTrackTight") {
         if (muon->globalTrack().isNonnull() && tight) trackref = muon->globalTrack();
@@ -1094,9 +1102,11 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         else continue;
       }
       else if (trackType == "globalTrackTightModExt") {
-          if (fabs(muon->eta()) < 2.4 && muon->globalTrack().isNonnull() && tightModExt) trackref = muon->globalTrack();
-          else if(fabs(muon->eta()) > 2.4 && muon->innerTrack().isNonnull() && tightModExt) trackref = muon->innerTrack();
+          
+          if (tightModExt[0] == true && muon->globalTrack().isNonnull()) trackref = muon->globalTrack();
+          else if(tightModExt[1] == true && muon->innerTrack().isNonnull()) trackref = muon->innerTrack();
           else continue;
+          
       }
       else if (trackType == "globalTrackTightModExtSim") {
           if (fabs(muon->eta()) < 2.4 && muon->globalTrack().isNonnull() && tightModExtSim) trackref = muon->globalTrack();

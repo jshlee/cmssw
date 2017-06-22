@@ -37,8 +37,8 @@ class MuonTrackProducer : public edm::stream::EDProducer<> {
     bool isTightClassic(edm::Event&, reco::MuonCollection::const_iterator, bool, bool);
     bool isLooseMod(edm::Event&, reco::MuonCollection::const_iterator);
     bool isTightMod(edm::Event&, reco::MuonCollection::const_iterator, bool, bool);
-    bool isLooseModExt(edm::Event&, reco::MuonCollection::const_iterator);
-    bool isTightModExt(edm::Event&, const edm::EventSetup&, reco::MuonCollection::const_iterator, bool, bool);
+    std::vector<bool> isLooseModExt(edm::Event&, const edm::EventSetup&, reco::MuonCollection::const_iterator);
+    std::vector<bool> isTightModExt(edm::Event&, const edm::EventSetup&, reco::MuonCollection::const_iterator, bool, bool);
     bool isTightModExtSim(edm::Event&, reco::MuonCollection::const_iterator);
     virtual ~MuonTrackProducer();
 
