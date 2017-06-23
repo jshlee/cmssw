@@ -234,7 +234,7 @@ bestMuon_seq = cms.Sequence(
     *bestMuonTightModExt #* bestMuonTightModExt5
     *bestMuonTightClassic #* bestMuonTightClassic5
     *bestMuonTightClassicNoIPz
-    *bestMuonTightModExtSim
+    #*bestMuonTightModExtSim
     #* me0MuonInd
 )
 
@@ -378,6 +378,7 @@ tpToStaRefitUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAs
 tpToDisplacedTrkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedStaSeedAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToDisplacedStaPurityMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToTevFirstMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToTevPickyMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -532,6 +533,15 @@ tpToDisplacedStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
 tpToDisplacedStaMuonAssociation.UseTracker = False
 tpToDisplacedStaMuonAssociation.UseMuon = True
+#tpToDisplacedStaMuonAssociation.includeZeroHitMuons = False
+#tpToDisplacedStaMuonAssociation.PurityCut_muon = cms.double(0.75)
+
+tpToDisplacedStaPurityMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToDisplacedStaPurityMuonAssociation.tracksTag = 'displacedStandAloneMuons'
+tpToDisplacedStaPurityMuonAssociation.UseTracker = False
+tpToDisplacedStaPurityMuonAssociation.UseMuon = True
+tpToDisplacedStaPurityMuonAssociation.includeZeroHitMuons = False
+tpToDisplacedStaPurityMuonAssociation.PurityCut_muon = cms.double(0.75)
 
 tpToDisplacedGlbMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToDisplacedGlbMuonAssociation.tracksTag = 'displacedGlobalMuons'
@@ -1173,7 +1183,7 @@ muonAssociation_seq = cms.Sequence(
     +tpToTightModExtSel0MuonAssociation
     +tpToTightClassicSel0MuonAssociation
     +tpToTightClassicNoIPzSel0MuonAssociation
-    +tpToTightModExtSimSel0MuonAssociation
+#    +tpToTightModExtSimSel0MuonAssociation
 )
 
 muonAssociationTEV_seq = cms.Sequence(
@@ -1181,7 +1191,7 @@ muonAssociationTEV_seq = cms.Sequence(
 )
 
 muonAssociationDisplaced_seq = cms.Sequence(
-    seedsOfDisplacedSTAmuons_seq+tpToDisplacedStaSeedAssociation+tpToDisplacedStaMuonAssociation
+    seedsOfDisplacedSTAmuons_seq+tpToDisplacedStaSeedAssociation+tpToDisplacedStaMuonAssociation+tpToDisplacedStaPurityMuonAssociation
     +tpToDisplacedTrkMuonAssociation+tpToDisplacedGlbMuonAssociation
 )
 
