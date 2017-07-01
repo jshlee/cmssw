@@ -44,7 +44,7 @@ std::vector<double> MuonTrackProducer::findSimVtx(edm::Event& iEvent){
 		int nMothers = itg->numberOfMothers();
 		//double phiGen = itg->phi();
 		//double etaGen = itg->eta();
-		//std::cout<<"id "<<id<<" "<<status<<" "<<nMothers<<" "<<phiGen<<" "<<etaGen<<std::endl;
+		//if( abs(id) == 6 ) std::cout<<"id "<<id<<" "<<status<<" "<<nMothers<<" "<<phiGen<<" "<<etaGen<<std::endl;
 
 		if((abs(id) == 23 || abs(id) == 22) && status == 22){//For DY samples
 
@@ -84,6 +84,17 @@ std::vector<double> MuonTrackProducer::findSimVtx(edm::Event& iEvent){
 			vtxCoord[1] = (double)(itg->vx()); 
 			vtxCoord[2] = (double)(itg->vy());
 			vtxCoord[3] = (double)(itg->vz());
+
+		}
+        else if(abs(id) == 6 && nMothers == 2){//For nu gun samples
+
+	 		vtxCoord[0] = 1;
+
+			vtxCoord[4] = (double)(itg->vx());
+			vtxCoord[5] = (double)(itg->vy());
+			vtxCoord[6] = (double)(itg->vz());
+            
+            //std::cout<<"ttbar "<<vtxCoord[4]<<" "<<vtxCoord[5]<<" "<<vtxCoord[6]<<std::endl;
 
 		}
 
