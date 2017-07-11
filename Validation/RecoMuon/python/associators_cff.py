@@ -42,13 +42,13 @@ selectedFirstPrimaryVertex = cms.EDFilter("PATSingleVertexSelector",
 
 muonTiming = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
+    cut = cms.string("abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
     filter = cms.bool(False)
 )
 
 muonPt5 = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("pt > 5.0 && outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
+    cut = cms.string("pt > 5.0 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
     filter = cms.bool(False)
 )
 
