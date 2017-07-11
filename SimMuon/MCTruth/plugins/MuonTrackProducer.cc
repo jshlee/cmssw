@@ -376,13 +376,23 @@ std::vector<bool> MuonTrackProducer::isLooseModExt(edm::Event& iEvent, const edm
 bool MuonTrackProducer::isME0MuonLoose(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection::const_iterator muon)
 {
     
-    double mom = muon->p();
-    double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.056);
-    double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0096);
-    bool isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.077, dPhiCut_, dPhiBendCut_);
-    //    bool isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
+    bool isME0 = false;
+    bool validPxlHit = false;
+    bool highPurity = false;
     
-    return isME0;
+    if (muon->muonBestTrack().isNonnull() && muon->innerTrack().isNonnull()){
+        
+        double mom = muon->p();
+        double dPhiCut_ = std::min(std::max(1.2/mom,1.2/100),0.056);
+        double dPhiBendCut_ = std::min(std::max(0.2/mom,0.2/100),0.0096);
+        isME0 = isME0MuonSelNew(iEvent, iSetup, muon, 0.077, dPhiCut_, dPhiBendCut_);
+        validPxlHit = muon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+        highPurity = muon->innerTrack()->quality(reco::Track::highPurity);
+    //    isME0 = isME0MuonSel(muon, 3, 4, 3, 4, 0.1);
+        
+    }
+    
+    return (isME0 && validPxlHit && highPurity);
 }
 
 bool::MuonTrackProducer::isTightClassic(edm::Event& iEvent, reco::MuonCollection::const_iterator muon, bool useIPxy, bool useIPz)
@@ -1238,12 +1248,8 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
            }
            else if(looseModExt[1]){
 
-              if ( muon->innerTrack().isNonnull() )
-              {
-                  trackref = muon->innerTrack();
-                  usingInner = true;
-              }
-              else continue;
+               if ( muon->innerTrack().isNonnull() && me0MuonLoose ) trackref = muon->innerTrack();
+               else continue;
           
            }
            else continue;
@@ -1251,11 +1257,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       else if (trackType == "me0MuonLoose") {
 
-           if ( muon->innerTrack().isNonnull() && me0MuonLoose )
-           {
-               trackref = muon->innerTrack();
-               usingInner = true;
-           }
+           if ( muon->innerTrack().isNonnull() && me0MuonLoose ) trackref = muon->innerTrack();
            else continue;
         
       }

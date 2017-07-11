@@ -40,9 +40,15 @@ selectedFirstPrimaryVertex = cms.EDFilter("PATSingleVertexSelector",
     filter = cms.bool(False)
 )
 
+muonTiming = cms.EDFilter("MuonSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string("outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
+    filter = cms.bool(False)
+)
+
 muonPt5 = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("pt > 5."),
+    cut = cms.string("pt > 5.0 && outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
     filter = cms.bool(False)
 )
 
@@ -72,7 +78,7 @@ staMuonsPt5.minHit = cms.int32(0)
 staMuonsPt5.src = cms.InputTag("standAloneMuons:UpdatedAtVtx")
 
 bestMuonLoose = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -92,7 +98,7 @@ bestMuonLoose5 = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTight = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -114,7 +120,7 @@ bestMuonTight5 = cms.EDProducer("MuonTrackProducer",
 #-----------------------------------------------------------------------------------------------------------------------
 
 bestMuonLooseMod = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -132,7 +138,7 @@ bestMuonLooseMod5 = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTightMod = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -152,7 +158,7 @@ bestMuonTightMod5 = cms.EDProducer("MuonTrackProducer",
 #-----------------------------------------------------------------------------------------------------------------------
 
 bestMuonLooseModExt = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -170,7 +176,7 @@ bestMuonLooseModExt5 = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTightModExt = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -188,7 +194,7 @@ bestMuonTightModExt5 = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTightClassic = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -206,7 +212,7 @@ bestMuonTightClassic5 = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTightClassicNoIPz = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -216,7 +222,7 @@ bestMuonTightClassicNoIPz = cms.EDProducer("MuonTrackProducer",
 )
 
 bestMuonTightModExtSim = cms.EDProducer("MuonTrackProducer",
-   muonsTag = cms.InputTag("muons"),
+   muonsTag = cms.InputTag("muonTiming"),
    inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
    inputCSCSegmentCollection = cms.InputTag("cscSegments"),
    vtxTag = cms.InputTag("selectedVertices"),
@@ -234,7 +240,7 @@ me0MuonInd = cms.EDProducer("ME0MuonTrackCollProducer",
 muonColl_seq = cms.Sequence(
     #staMuonsPt5 *
     muon2StatTiming * glbmuon2StatTiming * staMuons *
-    muonPt5
+    muonPt5 * muonTiming
 )
 
 bestMuon_seq = cms.Sequence(
