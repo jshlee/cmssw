@@ -158,6 +158,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
         
       h_assocpT.push_back( ibooker.book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
       h_assocpT_24.push_back( ibooker.book1D("num_assoc(simToReco)_pT_24","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
+//      h_assocpT_28.push_back( ibooker.book1D("num_assoc(simToReco)_pT_28","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
       h_assocpT_28.push_back( ibooker.book1D("num_assoc(simToReco)_pT_28","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
         
       h_assocp.push_back( ibooker.book1D("num_assoc(simToReco)_p","N of associated tracks (simToReco) vs p",nintpT,minpT,maxpT) );
@@ -174,6 +175,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
         
       h_simulpT.push_back( ibooker.book1D("num_simul_pT","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
       h_simulpT_24.push_back( ibooker.book1D("num_simul_pT_24","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
+//      h_simulpT_28.push_back( ibooker.book1D("num_simul_pT_28","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
       h_simulpT_28.push_back( ibooker.book1D("num_simul_pT_28","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
         
       h_simulp.push_back( ibooker.book1D("num_simul_p","N of simulated tracks vs p",nintpT,minpT,maxpT) );

@@ -46,9 +46,21 @@ muonPt5 = cms.EDFilter("MuonSelector",
     filter = cms.bool(False)
 )
 
+staMuons = cms.EDFilter("MuonSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string("isStandAloneMuon"),
+    filter = cms.bool(False)
+)
+
 muon2StatTiming = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
     cut = cms.string("isStandAloneMuon && outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
+    filter = cms.bool(False)
+)
+
+glbmuon2StatTiming = cms.EDFilter("MuonSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string("isGlobalMuon && outerTrack.hitPattern.muonStationsWithValidHits > 1 && abs(time.timeAtIpInOut) < (12.5 + abs(time.timeAtIpInOutErr))"),
     filter = cms.bool(False)
 )
 
@@ -221,7 +233,7 @@ me0MuonInd = cms.EDProducer("ME0MuonTrackCollProducer",
 
 muonColl_seq = cms.Sequence(
     #staMuonsPt5 *
-    muon2StatTiming *
+    muon2StatTiming * glbmuon2StatTiming * staMuons *
     muonPt5
 )
 
@@ -230,8 +242,8 @@ bestMuon_seq = cms.Sequence(
     *bestMuonTight #* bestMuonTight5
     *bestMuonLooseMod #* bestMuonLooseMod5
     *bestMuonTightMod #* bestMuonTightMod5
-    *bestMuonLooseModExt #* bestMuonLooseModExt5
-    *bestMuonTightModExt #* bestMuonTightModExt5
+    *bestMuonLooseModExt * bestMuonLooseModExt5
+    *bestMuonTightModExt * bestMuonTightModExt5
     *bestMuonTightClassic #* bestMuonTightClassic5
     *bestMuonTightClassicNoIPz
     #*bestMuonTightModExtSim
@@ -242,11 +254,23 @@ import SimMuon.MCTruth.MuonTrackProducer_cfi
 extractedGlobalMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 extractedGlobalMuons.selectionTags = ('AllGlobalMuons',)
 extractedGlobalMuons.trackType = "globalTrack"
+
+extractedInTimeGlobalMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractedInTimeGlobalMuons.selectionTags = ('AllGlobalMuons',)
+extractedInTimeGlobalMuons.trackType = "globalTrack"
+extractedInTimeGlobalMuons.muonsTag = "glbmuon2StatTiming"
+
 extractedSTAMuons2StatTiming = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 extractedSTAMuons2StatTiming.selectionTags = ('AllStandAloneMuons',)
 extractedSTAMuons2StatTiming.trackType = "outerTrack"
 extractedSTAMuons2StatTiming.muonsTag = "muon2StatTiming"
-extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons * extractedSTAMuons2StatTiming)
+
+extractedSTAMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractedSTAMuons.selectionTags = ('AllStandAloneMuons',)
+extractedSTAMuons.trackType = "outerTrack"
+extractedSTAMuons.muonsTag = "staMuons"
+
+extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons * extractedSTAMuons2StatTiming * extractedInTimeGlobalMuons * extractedSTAMuons)
 
 extractGemMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 extractGemMuons.selectionTags = ('All',)
@@ -256,7 +280,17 @@ extractGemMuonsTracks_seq = cms.Sequence( extractGemMuons )
 extractMe0Muons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 extractMe0Muons.selectionTags = cms.vstring('All',)
 extractMe0Muons.trackType = "me0MuonTrack"
-extractMe0MuonsTracks_seq = cms.Sequence( extractMe0Muons )
+
+extractMe0LooseMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractMe0LooseMuons.selectionTags = cms.vstring('All',)
+extractMe0LooseMuons.trackType = "me0MuonLoose"
+
+extractMe0TightMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractMe0TightMuons.selectionTags = cms.vstring('All',)
+extractMe0TightMuons.trackType = "me0MuonTight"
+
+extractMe0MuonsTracks_seq = cms.Sequence( #extractMe0Muons *
+                                          extractMe0LooseMuons * extractMe0TightMuons)
 
 #
 # Configuration for Seed track extractor
@@ -373,6 +407,7 @@ tpToStaSeedAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociator
 tpToStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToInTimeGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaRefitMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaRefitUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedTrkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -388,6 +423,8 @@ tpToL2MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorB
 tpToL2UpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL3MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToME0MuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToME0LooseMuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToME0TightMuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGEMMuonMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 
 tpToStaUpdMuonAssociation2StTime = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -473,7 +510,8 @@ tpToStaMuonAssociation.UseTracker = False
 tpToStaMuonAssociation.UseMuon = True
 
 tpToStaUpdMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToStaUpdMuonAssociation.tracksTag = 'standAloneMuons:UpdatedAtVtx'
+#tpToStaUpdMuonAssociation.tracksTag = 'standAloneMuons:UpdatedAtVtx'
+tpToStaUpdMuonAssociation.tracksTag = 'extractedSTAMuons'
 tpToStaUpdMuonAssociation.UseTracker = False
 tpToStaUpdMuonAssociation.UseMuon = True
 
@@ -486,6 +524,11 @@ tpToGlbMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToGlbMuonAssociation.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociation.UseTracker = True
 tpToGlbMuonAssociation.UseMuon = True
+
+tpToInTimeGlbMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToInTimeGlbMuonAssociation.tracksTag = 'extractedInTimeGlobalMuons'
+tpToInTimeGlbMuonAssociation.UseTracker = True
+tpToInTimeGlbMuonAssociation.UseMuon = True
 
 tpToLooseMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToLooseMuonAssociation.tracksTag = 'bestMuonLoose'
@@ -599,6 +642,16 @@ tpToME0MuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToME0MuonMuonAssociation.tracksTag = 'extractMe0Muons'
 tpToME0MuonMuonAssociation.UseTracker = True
 tpToME0MuonMuonAssociation.UseMuon = False
+
+tpToME0LooseMuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToME0LooseMuonMuonAssociation.tracksTag = 'extractMe0LooseMuons'
+tpToME0LooseMuonMuonAssociation.UseTracker = True
+tpToME0LooseMuonMuonAssociation.UseMuon = False
+
+tpToME0TightMuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToME0TightMuonMuonAssociation.tracksTag = 'extractMe0TightMuons'
+tpToME0TightMuonMuonAssociation.UseTracker = True
+tpToME0TightMuonMuonAssociation.UseMuon = False
 
 tpToGEMMuonMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToGEMMuonMuonAssociation.tracksTag = 'extractGemMuons'
@@ -1050,16 +1103,16 @@ tpToTightClassicSelUncMuonAssociation.UseMuon = True
 tpToTightClassicSelUncMuonAssociation.acceptOneStubMatchings = False
 #tpToTightClassicSelUncMuonAssociation.includeZeroHitMuons = False
 
-tpToTightModExtSel05MuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToTightModExtSel05MuonAssociation.tracksTag = 'bestMuonTightClassic5'
-tpToTightModExtSel05MuonAssociation.UseTracker = True
-tpToTightModExtSel05MuonAssociation.UseMuon = True
-#tpToTightModExtSel05MuonAssociation.EfficiencyCut_track = cms.double(0.5)
-#tpToTightModExtSel05MuonAssociation.PurityCut_track = cms.double(0.75)
-#tpToTightModExtSel05MuonAssociation.EfficiencyCut_muon = cms.double(0.5)
-#tpToTightModExtSel05MuonAssociation.PurityCut_muon = cms.double(0.75)
-tpToTightModExtSel05MuonAssociation.acceptOneStubMatchings = False
-#tpToTightModExtSel05MuonAssociation.includeZeroHitMuons = False
+tpToTightClassicSel05MuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToTightClassicSel05MuonAssociation.tracksTag = 'bestMuonTightClassic5'
+tpToTightClassicSel05MuonAssociation.UseTracker = True
+tpToTightClassicSel05MuonAssociation.UseMuon = True
+#tpToTightClassicSel05MuonAssociation.EfficiencyCut_track = cms.double(0.5)
+#tpToTightClassicSel05MuonAssociation.PurityCut_track = cms.double(0.75)
+#tpToTightClassicSel05MuonAssociation.EfficiencyCut_muon = cms.double(0.5)
+#tpToTightClassicSel05MuonAssociation.PurityCut_muon = cms.double(0.75)
+tpToTightClassicSel05MuonAssociation.acceptOneStubMatchings = False
+#tpToTightClassicSel05MuonAssociation.includeZeroHitMuons = False
 
 tpToTightClassicNoIPzSel0MuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToTightClassicNoIPzSel0MuonAssociation.tracksTag = 'bestMuonTightClassicNoIPz'
@@ -1172,15 +1225,20 @@ muonAssociation_seq = cms.Sequence(
     #Association maps
     +tpToStaUpdMuonAssociation
     +tpToGlbMuonAssociation
-    +tpToME0MuonMuonAssociation
-    +tpToGEMMuonMuonAssociation
+    +tpToInTimeGlbMuonAssociation
+#    +tpToME0MuonMuonAssociation
+#    +tpToME0LooseMuonMuonAssociation
+#    +tpToME0TightMuonMuonAssociation
+#    +tpToGEMMuonMuonAssociation
     +tpToStaUpdSel2MuonAssociation2StTime
-    +tpToLooseSel0MuonAssociation
-    +tpToLooseModSel0MuonAssociation
+#    +tpToLooseSel0MuonAssociation
+#    +tpToLooseModSel0MuonAssociation
     +tpToLooseModExtSel0MuonAssociation
-    +tpToTightSel0MuonAssociation
-    +tpToTightModSel0MuonAssociation
+    +tpToLooseModExtSel05MuonAssociation
+#    +tpToTightSel0MuonAssociation
+#    +tpToTightModSel0MuonAssociation
     +tpToTightModExtSel0MuonAssociation
+    +tpToTightModExtSel05MuonAssociation
     +tpToTightClassicSel0MuonAssociation
     +tpToTightClassicNoIPzSel0MuonAssociation
 #    +tpToTightModExtSimSel0MuonAssociation

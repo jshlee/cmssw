@@ -103,7 +103,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     #
     minpT = cms.double(0.0),
     maxpT = cms.double(2500),
-    nintpT = cms.int32(500),
+    nintpT = cms.int32(2500),
     useLogPt=cms.untracked.bool(False),
     useInvPt = cms.bool(False),
     #                               
