@@ -1172,16 +1172,17 @@ muonValidation_seq = cms.Sequence(
     #+ tightModMuonTrackVSel0MuonAssoc
     #Tight ID with PFMuon selections by hand with ME0Muon
     + tightModExtMuonTrackVSel0MuonAssoc
-    + tightClassicMuonTrackVSel0MuonAssoc
-    + tightClassicNoIPzMuonTrackVSel0MuonAssoc
+#    + tightClassicMuonTrackVSel0MuonAssoc
+#    + tightClassicNoIPzMuonTrackVSel0MuonAssoc
     #+ tightModExtSimMuonTrackVSel0MuonAssoc
     #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV
     #+ tightModMuonTrackVSel05SimMuonAssoc
     #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV and with ME0Muon
     + tightModExtMuonTrackVSel05SimMuonAssoc
     + tightModExtMuonTrackVSel05MuonAssoc
-    + tightClassicMuonTrackVSel05SimMuonAssoc
-    + tightClassicNoIPzMuonTrackVSel05SimMuonAssoc
+    + trkProbeTrackVMuonAssoc
+#    + tightClassicMuonTrackVSel05SimMuonAssoc
+#    + tightClassicNoIPzMuonTrackVSel05SimMuonAssoc
     #+ tightModExtSimMuonTrackVSel05SimMuonAssoc
 )
 

@@ -29,16 +29,16 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring(
                             
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_1.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_2.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_3.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_4.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_5.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_6.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_7.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_8.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_9.root',
-    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU/170623_141437/0000/step31_10.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_1.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_2.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_3.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_4.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_5.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_6.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_7.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_8.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_9.root',
+    'file:/lustre/cms/store/user/calabria/RelValZMM_13/crab_Val_911_RUN2_2017_PU_8/170712_175037/0000/step31_10.root',
                             
                             )
 )

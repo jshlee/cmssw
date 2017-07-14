@@ -317,9 +317,9 @@ probeTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clo
 probeTracks.quality = cms.vstring('highPurity')
 probeTracks.tip = cms.double(3.5)
 probeTracks.lip = cms.double(30.)
-probeTracks.ptMin = cms.double(4.0)
-probeTracks.minRapidity = cms.double(-2.4)
-probeTracks.maxRapidity = cms.double(2.4)
+probeTracks.ptMin = cms.double(2.0)
+probeTracks.minRapidity = cms.double(-3.0)
+probeTracks.maxRapidity = cms.double(3.0)
 probeTracks_seq = cms.Sequence( probeTracks )
 
 #
@@ -1225,6 +1225,7 @@ tpToGlbCosmic1LegSelMuonAssociation.includeZeroHitMuons = False
 muonAssociation_seq = cms.Sequence(
     #Produce collections
     selectedVertices
+    +probeTracks_seq
     +muonColl_seq
     +extractedMuonTracks_seq
     +bestMuon_seq
@@ -1245,8 +1246,9 @@ muonAssociation_seq = cms.Sequence(
 #    +tpToTightModSel0MuonAssociation
     +tpToTightModExtSel0MuonAssociation
     +tpToTightModExtSel05MuonAssociation
-    +tpToTightClassicSel0MuonAssociation
-    +tpToTightClassicNoIPzSel0MuonAssociation
+    +tpToTkMuonAssociation
+#    +tpToTightClassicSel0MuonAssociation
+#    +tpToTightClassicNoIPzSel0MuonAssociation
 #    +tpToTightModExtSimSel0MuonAssociation
 )
 

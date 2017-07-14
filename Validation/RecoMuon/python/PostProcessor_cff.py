@@ -145,6 +145,27 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string("")
 )
 
+postProcessorMuonMultiTrack2 = cms.EDAnalyzer("DQMGenericClient",
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/*"),
+    efficiency = cms.vstring(""),
+    resolutionLimitedFit = cms.untracked.bool(True),
+    resolution = cms.vstring(
+                             "qOverPtresXL_vs_eta '#sigma(q/p_{T}) vs #eta 2' qOverPtresXL_vs_eta_2",
+                             "qOverPtresXL_vs_phi '#sigma(q/p_{T}) vs #phi 2' qOverPtresXL_vs_phi_2",
+                             "qOverPtresXL_vs_pt '#sigma(q/p_{T}) vs p_{T} 2' qOverPtresXL_vs_pt_2",
+                             "qOverPtresXL_vs_eta_sim '#sigma(q/p_{T}) vs #eta Sim 2' qOverPtresXL_vs_eta_sim_2",
+                             "qOverPtresXL1_vs_eta_sim '#sigma(q/p_{T}) vs #eta Sim 2' qOverPtresXL1_vs_eta_sim_2",
+                             "qOverPtresXL2_vs_eta_sim '#sigma(q/p_{T}) vs #eta Sim 2' qOverPtresXL2_vs_eta_sim_2",
+                             "qOverPtresXL3_vs_eta_sim '#sigma(q/p_{T}) vs #eta Sim 2' qOverPtresXL3_vs_eta_sim_2",
+                             "qOverPtresXL4_vs_eta_sim '#sigma(q/p_{T}) vs #eta Sim 2' qOverPtresXL4_vs_eta_sim_2",
+                             "qOverPtresXL_vs_phi_sim '#sigma(q/p_{T}) vs #phi Sim 2' qOverPtresXL_vs_phi_sim_2",
+                             "qOverPtresXL_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim 2' qOverPtresXL_vs_pt_sim_2",
+                             "qOverPtresXLB_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim 2' qOverPtresXLB_vs_pt_sim_2",
+                             "qOverPtresXLO_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim 2' qOverPtresXLO_vs_pt_sim_2",
+                             "qOverPtresXLE_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim 2' qOverPtresXLE_vs_pt_sim_2",
+                             ),
+    outputFileName = cms.untracked.string("")
+)
 
 postProcessorMuonMultiTrackComp = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MultiTrack/"),
@@ -261,4 +282,4 @@ postProcessorRecoMuonCompPF = cms.EDAnalyzer(
 )
         
 
-recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_Tgt*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
+recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorMuonMultiTrack2*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_Tgt*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)

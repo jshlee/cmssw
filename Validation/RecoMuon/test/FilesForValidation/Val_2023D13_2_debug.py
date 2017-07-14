@@ -15,7 +15,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D13Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -215,61 +215,70 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring(
 
-    'tpToStaUpdMuonAssociation',
-    'tpToGlbMuonAssociation',
-    'tpToDisplacedStaMuonAssociation',
-#    + tpToME0MuonMuonAssociation
-#    + tpToGEMMuonMuonAssociation
-#    + tpToStaUpdSel2MuonAssociation2StTime
-#    + tpToLooseSel0MuonAssociation
-#    + tpToLooseModSel0MuonAssociation
-    'tpToLooseModExtSel0MuonAssociation',
-#    + tpToTightSel0MuonAssociation
-#    + tpToTightModSel0MuonAssociation
+#    'tpToStaUpdMuonAssociation',
+#    'tpToGlbMuonAssociation',
+#    'tpToInTimeGlbMuonAssociation',
+##    +tpToME0MuonMuonAssociation
+##    +tpToME0LooseMuonMuonAssociation
+##    +tpToME0TightMuonMuonAssociation
+##    +tpToGEMMuonMuonAssociation
+#    'tpToStaUpdSel2MuonAssociation2StTime',
+##    +tpToLooseSel0MuonAssociation
+##    +tpToLooseModSel0MuonAssociation
+#    'tpToLooseModExtSel0MuonAssociation',
+#    'tpToLooseModExtSel05MuonAssociation',
+##    +tpToTightSel0MuonAssociation
+##    +tpToTightModSel0MuonAssociation
 #    'tpToTightModExtSel0MuonAssociation',
-#    + tpToTightClassicSel0MuonAssociation
-#    + tpToTightClassicNoIPzSel0MuonAssociation
-#    + tpToTightModExtSimSel0MuonAssociation
-    #STAMuon updated at the vtx
-	'staUpdMuonTrackVMuonAssoc',
+#    'tpToTightModExtSel05MuonAssociation',
+#    'tpToTightClassicSel0MuonAssociation',
+#    'tpToTightClassicNoIPzSel0MuonAssociation',
+##    +tpToTightModExtSimSel0MuonAssociation
+#    #STAMuon updated at the vtx
+#	'staUpdMuonTrackVMuonAssoc',
 #    #GLB muon
-	'glbMuonTrackVMuonAssoc',
-#    #Displaced STA muon
-    'displacedStaMuonTrackVMuonAssoc',
-    #STA muon update at the vtx + timing
-# 	+staUpdMuonTrackVSel2MuonAssoc2StTime
-    #STA muon update at the vtx + timing with sim pT > 5 GeV
-#    +staUpdMuonTrackVSel2MuonAssoc2StTime05
-    #Loose ID
-#	+ looseMuonTrackVSel0MuonAssoc
-    #Loose ID with sim pT > 5 GeV
-#	+ looseMuonTrackVSel05SimMuonAssoc
-    #Tight ID
-#	+ tightMuonTrackVSel0MuonAssoc
-    #Tight ID with sim pT > 5 GeV
-#	+ tightMuonTrackVSel05SimMuonAssoc
-    #Loose ID with PFMuon selections by hand
-#	+ looseModMuonTrackVSel0MuonAssoc
-    #Loose ID with PFMuon selections by hand with ME0Muon
-    'looseModExtMuonTrackVSel0MuonAssoc',
-    #Loose ID with PFMuon selections by hand and with pT > 5 GeV
-#	+ looseModMuonTrackVSel05SimMuonAssoc
-    #Loose ID with PFMuon selections by hand and with pT > 5 GeV with ME0Muon
-    'looseModExtMuonTrackVSel05SimMuonAssoc',
-    #Tight ID with PFMuon selections by hand
-#	+ tightModMuonTrackVSel0MuonAssoc
-    #Tight ID with PFMuon selections by hand with ME0Muon
-    'tightModExtMuonTrackVSel0MuonAssoc',
-#    + tightClassicMuonTrackVSel0MuonAssoc
-#    + tightClassicNoIPzMuonTrackVSel0MuonAssoc
-#    + tightModExtSimMuonTrackVSel0MuonAssoc
-    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV
-#    + tightModMuonTrackVSel05SimMuonAssoc
-    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV and with ME0Muon
+#	'glbMuonTrackVMuonAssoc',
+#    'glbMuonInTimeTrackVMuonAssoc',
+#    #STA muon update at the vtx + timing
+# 	'staUpdMuonTrackVSel2MuonAssoc2StTime',
+#    #STA muon update at the vtx + timing with sim pT > 5 GeV
+#    #+ staUpdMuonTrackVSel2MuonAssoc2StTime05
+#    #Loose ID
+#    #+ looseMuonTrackVSel0MuonAssoc
+#    #Loose ID with sim pT > 5 GeV
+#    #+ looseMuonTrackVSel05SimMuonAssoc
+#    #Tight ID
+#    #+ tightMuonTrackVSel0MuonAssoc
+#    #Tight ID with sim pT > 5 GeV
+#    #+ tightMuonTrackVSel05SimMuonAssoc
+#    #Loose ID with PFMuon selections by hand
+#    #+ looseModMuonTrackVSel0MuonAssoc
+#    #Loose ID with PFMuon selections by hand with ME0Muon
+#    'looseModExtMuonTrackVSel0MuonAssoc',
+#    #Loose ID with PFMuon selections by hand and with pT > 5 GeV
+#    #+ looseModMuonTrackVSel05SimMuonAssoc
+#    #Loose ID with PFMuon selections by hand and with pT > 5 GeV with ME0Muon
+#    'looseModExtMuonTrackVSel05SimMuonAssoc',
+#    'looseModExtMuonTrackVSel05MuonAssoc',
+#    #Tight ID with PFMuon selections by hand
+#    #+ tightModMuonTrackVSel0MuonAssoc
+#    #Tight ID with PFMuon selections by hand with ME0Muon
+#    'tightModExtMuonTrackVSel0MuonAssoc',
+#    'tightClassicMuonTrackVSel0MuonAssoc',
+#    'tightClassicNoIPzMuonTrackVSel0MuonAssoc',
+#    #+ tightModExtSimMuonTrackVSel0MuonAssoc
+#    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV
+#    #+ tightModMuonTrackVSel05SimMuonAssoc
+#    #Tight ID with PFMuon selections by hand and with sim pT > 5 GeV and with ME0Muon
 #    'tightModExtMuonTrackVSel05SimMuonAssoc',
-#    + tightClassicMuonTrackVSel05SimMuonAssoc
-#    + tightClassicNoIPzMuonTrackVSel05SimMuonAssoc
-#    + tightModExtSimMuonTrackVSel05SimMuonAssoc
+#    'tightModExtMuonTrackVSel05MuonAssoc',
+#    'tightClassicMuonTrackVSel05SimMuonAssoc',
+#    'tightClassicNoIPzMuonTrackVSel05SimMuonAssoc',
+#    #+ tightModExtSimMuonTrackVSel05SimMuonAssoc
+#    'tpToME0TightMuonMuonAssociation',
+#    'me0TightMuonTrackVMuonAssoc',
+#    'tpToGEMMuonMuonAssociation',
+#    'gemMuonTrackVMuonAssoc'
 
 )
 
@@ -277,39 +286,29 @@ process.MessageLogger.suppressInfo = cms.untracked.vstring(
 ############################################################
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(500)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
                             
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/00A9B1AB-642E-E711-9759-0025905B85CA.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/02E12A3E-652E-E711-B7D7-0025905B8564.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/46CDFA38-652E-E711-9305-0CC47A4C8E1E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/60853208-692E-E711-9E0A-0025905B857E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/80028519-682E-E711-BE44-0025905B860E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/AC3371A6-642E-E711-88F6-0CC47A78A42E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/B4EF71D7-692E-E711-8164-0025905B860E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/C22FE7AB-682E-E711-A04F-0025905B860E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/D6702A2B-652E-E711-BF42-0025905A60B2.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/E8577AE6-652E-E711-A259-0025905B8606.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/E8A6BC97-692E-E711-A6CA-0CC47A4C8F0C.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D13-v1/10000/EA365B60-662E-E711-9448-0025905A607A.root'
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/14A91939-1D3F-E711-A09A-0025905A610A.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/1AF43477-223F-E711-89EA-0025905A610C.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/4C4B7246-1E3F-E711-949B-0025905A60DA.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/722FED43-1E3F-E711-81B6-0CC47A78A3EC.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/7671FDAA-1F3F-E711-B7DE-0025905B860C.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/8AFE90A8-1F3F-E711-869F-0CC47A7C34E6.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/96206C74-223F-E711-9EBC-0CC47A7C3458.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/AC5F5FF7-1A3F-E711-9F95-0CC47A4D75EC.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/ACDADD48-203F-E711-ABC1-0CC47A4D75EC.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/B09C3A31-1F3F-E711-B70F-0CC47A78A3D8.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/DCC47538-1F3F-E711-888A-0CC47A78A33E.root',
+'/store/relval/CMSSW_9_1_1/RelValZMM_14/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/DEAB0FD1-1C3F-E711-83A4-0025905A607A.root',
                             
                             ),
     secondaryFileNames = cms.untracked.vstring(
-                            
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/1299BD4C-602E-E711-8E4A-0025905A609A.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/1A01102F-612E-E711-B9C3-0CC47A4C8E7E.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/1E234CA1-5F2E-E711-82E3-0CC47A7C3430.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/1ECEDB0C-642E-E711-AECA-0025905B85FE.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/428B5D89-612E-E711-948B-0CC47A4C8E22.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/6C08DDD1-652E-E711-8A7C-0CC47A7C34EE.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/70EEA0D3-652E-E711-99DA-0025905A60AA.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/7659BC4C-602E-E711-A360-0025905A609A.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/DE4F7E05-642E-E711-861B-0CC47A4C8E22.root',
-'/store/relval/CMSSW_9_1_0_pre3/RelValZMM_14/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/E2A97D82-612E-E711-8717-0CC47A7C3430.root'
+
                             
                             )
 )
@@ -360,8 +359,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 #   process.muonValidation_seq +
 #   process.muonValidationDisplaced_seq
 #)
-process.gemMuonValidation = cms.Sequence()
-process.me0MuonValidation = cms.Sequence()
+#process.gemMuonValidation = cms.Sequence()
+#process.me0MuonValidation = cms.Sequence()
 
 
 # Path and EndPath definitions
