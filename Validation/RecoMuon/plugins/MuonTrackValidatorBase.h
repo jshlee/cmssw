@@ -70,6 +70,7 @@ class MuonTrackValidatorBase {
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
     useFabs(pset.getParameter<bool>("useFabsEta")),
+    useFabsDxy(pset.getParameter<bool>("useFabsDxy")),
     
     minRes(pset.getParameter<double>("minRes")),
     maxRes(pset.getParameter<double>("maxRes")),
@@ -162,6 +163,11 @@ class MuonTrackValidatorBase {
   virtual double getEta(double eta) {
     if (useFabs) return fabs(eta);
     else return eta;
+  }
+    
+  virtual double getDxy(double dxy) {
+    if (useFabsDxy) return fabs(dxy);
+    else return dxy;
   }
 
   virtual double getPt(double pt) {
@@ -618,6 +624,7 @@ h->setBinContent(j+1, 0);
   double min, max;
   int nint;
   bool useFabs;
+  bool useFabsDxy;
   double  minRes, maxRes;
   int nintRes;
   double  minVtx, maxVtx;

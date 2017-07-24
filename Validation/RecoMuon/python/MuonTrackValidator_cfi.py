@@ -115,9 +115,10 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     maxPhi = cms.double(3.1416),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-500),
+    useFabsDxy = cms.bool(True),
+    minDxy = cms.double(0),
     maxDxy = cms.double(500),
-    nintDxy = cms.int32(1000),
+    nintDxy = cms.int32(500),
     #
     minDz = cms.double(-500),
     maxDz = cms.double(500),
