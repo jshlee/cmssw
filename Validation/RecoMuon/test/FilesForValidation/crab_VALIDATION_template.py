@@ -1,13 +1,29 @@
+import sys
+print sys.argv
+
+if len(sys.argv) > 0:
+    last = sys.argv.pop()
+    sys.argv.extend(last.split(","))
+    print sys.argv
+
+if hasattr(sys, "argv") == True:
+    options.parseArguments()
+requestname = options.requestname
+workarea = options.workarea
+inputdataset = options.inputdataset
+psetname = options.psetname
+print 'Using channel: %s' % requestname
+
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
-config.General.requestName = 'Val_911_PU200_D17_10Mu_SNB_MA_10'
-config.General.workArea = 'crabProjects_VAL_PU200_D17_10Mu_SNB_MA_10'
+config.General.requestName = requestname
+config.General.workArea = workarea
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName ='Val_2023D17_2.py'
-config.Data.inputDataset='/RelValTenMuExtendedE_0_200/CMSSW_9_1_1_patch1-PU25ns_91X_upgrade2023_realistic_v1_D17SNBMAPU200-v1/GEN-SIM-RECO'
+config.JobType.psetName = psetname
+config.Data.inputDataset= inputdataset
 
 config.Data.splitting = 'FileBased'
 config.Data.inputDBS = 'global'

@@ -1,13 +1,13 @@
 from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
-config.General.requestName = 'Val_911_PU200_D17_10Mu_SNB_MA_10'
-config.General.workArea = 'crabProjects_VAL_PU200_D17_10Mu_SNB_MA_10'
+config.General.requestName = 'Val_911_PU0_D17_tt_8'
+config.General.workArea = 'crabProjects_VAL_PU0_D17_tt_8'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName ='Val_2023D17_2.py'
-config.Data.inputDataset='/RelValTenMuExtendedE_0_200/CMSSW_9_1_1_patch1-PU25ns_91X_upgrade2023_realistic_v1_D17SNBMAPU200-v1/GEN-SIM-RECO'
+config.Data.inputDataset='/RelValTTbar_14TeV/CMSSW_9_1_1-91X_upgrade2023_realistic_v1_D17-v1/GEN-SIM-RECO'
 
 config.Data.splitting = 'FileBased'
 config.Data.inputDBS = 'global'
@@ -24,4 +24,3 @@ config.Data.useParent = True
 config.Site.storageSite = 'T2_IT_Bari'
 #config.Site.whitelist = ['T2_IT_Bari']
 config.JobType.maxMemoryMB=3500
-config.Data.allowNonValidInputDataset = True

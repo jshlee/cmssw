@@ -322,7 +322,7 @@ bool MuonTrackProducer::isME0MuonSelNew(edm::Event& iEvent, const edm::EventSetu
                     
                     if (deltaEta < dEtaCut && deltaPhi < dPhiCut && deltaPhiBend < dPhiBendCut) result = true;
                     
-                    if(result && ((muon->pt()) < 5) && (fabs(muon->eta()) > 1.5) && (fabs(muon->eta()) < 2.0)) std::cout<<"Muon pT: "<<(muon->pt())<<", muon p: "<<(muon->p())<<", muon |eta|: "<<fabs(muon->eta())<<", muon vz: "<<(muon->vz())<<", extrapolated track |eta|: "<<fabs(trk_glb_coord.eta())<<", me0 segment |eta|: "<<fabs(seg_glb_coord.eta())<<std::endl;
+//                    if(result && ((muon->pt()) < 5) && (fabs(muon->eta()) > 1.5) && (fabs(muon->eta()) < 2.0)) std::cout<<"Muon pT: "<<(muon->pt())<<", muon p: "<<(muon->p())<<", muon |eta|: "<<fabs(muon->eta())<<", muon vz: "<<(muon->vz())<<", extrapolated track |eta|: "<<fabs(trk_glb_coord.eta())<<", me0 segment |eta|: "<<fabs(seg_glb_coord.eta())<<std::endl;
                     
                 }
             }
@@ -1230,8 +1230,14 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       }
       else if (trackType == "globalTrackLooseModExt") {
+
+          if(looseModExt[1]){
+
+              if ( muon->innerTrack().isNonnull() && me0MuonLoose ) trackref = muon->innerTrack();
+              else continue;
           
-           if(looseModExt[0]){
+          }
+          else if(looseModExt[0]){
           
               if( muon->globalTrack().isNonnull() )
               {
@@ -1246,12 +1252,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
               else continue;
               
            }
-           else if(looseModExt[1]){
 
-               if ( muon->innerTrack().isNonnull() && me0MuonLoose ) trackref = muon->innerTrack();
-               else continue;
-          
-           }
            else continue;
         
       }
@@ -1275,8 +1276,8 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       else if (trackType == "globalTrackTightModExt") {
           
-          if (tightModExt[0] == true && muon->globalTrack().isNonnull()) trackref = muon->globalTrack();
-          else if(tightModExt[1] == true && muon->innerTrack().isNonnull()) trackref = muon->innerTrack();
+          if(tightModExt[1] == true && muon->innerTrack().isNonnull()) trackref = muon->innerTrack();
+          else if (tightModExt[0] == true && muon->globalTrack().isNonnull()) trackref = muon->globalTrack();
           else continue;
           
       }
