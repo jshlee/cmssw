@@ -307,14 +307,29 @@ namespace citk {
     descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
     descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
 
-
     std::vector<edm::ParameterSet> isolationConeDefinitions;
     edm::ParameterSet chargedHadrons, neutralHadrons,photons;
     isolationConeDefinitions.push_back(chargedHadrons);
     isolationConeDefinitions.push_back(neutralHadrons);
     isolationConeDefinitions.push_back(photons);
     iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
+
+    edm::ParameterSetDescription descIsoTrkSelDefinitions;
+    descIsoTrkSelDefinitions.add<double>("Diff_r",0.1);
+    descIsoTrkSelDefinitions.add<double>("Diff_z",0.2);
+    descIsoTrkSelDefinitions.add<double>("DR_Max",0.5);
+    
+    descIsoTrkSelDefinitions.add<std::string>("BeamlineOption", "BeamSpotFromEvent");
+    descIsoTrkSelDefinitions.add<edm::InputTag>("BeamSpotLabel", edm::InputTag("offlineBeamSpot"));
+
+    descIsoTrkSelDefinitions.add<unsigned int>("NHits_Min", 0);
+    descIsoTrkSelDefinitions.add<double>("Chi2Ndof_Max", 1e+64);
+    descIsoTrkSelDefinitions.add<double>("Chi2Prob_Min", -1.0);
+    descIsoTrkSelDefinitions.add<double>("Pt_Min", -1.0);
+        
+    iDesc.add("isolationTrackSelections", descIsoTrkSelDefinitions);
     iDesc.add<bool>("usePUPPINoLepton",false);
+    iDesc.add<bool>("usePUPPI",true);
 
     descriptions.add("CITKPFIsolationSumProducerForPUPPI", iDesc);
   }

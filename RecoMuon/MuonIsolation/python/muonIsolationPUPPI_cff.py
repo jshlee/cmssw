@@ -30,7 +30,6 @@ IsoTrackSelections = cms.PSet(
     NHits_Min = cms.uint32(0),
     Chi2Ndof_Max = cms.double(1e+64),
     Pt_Min = cms.double(-1.0),
-    DepositLabel = cms.untracked.string(''),
     BeamlineOption = cms.string('BeamSpotFromEvent')
 )
 
