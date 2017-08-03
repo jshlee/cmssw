@@ -1299,9 +1299,9 @@ muonValidationCosmic_seq = cms.Sequence(
 
 # The full offline muon validation sequence
 recoMuonValidation = cms.Sequence(
-    muonAssociation_seq * muonValidation_seq
-    #+ muonValidationTEV_seq + muonValidationRefit_seq
-    + muonValidationDisplaced_seq
+#    muonAssociation_seq * muonValidation_seq
+#    + muonValidationTEV_seq + muonValidationRefit_seq
+    muonValidationDisplaced_seq
 )
 
 # no displaces in fastsim
@@ -1314,10 +1314,14 @@ recoCosmicMuonValidation = cms.Sequence(
     muonValidationCosmic_seq
 )
 
-gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
+gemMuonValidation = cms.Sequence(
+                                 extractGemMuonsTracks_seq +
+                                 tpToGEMMuonMuonAssociation +
+                                 gemMuonTrackVMuonAssoc
+                                 )
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq +
-#                                 tpToME0MuonMuonAssociation +
-#                                 me0MuonTrackVMuonAssoc +
+                                 tpToME0MuonMuonAssociation +
+                                 me0MuonTrackVMuonAssoc +
                                  tpToME0LooseMuonMuonAssociation +
                                  me0LooseMuonTrackVMuonAssoc +
                                  me0LooseMuonTrackVSim05MuonAssoc +
