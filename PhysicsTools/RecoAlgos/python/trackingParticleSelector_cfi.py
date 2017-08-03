@@ -12,7 +12,8 @@ trackingParticleSelector = cms.EDFilter("TrackingParticleSelector",
     lip = cms.double(30.0),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.4),
-    minHit = cms.int32(0)
+    minHit = cms.int32(0),
+    useAbsEta = cms.bool(False)
 )
 
 

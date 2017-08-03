@@ -5,6 +5,6 @@ gemDigiHarvesting = cms.EDAnalyzer("MuonGEMDigisHarvestor",
   compareDBEPath = cms.string("MuonGEMHitsV/GEMHitsTask/"),
   dbeHistPrefix = cms.string("copad_dcEta"),
   compareDBEHistPrefix = cms.string("hit_dcEta"),
-  detailPlot = cms.bool(False), 
+  detailPlot = cms.bool(True), 
 )
 MuonGEMDigisPostProcessors = cms.Sequence( gemDigiHarvesting ) 

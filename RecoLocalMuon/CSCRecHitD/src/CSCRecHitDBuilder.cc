@@ -27,9 +27,11 @@
 #include <iostream>
 #include <cassert>
 
-CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
-  
-  // Receives ParameterSet percolated down from EDProducer	
+CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ):
+geom_(0),
+stationNotToUse_(ps.getUntrackedParameter<int>("stationNotToUse",0))
+{
+  // Receives ParameterSet percolated down from EDProducer
 
   useCalib               = ps.getParameter<bool>("CSCUseCalibrations");  
   stripWireDeltaT        = ps.getParameter<int>("CSCstripWireDeltaTime");
@@ -78,6 +80,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     if ( rstripd.second == rstripd.first ) continue;
 
     const CSCDetId& sDetId = id;
+    int station = (int) sDetId.station();
+    int ring = (int) sDetId.ring();
  
     // This is used to test for gaps in layers and needs to be initialized here 
     if ( layer_idx == 0 ) {
@@ -137,14 +141,49 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 	
 	bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
 	if ( isInFiducial ) {
-	  hitsInLayer.push_back( rechit );
-	  hits_in_layer++;
+        
+    		switch(stationNotToUse_){
+
+		        // case 0  :: all detectors in
+		        // case 1  :: ME1/1 switched off
+                // case 2  :: ME2/1 switched off
+		        // case 3  :: ME3/1 switched off       
+		        // case 4  :: ME4/1 switched off       
+		        // default :: all detectors in
+                case 0:
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;
+                        break;
+                case 1: if(!(station == 1 && (ring == 1 || ring == 4))){
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;}
+                        break;
+                case 2: if(station != 2 || ring != 1){
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;}
+                        break;
+                case 3: if(station != 3 || ring != 1){
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;}
+                        break;
+                case 4: if(station != 4 || ring != 1){
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;}
+                        break;
+                case 5: if(!((station == 2 || station == 3 || station == 4) && ring == 1)){
+                        hitsInLayer.push_back( rechit );
+                        hits_in_layer++;}
+                        break;
+                default:
+                        hitsInLayer.push_back( rechit );
+              			hits_in_layer++;
+                        break;
+
+            }
+        
 	}
       }
     }
-
-  
-  
 
     LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
     // std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;

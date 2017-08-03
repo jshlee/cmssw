@@ -153,9 +153,7 @@ globalValidationHCAL = cms.Sequence(
 )
 
 globalPrevalidationMuons = cms.Sequence(
-      gemSimValid
-    + me0SimValid
-    + validSimHit
+    validSimHit
     + muondtdigianalyzer
     + cscDigiValidation
     + validationMuonRPCDigis
@@ -173,7 +171,16 @@ _run3_globalValidation += gemSimValid
 _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
 
+_run3_globalValidation2 = globalPrevalidationMuons.copy()
+_run3_globalValidation2 += gemSimValid
+
+_phase2_globalValidation2 = _run3_globalValidation2.copy()
+_phase2_globalValidation2 += me0SimValid
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
+run3_GEM.toReplaceWith( globalPrevalidationMuons, _run3_globalValidation2 )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
+phase2_muon.toReplaceWith( globalPrevalidationMuons, _phase2_globalValidation2 )
+

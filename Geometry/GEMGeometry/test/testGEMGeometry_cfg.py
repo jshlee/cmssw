@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 
 
 #process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
