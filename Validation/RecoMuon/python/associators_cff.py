@@ -224,6 +224,10 @@ bestMuonTightModExtSim = cms.EDProducer("MuonTrackProducer",
    trackType = cms.string('globalTrackTightModExtSim')
 )
 
+dsaMuon = cms.EDProducer("DisplacedMuonProducer",
+   muonsTag = cms.InputTag("displacedStandAloneMuons")
+)
+
 #-----------------------------------------------------------------------------------------------------------------------
 
 me0MuonInd = cms.EDProducer("ME0MuonTrackCollProducer",
@@ -581,14 +585,14 @@ tpToDisplacedStaSeedAssociation.UseTracker = False
 tpToDisplacedStaSeedAssociation.UseMuon = True
 
 tpToDisplacedStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
+tpToDisplacedStaMuonAssociation.tracksTag = 'dsaMuon'
 tpToDisplacedStaMuonAssociation.UseTracker = False
 tpToDisplacedStaMuonAssociation.UseMuon = True
 #tpToDisplacedStaMuonAssociation.includeZeroHitMuons = False
 #tpToDisplacedStaMuonAssociation.PurityCut_muon = cms.double(0.75)
 
 tpToDisplacedStaPurityMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToDisplacedStaPurityMuonAssociation.tracksTag = 'displacedStandAloneMuons'
+tpToDisplacedStaPurityMuonAssociation.tracksTag = 'dsaMuon'
 tpToDisplacedStaPurityMuonAssociation.UseTracker = False
 tpToDisplacedStaPurityMuonAssociation.UseMuon = True
 tpToDisplacedStaPurityMuonAssociation.includeZeroHitMuons = False

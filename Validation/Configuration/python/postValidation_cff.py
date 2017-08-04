@@ -112,6 +112,6 @@ _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith( postValidation_muons, _run3_postValidation )
+#run3_GEM.toReplaceWith( postValidation_muons, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( postValidation_muons, _phase2_postValidation )
+#phase2_hgcal.toReplaceWith( postValidation_muons, _phase2_postValidation )
