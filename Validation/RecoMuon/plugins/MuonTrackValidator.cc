@@ -399,7 +399,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_assocLr.push_back( ibooker.book1D("num_assoc(simToReco)_lr","N of associated tracks (simToReco) vs R",nintLr,minLr,maxLr) );
       h_simulLr.push_back( ibooker.book1D("num_simul_lr","N of simulated tracks vs R",nintLr,minLr,maxLr) );
         
-              h_Qoverptres.push_back( ibooker.book1D("qoverptres","qoverpt res.",250,-6,6) );
+      h_Qoverptres.push_back( ibooker.book1D("qoverptres","qoverpt res.",250,-6,6) );
       h_invptres.push_back( ibooker.book1D("invptres","invpt res.",250,-6,6) );
       h_Qoverptres_sim.push_back( ibooker.book1D("qoverptres_sim","qoverpt res. sim",250,-6,6) );
       h_invptres_sim.push_back( ibooker.book1D("invptres_sim","invpt res. sim",250,-6,6) );
@@ -433,6 +433,9 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       invptres_vs_eta_sim.push_back(ibooker.book2D("invptres_vs_eta_sim","invptres_vs_eta sim",nintRes,minRes,maxRes, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       invptres_vs_phi_sim.push_back( ibooker.book2D("invptres_vs_phi_sim","1/p_{t} res vs #phi sim",nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       invptres_vs_pt_sim.push_back(ibooker.book2D("invptres_vs_pt_sim","invptres_vs_pt sim",nintpT,minpT,maxpT, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+        
+      qOverPtres_vs_lr_sim.push_back(ibooker.book2D("qOverPtres_vs_lr_sim","qOverPtres_vs_lr sim",nintLr,minLr,maxLr, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+      qOverPtresXL_vs_lr_sim.push_back(ibooker.book2D("qOverPtresXL_vs_lr_sim","qOverPtresXL_vs_lr sim",nintLr,minLr,maxLr, 20*ptRes_nbin, 20*ptRes_rangeMin, 20*ptRes_rangeMax));
 
       qOverPtres_vs_eta_sim.push_back(ibooker.book2D("qOverPtres_vs_eta_sim","qOverPtres_vs_eta sim",nintRes,minRes,maxRes, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       qOverPtres1_vs_eta_sim.push_back(ibooker.book2D("qOverPtres1_vs_eta_sim","qOverPtres1_vs_eta sim",nintRes,minRes,maxRes, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
@@ -1506,6 +1509,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	double dxySim = TrackingParticleIP::dxy(vertexTP, momentumTP, bs.position());
 	double dzSim = TrackingParticleIP::dz(vertexTP, momentumTP, bs.position());
           
+    vertexTP = tpr->vertex();
+    double prodRho = sqrt(vertexTP.perp2());
+    double prodZ = vertexTP.z();
+    double prodR = sqrt(prodRho*prodRho + prodZ*prodZ);
+          
     h_assocpTvsEta[w]->Fill(ptSim, etaSim);
     h_assocpTvsPhi[w]->Fill(ptSim, phiSim);
 	
@@ -1641,6 +1649,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     ptres_vs_eta_sim[w]->Fill(getEta(etaSim),(ptRec-ptSim)/ptSim);
     invptres_vs_eta_sim[w]->Fill(getEta(etaSim),(1/ptRec-1/ptSim)/(1/ptSim));
     qOverPtres_vs_eta_sim[w]->Fill(getEta(etaSim),(chargeRec/ptRec-chargeSim/ptSim)/(chargeSim/ptSim));
+    qOverPtres_vs_lr_sim[w]->Fill(prodR,(chargeRec/ptRec-chargeSim/ptSim)/(chargeSim/ptSim));
+    qOverPtresXL_vs_lr_sim[w]->Fill(prodR,(chargeRec/ptRec-chargeSim/ptSim)/(chargeSim/ptSim));
 
     if(ptSim > 5 && ptSim < 10){
  		qOverPtres1_vs_eta_sim[w]->Fill(getEta(etaSim),(chargeRec/ptRec-chargeSim/ptSim)/(chargeSim/ptSim));

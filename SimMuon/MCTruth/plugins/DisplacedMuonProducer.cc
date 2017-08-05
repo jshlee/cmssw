@@ -45,7 +45,7 @@ void DisplacedMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     for(reco::TrackCollection::const_iterator muon = muonCollectionH->begin();
         muon != muonCollectionH->end(); ++muon, muon_index++) {
         
-        std::cout<<"MuonStationsWithValidHits: "<<muon->hitPattern().muonStationsWithValidHits()<<std::endl;
+//        std::cout<<"MuonStationsWithValidHits: "<<muon->hitPattern().muonStationsWithValidHits()<<std::endl;
         
             if(!((muon->hitPattern().muonStationsWithValidHits()) > 1)) continue;
         

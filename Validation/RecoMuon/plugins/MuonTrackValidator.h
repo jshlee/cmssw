@@ -221,7 +221,7 @@ private:
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, invptres_vs_eta, qOverPtres_vs_eta, qOverPtresXL_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
   std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, invptres_vs_pt, qOverPtres_vs_pt, qOverPtresXL_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
 
-  std::vector<MonitorElement*> ptres_vs_eta_sim, invptres_vs_eta_sim, qOverPtres_vs_eta_sim, qOverPtresXL_vs_eta_sim;
+  std::vector<MonitorElement*> ptres_vs_eta_sim, invptres_vs_eta_sim, qOverPtres_vs_eta_sim, qOverPtresXL_vs_eta_sim,qOverPtres_vs_lr_sim, qOverPtresXL_vs_lr_sim;
   std::vector<MonitorElement*> qOverPtres1_vs_eta_sim, qOverPtresXL1_vs_eta_sim;
   std::vector<MonitorElement*> qOverPtres2_vs_eta_sim, qOverPtresXL2_vs_eta_sim;
   std::vector<MonitorElement*> qOverPtres3_vs_eta_sim, qOverPtresXL3_vs_eta_sim;

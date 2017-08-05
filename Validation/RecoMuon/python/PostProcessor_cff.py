@@ -141,7 +141,10 @@ postProcessorMuonMultiTrack = cms.EDAnalyzer("DQMGenericClient",
                              "qOverPtresXLO_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim' qOverPtresXLO_vs_pt_sim",
                              "qOverPtresXLE_vs_pt_sim '#sigma(q/p_{T}) vs p_{T} Sim' qOverPtresXLE_vs_pt_sim",
                              "thetapull_vs_eta '#theta Pull vs #eta' thetapull_vs_eta",
-                             "thetapull_vs_phi '#theta Pull vs #phi' thetapull_vs_phi"),
+                             "thetapull_vs_phi '#theta Pull vs #phi' thetapull_vs_phi",
+                             "qOverPtres_vs_lr_sim '#sigma(q/p_{T}) vs L_r Sim' qOverPtres_vs_lr_sim",
+                             "qOverPtresXL_vs_lr_sim '#sigma(q/p_{T}) vs L_r Sim' qOverPtresXL_vs_lr_sim",
+                             ),
     outputFileName = cms.untracked.string("")
 )
 
