@@ -838,16 +838,16 @@ displacedStaSeedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 displacedStaSeedTrackVMuonAssoc.label = ('seedsOfDisplacedSTAmuons',)
 displacedStaSeedTrackVMuonAssoc.usetracker = False
 displacedStaSeedTrackVMuonAssoc.usemuon = True
-displacedStaSeedTrackVMuonAssoc.tipTP = cms.double(85.)
-displacedStaSeedTrackVMuonAssoc.lipTP = cms.double(210.)
+displacedStaSeedTrackVMuonAssoc.tipTP = cms.double(8500.)
+displacedStaSeedTrackVMuonAssoc.lipTP = cms.double(21000.)
 
 displacedStaMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedStaMuonAssociation'
 displacedStaMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-displacedStaMuonTrackVMuonAssoc.label = ('dsaMuon',)
+displacedStaMuonTrackVMuonAssoc.label = ('displacedStandAloneMuons',)
 displacedStaMuonTrackVMuonAssoc.usetracker = False
 displacedStaMuonTrackVMuonAssoc.usemuon = True
-displacedStaMuonTrackVMuonAssoc.maxRapidityTP = 3.0
+displacedStaMuonTrackVMuonAssoc.maxRapidityTP = 2.4
 displacedStaMuonTrackVMuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVMuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVMuonAssoc.vertexSrc = ""
@@ -857,12 +857,12 @@ displacedStaMuonTrackVMuonAssoc.prodZ = 500.
 displacedStaMuonTrackV15MuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackV15MuonAssoc.associatormap = 'tpToDisplacedStaMuonAssociation'
 displacedStaMuonTrackV15MuonAssoc.associators = ('MuonAssociationByHits',)
-displacedStaMuonTrackV15MuonAssoc.label = ('dsaMuon',)
+displacedStaMuonTrackV15MuonAssoc.label = ('displacedStandAloneMuons',)
 displacedStaMuonTrackV15MuonAssoc.usetracker = False
 displacedStaMuonTrackV15MuonAssoc.usemuon = True
 displacedStaMuonTrackV15MuonAssoc.ptMinTP = 10.0
 displacedStaMuonTrackV15MuonAssoc.dirName = 'Muons/RecoMuonV/MultiTrack/Cut10/'
-displacedStaMuonTrackV15MuonAssoc.maxRapidityTP = 3.0
+displacedStaMuonTrackV15MuonAssoc.maxRapidityTP = 2.4
 displacedStaMuonTrackV15MuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackV15MuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackV15MuonAssoc.vertexSrc = ""
@@ -875,7 +875,7 @@ displacedStaMuonTrackVPurityMuonAssoc.associators = ('MuonAssociationByHits',)
 displacedStaMuonTrackVPurityMuonAssoc.label = ('dsaMuon',)
 displacedStaMuonTrackVPurityMuonAssoc.usetracker = False
 displacedStaMuonTrackVPurityMuonAssoc.usemuon = True
-displacedStaMuonTrackVPurityMuonAssoc.maxRapidityTP = 3.0
+displacedStaMuonTrackVPurityMuonAssoc.maxRapidityTP = 2.4
 displacedStaMuonTrackVPurityMuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVPurityMuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVPurityMuonAssoc.vertexSrc = ""
@@ -890,7 +890,7 @@ displacedStaMuonTrackVPurity15MuonAssoc.usetracker = False
 displacedStaMuonTrackVPurity15MuonAssoc.usemuon = True
 displacedStaMuonTrackVPurity15MuonAssoc.ptMinTP = 10.0
 displacedStaMuonTrackVPurity15MuonAssoc.dirName = 'Muons/RecoMuonV/MultiTrack/Cut10/'
-displacedStaMuonTrackVPurity15MuonAssoc.maxRapidityTP = 3.0
+displacedStaMuonTrackVPurity15MuonAssoc.maxRapidityTP = 2.4
 displacedStaMuonTrackVPurity15MuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVPurity15MuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVPurity15MuonAssoc.vertexSrc = ""
@@ -1285,10 +1285,14 @@ muonValidationRefit_seq = cms.Sequence(
 )
 
 muonValidationDisplaced_seq = cms.Sequence(
-    dsaMuon
-#    seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
-    + tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc + displacedStaMuonTrackV15MuonAssoc
-    + tpToDisplacedStaPurityMuonAssociation + displacedStaMuonTrackVPurityMuonAssoc + displacedStaMuonTrackVPurity15MuonAssoc
+    selectedVertices + dsaMuon
+    + seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
+    + tpToDisplacedStaMuonAssociation
+    + displacedStaMuonTrackVMuonAssoc
+    + displacedStaMuonTrackV15MuonAssoc
+    + tpToDisplacedStaPurityMuonAssociation
+    + displacedStaMuonTrackVPurityMuonAssoc
+    + displacedStaMuonTrackVPurity15MuonAssoc
 #    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
 #    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
 )

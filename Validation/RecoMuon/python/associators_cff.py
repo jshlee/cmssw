@@ -585,7 +585,7 @@ tpToDisplacedStaSeedAssociation.UseTracker = False
 tpToDisplacedStaSeedAssociation.UseMuon = True
 
 tpToDisplacedStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToDisplacedStaMuonAssociation.tracksTag = 'dsaMuon'
+tpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
 tpToDisplacedStaMuonAssociation.UseTracker = False
 tpToDisplacedStaMuonAssociation.UseMuon = True
 #tpToDisplacedStaMuonAssociation.includeZeroHitMuons = False

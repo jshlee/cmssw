@@ -149,7 +149,7 @@ std::vector<int> MuonTrackValidator::isInMuonSysAcceptance(TrackingParticle* tpR
                 
                     if(det == DetId::Muon){
                         
-                        muonSys = 1;
+                        ++muonSys;
                         if(subdet == MuonSubdetId::DT) ++dtHits;
                         if(subdet == MuonSubdetId::CSC) ++cscHits;
                         if(subdet == MuonSubdetId::RPC){
@@ -218,6 +218,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       
       ibooker.cd();
       ibooker.setCurrentFolder(dirName.c_str());
+      h_drSIM.push_back( ibooker.book1D("dr_p_vtx", "dR(p_{sim}, vtx_{sim})", 100, 0, 10 ) );
       h_tracks.push_back( ibooker.book1D("tracks","number of reconstructed tracks",200,-0.5,19.5) );
       h_fakes.push_back( ibooker.book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( ibooker.book1D("charge","charge",3,-1.5,1.5) );
@@ -328,6 +329,22 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       nRPChits_vs_eta.push_back( ibooker.book2D("nRPChits_vs_eta","# RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useGEMs_) nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","# GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useME0_) nME0hits_vs_eta.push_back( ibooker.book2D("nME0hits_vs_eta","# ME0 hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+        
+      nhits.push_back( ibooker.book1D("nhits","nhits",nintHit,minHit,maxHit) );
+      nDThits.push_back( ibooker.book1D("nDThits","# DT sim hits",nintHit,minHit,maxHit) );
+      nCSChits.push_back( ibooker.book1D("nCSChits","# CSC sim hits",nintHit,minHit,maxHit) );
+      nRPChits_b.push_back( ibooker.book1D("nRPChits_b","# RPC sim hits",nintHit,minHit,maxHit) );
+      nRPChits_f.push_back( ibooker.book1D("nRPChits_f","# RPC sim hits",nintHit,minHit,maxHit) );
+      if(useGEMs_) nGEMhits.push_back( ibooker.book1D("nGEMhits","# GEM sim hits",nintHit,minHit,maxHit) );
+      if(useME0_) nME0hits.push_back( ibooker.book1D("nME0hits","# ME0 sim hits",nintHit,minHit,maxHit) );
+        
+      nhits_vs_lr.push_back( ibooker.book2D("nhits_vs_lr","nhits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      nDThits_vs_lr.push_back( ibooker.book2D("nDThits_vs_lr","# DT sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      nCSChits_vs_lr.push_back( ibooker.book2D("nCSChits_vs_lr","# CSC sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      nRPChits_vs_lr_b.push_back( ibooker.book2D("nRPChits_vs_lr_b","# RPC sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      nRPChits_vs_lr_f.push_back( ibooker.book2D("nRPChits_vs_lr_f","# RPC sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      if(useGEMs_) nGEMhits_vs_lr.push_back( ibooker.book2D("nGEMhits_vs_lr","# GEM sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      if(useME0_) nME0hits_vs_lr.push_back( ibooker.book2D("nME0hits_vs_lr","# ME0 sim hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
 
       h_DThits_eta.push_back( ibooker.bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( ibooker.bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
@@ -335,6 +352,14 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       if(useGEMs_) h_GEMhits_eta.push_back( ibooker.bookProfile("GEMhits_eta","mean # GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       if(useME0_) h_ME0hits_eta.push_back( ibooker.bookProfile("ME0hits_eta","mean # ME0 hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
+      h_hits_lr.push_back( ibooker.bookProfile("hits_lr","mean # hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      h_DThits_lr.push_back( ibooker.bookProfile("DThits_lr","mean # DT hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      h_CSChits_lr.push_back( ibooker.bookProfile("CSChits_lr","mean # CSC hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      h_RPChits_lr_b.push_back( ibooker.bookProfile("RPChits_lr_b","mean # RPC hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      h_RPChits_lr_f.push_back( ibooker.bookProfile("RPChits_lr_f","mean # RPC hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      if(useGEMs_) h_GEMhits_lr.push_back( ibooker.bookProfile("GEMhits_lr","mean # GEM hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+      if(useME0_) h_ME0hits_lr.push_back( ibooker.bookProfile("ME0hits_lr","mean # ME0 hits vs lr",nintLr,minLr,maxLr,nintHit,minHit,maxHit) );
+        
       h_hits_eta.push_back( ibooker.bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nhits_vs_phi.push_back( ibooker.book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
       h_hits_phi.push_back( ibooker.bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
@@ -868,9 +893,6 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     double prodRho = 0;
     double prodZ = 0;
     double prodR = 0;
-          
-//    int numTrackerSH = (int)tp->numberOfTrackerHits();
-//    int numTotalSH = (int)tp->numberOfHits();
 	
 	//If the TrackingParticle is collision-like, get the momentum and vertex at production state
 	//and the impact parameters w.r.t. PCA
@@ -878,16 +900,13 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  {
 	    LogTrace("MuonTrackValidator") <<"TrackingParticle "<< i;
           
-        std::vector<int> muonAcceptance = isInMuonSysAcceptance(tp, event, setup, false);
-        std::cout<<"DT: "<<muonAcceptance[0]<<", CSC: "<<muonAcceptance[1]<<std::endl;
-        std::cout<<"RPC: "<<muonAcceptance[2]<<", RPC: "<<muonAcceptance[3]<<std::endl;
-        std::cout<<"GEM: "<<muonAcceptance[4]<<", ME0: "<<muonAcceptance[5]<<std::endl;
-        std::cout<<"--------------------"<<std::endl;
-          
 	    if(! tpSelector(*tp)) continue;
-//        if((numTotalSH - numTrackerSH) == 0) continue;
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
+          
+        double dR = sqrt( (momentumTP.eta()-vertexTP.eta())*(momentumTP.eta()-vertexTP.eta()) + (momentumTP.phi()-vertexTP.phi())*(momentumTP.phi()-vertexTP.phi()));
+//        std::cout<<"dR: "<<dR<<std::endl;
+        h_drSIM[w]->Fill(dR);
           
         prodRho = sqrt(vertexTP.perp2());
 		prodZ = vertexTP.z();
@@ -905,7 +924,34 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 //      }
           
         if(!(fabs(prodRho) < prodRho_ && fabs(prodZ) < prodZ_)) continue;
-        if(!muonAcceptance[6]) continue;
+          
+        std::vector<int> muonAcceptance = isInMuonSysAcceptance(tp, event, setup, false);
+//        if(!(muonAcceptance[0] > 12 || muonAcceptance[1] > 12)) continue;
+          
+        nhits[w]->Fill(muonAcceptance[6]);
+        nDThits[w]->Fill(muonAcceptance[0]);
+        nCSChits[w]->Fill(muonAcceptance[1]);
+        nRPChits_b[w]->Fill(muonAcceptance[2]);
+        nRPChits_f[w]->Fill(muonAcceptance[3]);
+        if(useGEMs_) nGEMhits[w]->Fill(muonAcceptance[4]);
+        if(useME0_) nME0hits[w]->Fill(muonAcceptance[5]);
+          
+        nhits_vs_lr[w]->Fill(prodR, muonAcceptance[6]);
+        nDThits_vs_lr[w]->Fill(prodR, muonAcceptance[0]);
+        nCSChits_vs_lr[w]->Fill(prodR, muonAcceptance[1]);
+        nRPChits_vs_lr_b[w]->Fill(prodR, muonAcceptance[2]);
+        nRPChits_vs_lr_f[w]->Fill(prodR, muonAcceptance[3]);
+        if(useGEMs_) nGEMhits_vs_lr[w]->Fill(prodR, muonAcceptance[4]);
+        if(useME0_) nME0hits_vs_lr[w]->Fill(prodR, muonAcceptance[5]);
+          
+        if(!(muonAcceptance[6] > 0)) continue;
+//        if(dR > 1) continue;
+          
+//        std::cout<<"DT: "<<muonAcceptance[0]<<", CSC: "<<muonAcceptance[1]<<std::endl;
+//        std::cout<<"RPC: "<<muonAcceptance[2]<<", RPC: "<<muonAcceptance[3]<<std::endl;
+//        std::cout<<"GEM: "<<muonAcceptance[4]<<", ME0: "<<muonAcceptance[5]<<std::endl;
+//        std::cout<<"--------------------"<<std::endl;
+          
 	    //if(! isSignalFromZgamma(tp)) continue;
 	    //if(isSignalFromZgamma(tp)) cout<<"Signal: 1"<<endl;
         //else cout<<"Signal: 0"<<endl;
@@ -1898,6 +1944,14 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);
       if (useGEMs_) doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);
       if (useME0_) doProfileX(nME0hits_vs_eta[w],h_ME0hits_eta[w]);
+        
+      doProfileX(nhits_vs_lr[w],h_hits_lr[w]);
+      doProfileX(nDThits_vs_lr[w],h_DThits_lr[w]);
+      doProfileX(nCSChits_vs_lr[w],h_CSChits_lr[w]);
+      doProfileX(nRPChits_vs_lr_b[w],h_RPChits_lr_b[w]);
+      doProfileX(nRPChits_vs_lr_f[w],h_RPChits_lr_f[w]);
+      if (useGEMs_) doProfileX(nGEMhits_vs_lr[w],h_GEMhits_lr[w]);
+      if (useME0_) doProfileX(nME0hits_vs_lr[w],h_ME0hits_lr[w]);
       
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);
       //vs phi

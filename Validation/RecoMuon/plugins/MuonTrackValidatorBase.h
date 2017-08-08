@@ -663,7 +663,7 @@ h->setBinContent(j+1, 0);
   edm::ESHandle<MagneticField> theMF;
 
   //sim
-  std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
+  std::vector<MonitorElement*> h_ptSIM, h_drSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
@@ -717,10 +717,11 @@ h->setBinContent(j+1, 0);
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta,nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta,nME0hits_vs_eta,n_trkLayersOld, n_pxlHitsOld, n_pxlHitsNew, n_pxlHitsNew43Inn, n_pxlHitsNew32Inn;
+  std::vector<MonitorElement*> nhits,nDThits,nCSChits,nRPChits_b,nRPChits_f,nGEMhits,nME0hits;
+  std::vector<MonitorElement*> nhits_vs_lr,nDThits_vs_lr,nCSChits_vs_lr,nRPChits_vs_lr_b,nRPChits_vs_lr_f,nGEMhits_vs_lr,nME0hits_vs_lr;
     
-  std::vector<MonitorElement*> h_hits_eta,
-    h_DThits_eta,h_CSChits_eta,h_RPChits_eta,h_GEMhits_eta,h_ME0hits_eta;
-    
+  std::vector<MonitorElement*> h_hits_eta,h_DThits_eta,h_CSChits_eta,h_RPChits_eta,h_GEMhits_eta,h_ME0hits_eta;
+  std::vector<MonitorElement*> h_hits_lr,h_DThits_lr,h_CSChits_lr,h_RPChits_lr_b,h_RPChits_lr_f,h_GEMhits_lr,h_ME0hits_lr;
 
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > vtxintervals;
