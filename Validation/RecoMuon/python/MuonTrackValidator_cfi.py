@@ -4,6 +4,12 @@ from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
 muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
+    simHitSrc = cms.VInputTag(cms.InputTag('g4SimHits','MuonDTHits'),
+                              cms.InputTag('g4SimHits','MuonCSCHits'),
+                              cms.InputTag('g4SimHits','MuonRPCHits'),
+                              cms.InputTag('g4SimHits','MuonGEMHits'),
+                              cms.InputTag('g4SimHits','MuonME0Hits'),
+                             ),
     # input TrackingParticle collections
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),

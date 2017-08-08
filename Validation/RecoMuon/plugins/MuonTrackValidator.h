@@ -15,6 +15,10 @@
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
 class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
  public:
   /// Constructor
@@ -58,7 +62,7 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     
     // Declare consumes (also for the base class)
     bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
-    vtxTag_Token = consumes<reco::VertexCollection>(vtxInputTag),
+    vtxTag_Token = consumes<reco::VertexCollection>(vtxInputTag);
     tp_effic_Token = consumes<TrackingParticleCollection>(label_tp_effic);
     tp_fake_Token = consumes<TrackingParticleCollection>(label_tp_fake);
     for (unsigned int www=0;www<label.size();www++){
@@ -70,7 +74,10 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
 
     _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
-
+    std::vector<edm::InputTag> tags = pset.getParameter<std::vector<edm::InputTag> >("simHitSrc");
+    _simHitSrc.reserve(tags.size());
+    for(auto const& tag  : tags) _simHitSrc.emplace_back(consumes<edm::PSimHitContainer>(tag));
+      
     MABH = false;
     if (!UseAssociators) {
       // flag MuonAssociatorByHits
@@ -161,6 +168,7 @@ private:
 			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
 			double& phi, double& phiError) const;
   bool isSignalFromZgamma(TrackingParticle* tpRtS, bool debug);
+  std::vector<int> isInMuonSysAcceptance(TrackingParticle*, const edm::Event&, const edm::EventSetup&, bool);
 
  private:
   std::string dirName_;
@@ -168,6 +176,7 @@ private:
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoCollection_Token;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimCollection_Token;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > _simHitSrc;
 
   bool UseAssociators;
   bool useGEMs_;
@@ -236,7 +245,7 @@ private:
   std::vector<MonitorElement*> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
   std::vector<MonitorElement*> h_dxypulleta, h_ptpulleta, h_dzpulleta, h_phipulleta, h_thetapulleta;
   std::vector<MonitorElement*> h_ptpullphi, h_phipullphi, h_thetapullphi;
-    
+
 };
 
 

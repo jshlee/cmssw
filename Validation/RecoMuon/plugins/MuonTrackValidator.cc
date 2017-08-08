@@ -24,6 +24,7 @@
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
+
 #include "TMath.h"
 #include <TF1.h>
 
@@ -94,6 +95,89 @@ bool MuonTrackValidator::isSignalFromZgamma(TrackingParticle* tpRtS, bool debug 
     //cout << "Result: " << isFromZgamma << endl;
 	return isFromZgamma;
 
+}
+
+std::vector<int> MuonTrackValidator::isInMuonSysAcceptance(TrackingParticle* tpRtS, const edm::Event& iEvent, const edm::EventSetup& iSetup, bool debug = false){
+    
+    int dtHits = 0;
+    int cscHits = 0;
+    int rpcHitsb = 0;
+    int rpcHitsf = 0;
+    int gemHits = 0;
+    int me0Hits = 0;
+    int muonSys = 0;
+    std::vector<int> results;
+    
+    std::map<std::pair<size_t, EncodedEventId>, TrackingParticle*> mapping;
+    EncodedEventId eid(tpRtS->eventId());
+    for (auto itrk  = tpRtS->g4Track_begin(); itrk != tpRtS->g4Track_end(); ++itrk) {
+        std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
+//        std::cout<<"SimTrack TRK ID: "<<(itrk->trackId())<<std::endl;
+        mapping.insert(std::make_pair(trkid, tpRtS));
+    }
+    
+    for (auto const& psit : _simHitSrc) {
+
+        edm::Handle<edm::PSimHitContainer> PSimHitCollectionH;
+        iEvent.getByToken(psit,  PSimHitCollectionH);
+        
+        for (unsigned int psimHit = 0; psimHit != PSimHitCollectionH->size(); ++psimHit) {
+            
+            DetId::Detector det;
+            int subdet;
+            
+            TrackPSimHitRef pSimHitRef(PSimHitCollectionH,psimHit);
+            std::pair<uint32_t, EncodedEventId> simTkIds(pSimHitRef->trackId(),pSimHitRef->eventId());
+            
+//            std::cout<<"SimHit TRK ID: "<<(pSimHitRef->trackId())<<std::endl;
+            auto ipos = mapping.find(simTkIds);
+            if (ipos != mapping.end()) {
+                
+                edm::ESHandle<GlobalTrackingGeometry> theGeometry;
+                iSetup.get<GlobalTrackingGeometryRecord>().get(theGeometry);
+
+                const GeomDet* tmpDet  = theGeometry->idToDet( DetId(pSimHitRef->detUnitId()) ) ;
+                if (!tmpDet) {
+                    edm::LogVerbatim("MuonTrackValidator")
+                    <<"***WARNING:  PSimHit "<<", no GeomDet for: "<<pSimHitRef->detUnitId()<<". Skipping it.";
+                    continue;
+                } else {
+                    det = DetId(pSimHitRef->detUnitId()).det();
+                    subdet = DetId(pSimHitRef->detUnitId()).subdetId();
+                    
+//                  std::cout<<"DetID: "<<det<<", SubDetID: "<<subdet<<std::endl;
+                
+                    if(det == DetId::Muon){
+                        
+                        muonSys = 1;
+                        if(subdet == MuonSubdetId::DT) ++dtHits;
+                        if(subdet == MuonSubdetId::CSC) ++cscHits;
+                        if(subdet == MuonSubdetId::RPC){
+                    
+                            RPCDetId id = RPCDetId(pSimHitRef->detUnitId());
+                            if(id.region() == 0) ++rpcHitsb;
+                            else ++rpcHitsf;
+                    
+                        }
+                        if(subdet == MuonSubdetId::GEM) ++gemHits;
+                        if(subdet == MuonSubdetId::ME0) ++me0Hits;
+                        
+                    }
+                }
+            }
+        }
+    }
+    
+    results.push_back(dtHits);
+    results.push_back(cscHits);
+    results.push_back(rpcHitsb);
+    results.push_back(rpcHitsf);
+    results.push_back(gemHits);
+    results.push_back(me0Hits);
+    results.push_back(muonSys);
+
+    return results;
+    
 }
 
 void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& setup) {
@@ -434,8 +518,8 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       invptres_vs_phi_sim.push_back( ibooker.book2D("invptres_vs_phi_sim","1/p_{t} res vs #phi sim",nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       invptres_vs_pt_sim.push_back(ibooker.book2D("invptres_vs_pt_sim","invptres_vs_pt sim",nintpT,minpT,maxpT, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
         
-      qOverPtres_vs_lr_sim.push_back(ibooker.book2D("qOverPtres_vs_lr_sim","qOverPtres_vs_lr sim",nintLr,minLr,maxLr, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      qOverPtresXL_vs_lr_sim.push_back(ibooker.book2D("qOverPtresXL_vs_lr_sim","qOverPtresXL_vs_lr sim",nintLr,minLr,maxLr, 20*ptRes_nbin, 20*ptRes_rangeMin, 20*ptRes_rangeMax));
+      qOverPtres_vs_lr_sim.push_back(ibooker.book2D("qOverPtres_vs_lr_sim","qOverPtres_vs_lr sim",20,minLr,maxLr, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
+      qOverPtresXL_vs_lr_sim.push_back(ibooker.book2D("qOverPtresXL_vs_lr_sim","qOverPtresXL_vs_lr sim",20,minLr,maxLr, 20*ptRes_nbin, 20*ptRes_rangeMin, 20*ptRes_rangeMax));
 
       qOverPtres_vs_eta_sim.push_back(ibooker.book2D("qOverPtres_vs_eta_sim","qOverPtres_vs_eta sim",nintRes,minRes,maxRes, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       qOverPtres1_vs_eta_sim.push_back(ibooker.book2D("qOverPtres1_vs_eta_sim","qOverPtres1_vs_eta sim",nintRes,minRes,maxRes, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
@@ -784,13 +868,24 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     double prodRho = 0;
     double prodZ = 0;
     double prodR = 0;
+          
+//    int numTrackerSH = (int)tp->numberOfTrackerHits();
+//    int numTotalSH = (int)tp->numberOfHits();
 	
 	//If the TrackingParticle is collision-like, get the momentum and vertex at production state
 	//and the impact parameters w.r.t. PCA
 	if(parametersDefiner=="LhcParametersDefinerForTP")
 	  {
 	    LogTrace("MuonTrackValidator") <<"TrackingParticle "<< i;
+          
+        std::vector<int> muonAcceptance = isInMuonSysAcceptance(tp, event, setup, false);
+        std::cout<<"DT: "<<muonAcceptance[0]<<", CSC: "<<muonAcceptance[1]<<std::endl;
+        std::cout<<"RPC: "<<muonAcceptance[2]<<", RPC: "<<muonAcceptance[3]<<std::endl;
+        std::cout<<"GEM: "<<muonAcceptance[4]<<", ME0: "<<muonAcceptance[5]<<std::endl;
+        std::cout<<"--------------------"<<std::endl;
+          
 	    if(! tpSelector(*tp)) continue;
+//        if((numTotalSH - numTrackerSH) == 0) continue;
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
           
@@ -810,6 +905,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 //      }
           
         if(!(fabs(prodRho) < prodRho_ && fabs(prodZ) < prodZ_)) continue;
+        if(!muonAcceptance[6]) continue;
 	    //if(! isSignalFromZgamma(tp)) continue;
 	    //if(isSignalFromZgamma(tp)) cout<<"Signal: 1"<<endl;
         //else cout<<"Signal: 0"<<endl;
