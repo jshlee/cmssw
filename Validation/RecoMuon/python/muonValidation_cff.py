@@ -1286,7 +1286,9 @@ muonValidationRefit_seq = cms.Sequence(
 
 muonValidationDisplaced_seq = cms.Sequence(
     selectedVertices + dsaMuon
-    + seedsOfDisplacedSTAmuons_seq + tpToDisplacedStaSeedAssociation + displacedStaSeedTrackVMuonAssoc
+    + seedsOfDisplacedSTAmuons_seq
+    + tpToDisplacedStaSeedAssociation
+    + displacedStaSeedTrackVMuonAssoc
     + tpToDisplacedStaMuonAssociation
     + displacedStaMuonTrackVMuonAssoc
     + displacedStaMuonTrackV15MuonAssoc
