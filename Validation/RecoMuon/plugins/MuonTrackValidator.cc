@@ -218,7 +218,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       
       ibooker.cd();
       ibooker.setCurrentFolder(dirName.c_str());
-      h_drSIM.push_back( ibooker.book1D("dr_p_vtx", "dR(p_{sim}, vtx_{sim})", 100, 0, 10 ) );
+      h_drSIM.push_back( ibooker.book1D("dr_p_vtx", "dR(p_{sim}, vtx_{sim})", nintDr,minDr,maxDr ) );
       h_tracks.push_back( ibooker.book1D("tracks","number of reconstructed tracks",200,-0.5,19.5) );
       h_fakes.push_back( ibooker.book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( ibooker.book1D("charge","charge",3,-1.5,1.5) );
@@ -282,6 +282,9 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_assocdxy.push_back( ibooker.book1D("num_assoc(simToReco)_dxy","N of associated tracks (simToReco) vs dxy",nintDxy,minDxy,maxDxy) );
       h_assoc2dxy.push_back( ibooker.book1D("num_assoc(recoToSim)_dxy","N of associated (recoToSim) tracks vs dxy",nintDxy,minDxy,maxDxy) );
       h_simuldxy.push_back( ibooker.book1D("num_simul_dxy","N of simulated tracks vs dxy",nintDxy,minDxy,maxDxy) );
+        
+      h_simuldr.push_back( ibooker.book1D("num_simul_dr","N of simulated tracks vs collinearity",nintDr,minDr,maxDr) );
+      h_assocdr.push_back( ibooker.book1D("num_assoc(simToReco)_dr","N of associated tracks (simToReco) vs collinearity",nintDr,minDr,maxDr) );
       
       h_recodz.push_back( ibooker.book1D("num_reco_dz","N of reco track vs dz",nintDz,minDz,maxDz) );
       h_assocdz.push_back( ibooker.book1D("num_assoc(simToReco)_dz","N of associated tracks (simToReco) vs dz",nintDz,minDz,maxDz) );
@@ -893,6 +896,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
     double prodRho = 0;
     double prodZ = 0;
     double prodR = 0;
+    double dR = 0;
 	
 	//If the TrackingParticle is collision-like, get the momentum and vertex at production state
 	//and the impact parameters w.r.t. PCA
@@ -904,29 +908,28 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
           
-        double dR = sqrt( (momentumTP.eta()-vertexTP.eta())*(momentumTP.eta()-vertexTP.eta()) + (momentumTP.phi()-vertexTP.phi())*(momentumTP.phi()-vertexTP.phi()));
+        dR = sqrt( (momentumTP.eta()-vertexTP.eta())*(momentumTP.eta()-vertexTP.eta()) + (momentumTP.phi()-vertexTP.phi())*(momentumTP.phi()-vertexTP.phi()));
 //        std::cout<<"dR: "<<dR<<std::endl;
         h_drSIM[w]->Fill(dR);
           
         prodRho = sqrt(vertexTP.perp2());
 		prodZ = vertexTP.z();
         prodR = sqrt(prodRho*prodRho + prodZ*prodZ);
-//      int hitsPdgId = tp->pdgId();
-//		int hitsStatus = tp->status();
-//      int bx = tp->eventId().bunchCrossing();
-//      int evtID = tp->eventId().event();
-//          
-//      bool isSignalMuon = (abs(tp->pdgId())==13 || abs(tp->pdgId())==11 || abs(tp->pdgId())==15) && !tp->genParticles().empty() && (tp->eventId().event() == 0) && (tp->eventId().bunchCrossing() == 0); //segnale muone
-//      if(isSignalMuon) {
-//          cout<<"-----------------------------------------------------------------------------------------------"<<endl;
-//          cout << "\t Particle pdgId = "<< hitsPdgId << " status: " << hitsStatus << " rho = " << prodRho << ", z = " << prodZ << ", evtID = " << evtID << ", bx = " << bx << ", L = " << prodR << ", pT: " << sqrt(momentumTP.perp2()) << endl;
-//          cout<<"-----------------------------------------------------------------------------------------------"<<endl;
-//      }
+        int hitsPdgId = tp->pdgId();
+		int hitsStatus = tp->status();
+        int bx = tp->eventId().bunchCrossing();
+        int evtID = tp->eventId().event();
+          
+        bool isSignalMuon = (abs(tp->pdgId())==13 || abs(tp->pdgId())==11 || abs(tp->pdgId())==15) && !tp->genParticles().empty() && (tp->eventId().event() == 0) && (tp->eventId().bunchCrossing() == 0); //segnale muone
+        if(isSignalMuon) {
+          cout<<"-----------------------------------------------------------------------------------------------"<<endl;
+          cout << "\t Particle pdgId = "<< hitsPdgId << " status: " << hitsStatus << " rho = " << prodRho << ", z = " << prodZ << ", evtID = " << evtID << ", bx = " << bx << ", L = " << prodR << ", pT: " << sqrt(momentumTP.perp2()) << endl;
+          cout<<"-----------------------------------------------------------------------------------------------"<<endl;
+        }
           
         if(!(fabs(prodRho) < prodRho_ && fabs(prodZ) < prodZ_)) continue;
           
         std::vector<int> muonAcceptance = isInMuonSysAcceptance(tp, event, setup, false);
-//        if(!(muonAcceptance[0] > 12 || muonAcceptance[1] > 12)) continue;
           
         nhits[w]->Fill(muonAcceptance[6]);
         nDThits[w]->Fill(muonAcceptance[0]);
@@ -945,12 +948,13 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         if(useME0_) nME0hits_vs_lr[w]->Fill(prodR, muonAcceptance[5]);
           
         if(!(muonAcceptance[6] > 0)) continue;
-//        if(dR > 1) continue;
+        if(!(muonAcceptance[0] > 0 || muonAcceptance[1] > 0)) continue;
+//        if(dR > 0.05) continue;
           
-//        std::cout<<"DT: "<<muonAcceptance[0]<<", CSC: "<<muonAcceptance[1]<<std::endl;
-//        std::cout<<"RPC: "<<muonAcceptance[2]<<", RPC: "<<muonAcceptance[3]<<std::endl;
-//        std::cout<<"GEM: "<<muonAcceptance[4]<<", ME0: "<<muonAcceptance[5]<<std::endl;
-//        std::cout<<"--------------------"<<std::endl;
+        std::cout<<"DT: "<<muonAcceptance[0]<<", CSC: "<<muonAcceptance[1]<<std::endl;
+        std::cout<<"RPCb: "<<muonAcceptance[2]<<", RPCf: "<<muonAcceptance[3]<<std::endl;
+        std::cout<<"GEM: "<<muonAcceptance[4]<<", ME0: "<<muonAcceptance[5]<<std::endl;
+        std::cout<<"--------------------"<<std::endl;
           
 	    //if(! isSignalFromZgamma(tp)) continue;
 	    //if(isSignalFromZgamma(tp)) cout<<"Signal: 1"<<endl;
@@ -1169,13 +1173,23 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
+          
+	for (unsigned int f=0; f<drintervals[w].size()-1; f++){
+	  if (dR>drintervals[w][f]&&
+	      dR<drintervals[w][f+1]) {
+	    totSIM_dr[w][f]++;
+	    if (TP_is_matched) {
+	      totASS_dr[w][f]++;
+	    }
+	  }
+	} // END for (unsigned int f=0; f<drintervals[w].size()-1; f++){
 	
 	for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
 	  if (getDxy(dxySim)>dxyintervals[w][f]&&
 	      getDxy(dxySim)<dxyintervals[w][f+1]) {
-	    if(fabs(momentumTP.eta()) > 1.6 && fabs(momentumTP.eta()) < 2.4) totSIM_dxy[w][f]++;
+	    totSIM_dxy[w][f]++;
 	    if (TP_is_matched) {
-	      if(fabs(momentumTP.eta()) > 1.6 && fabs(momentumTP.eta()) < 2.4) totASS_dxy[w][f]++;
+	      totASS_dxy[w][f]++;
 	    }
 	  }
 	} // END for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
@@ -1911,8 +1925,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
       
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
+      double eff = 0;
+      if(st) eff = (double)ats/st;
       edm::LogVerbatim("MuonTrackValidator") << "Total Simulated: " << st << "\n"
 					     << "Total Associated (simToReco): " << ats << "\n"
+                         << "Efficiency: " << eff << "\n"
 					     << "Total Reconstructed: " << rT << "\n"
 					     << "Total Associated (recoToSim): " << at << "\n"
 					     << "Total Fakes: " << rT-at << "\n";
@@ -2084,6 +2101,9 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVector(h_simuldxy[w],totSIM_dxy[w]);
       fillPlotFromVector(h_assocdxy[w],totASS_dxy[w]);
       fillPlotFromVector(h_assoc2dxy[w],totASS2_dxy[w]);
+
+      fillPlotFromVector(h_simuldr[w],totSIM_dr[w]);
+      fillPlotFromVector(h_assocdr[w],totASS_dr[w]);
 
       fillPlotFromVector(h_recodz[w],totREC_dz[w]);
       fillPlotFromVector(h_simuldz[w],totSIM_dz[w]);

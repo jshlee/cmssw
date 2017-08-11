@@ -852,8 +852,8 @@ displacedStaMuonTrackVMuonAssoc.maxRapidityTP = 3.0
 displacedStaMuonTrackVMuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVMuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVMuonAssoc.vertexSrc = ""
-displacedStaMuonTrackVMuonAssoc.prodRho = 350.
-displacedStaMuonTrackVMuonAssoc.prodZ = 500.
+displacedStaMuonTrackVMuonAssoc.prodRho = 100.
+displacedStaMuonTrackVMuonAssoc.prodZ = 100.
 
 displacedStaMuonTrackV15MuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackV15MuonAssoc.associatormap = 'tpToDisplacedStaMuonAssociation'
@@ -868,8 +868,8 @@ displacedStaMuonTrackV15MuonAssoc.maxRapidityTP = 3.0
 displacedStaMuonTrackV15MuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackV15MuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackV15MuonAssoc.vertexSrc = ""
-displacedStaMuonTrackV15MuonAssoc.prodRho = 350.
-displacedStaMuonTrackV15MuonAssoc.prodZ = 500.
+displacedStaMuonTrackV15MuonAssoc.prodRho = 100.
+displacedStaMuonTrackV15MuonAssoc.prodZ = 100.
 
 displacedStaMuonTrackVPurityMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackVPurityMuonAssoc.associatormap = 'tpToDisplacedStaPurityMuonAssociation'
@@ -882,8 +882,8 @@ displacedStaMuonTrackVPurityMuonAssoc.maxRapidityTP = 3.0
 displacedStaMuonTrackVPurityMuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVPurityMuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVPurityMuonAssoc.vertexSrc = ""
-displacedStaMuonTrackVPurityMuonAssoc.prodRho = 350.
-displacedStaMuonTrackVPurityMuonAssoc.prodZ = 500.
+displacedStaMuonTrackVPurityMuonAssoc.prodRho = 100.
+displacedStaMuonTrackVPurityMuonAssoc.prodZ = 100.
 
 displacedStaMuonTrackVPurity15MuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedStaMuonTrackVPurity15MuonAssoc.associatormap = 'tpToDisplacedStaPurityMuonAssociation'
@@ -898,8 +898,8 @@ displacedStaMuonTrackVPurity15MuonAssoc.maxRapidityTP = 3.0
 displacedStaMuonTrackVPurity15MuonAssoc.tipTP = cms.double(50000.)
 displacedStaMuonTrackVPurity15MuonAssoc.lipTP = cms.double(21000.)
 displacedStaMuonTrackVPurity15MuonAssoc.vertexSrc = ""
-displacedStaMuonTrackVPurity15MuonAssoc.prodRho = 350.
-displacedStaMuonTrackVPurity15MuonAssoc.prodZ = 500.
+displacedStaMuonTrackVPurity15MuonAssoc.prodRho = 100.
+displacedStaMuonTrackVPurity15MuonAssoc.prodZ = 100.
 
 displacedGlbMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 displacedGlbMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedGlbMuonAssociation'
@@ -1220,7 +1220,7 @@ muonValidation_seq = cms.Sequence(
 #	staUpdMuonTrackVMuonAssoc
     #GLB muon
 #	+ glbMuonTrackVMuonAssoc
-#    + glbMuonInTimeTrackVMuonAssoc
+#   + glbMuonInTimeTrackVMuonAssoc
     #STA muon update at the vtx + timing
  	staUpdMuonTrackVSel2MuonAssoc2StTime
     #STA muon update at the vtx + timing with sim pT > 5 GeV
@@ -1291,6 +1291,10 @@ muonValidationRefit_seq = cms.Sequence(
 muonValidationDisplaced_seq = cms.Sequence(
     selectedVertices + dsaMuon
     + seedsOfDisplacedSTAmuons_seq
+    + staMuons
+    + extractedSTAMuons
+#    + tpToStaUpdMuonAssociation
+#    + staUpdMuonTrackVMuonAssoc
     + tpToDisplacedStaSeedAssociation
     + displacedStaSeedTrackVMuonAssoc
     + tpToDisplacedStaMuonAssociation

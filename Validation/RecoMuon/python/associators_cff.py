@@ -48,7 +48,7 @@ muonPt5 = cms.EDFilter("MuonSelector",
 
 staMuons = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("isStandAloneMuon"),
+    cut = cms.string("isStandAloneMuon && outerTrack.hitPattern.muonStationsWithValidHits > 1"),
     filter = cms.bool(False)
 )
 

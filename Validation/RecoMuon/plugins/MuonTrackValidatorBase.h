@@ -95,6 +95,9 @@ class MuonTrackValidatorBase {
     minDxy(pset.getParameter<double>("minDxy")),
     maxDxy(pset.getParameter<double>("maxDxy")),
     nintDxy(pset.getParameter<int>("nintDxy")),
+    minDr(pset.getParameter<double>("minDr")),
+    maxDr(pset.getParameter<double>("maxDr")),
+    nintDr(pset.getParameter<int>("nintDr")),
     minDz(pset.getParameter<double>("minDz")),
     maxDz(pset.getParameter<double>("maxDz")),
     nintDz(pset.getParameter<int>("nintDz")),
@@ -241,6 +244,7 @@ h->setBinContent(j+1, 0);
     std::vector<double> phiintervalsv;
     std::vector<double> pTintervalsv;
     std::vector<double> dxyintervalsv;
+    std::vector<double> drintervalsv;
     std::vector<double> dzintervalsv;
     std::vector<double> vertposintervalsv;
     std::vector<double> zposintervalsv;
@@ -257,6 +261,7 @@ h->setBinContent(j+1, 0);
     std::vector<int> totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
     std::vector<int> totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
     std::vector<int> totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
+    std::vector<int> totSIMv_dr,totASSv_dr,totASS2v_dr,totRECv_dr;
     std::vector<int> totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
       
     std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos;
@@ -520,6 +525,21 @@ h->setBinContent(j+1, 0);
     totASS2_dxy.push_back(totASS2v_dxy);
     totREC_dxy.push_back(totRECv_dxy);
 
+    double stepDr = (maxDr-minDr)/nintDr;
+    drintervalsv.push_back(minDr);
+    for (int k=1;k<nintDr+1;k++) {
+      double d=minDr+k*stepDr;
+      drintervalsv.push_back(d);
+      totSIMv_dr.push_back(0);
+      totASSv_dr.push_back(0);
+      totASS2v_dr.push_back(0);
+      totRECv_dr.push_back(0);
+    }
+    drintervals.push_back(drintervalsv);
+    totSIM_dr.push_back(totSIMv_dr);
+    totASS_dr.push_back(totASSv_dr);
+    totASS2_dr.push_back(totASS2v_dr);
+    totREC_dr.push_back(totRECv_dr);
 
     double stepDz = (maxDz-minDz)/nintDz;
     dzintervalsv.push_back(minDz);
@@ -639,6 +659,8 @@ h->setBinContent(j+1, 0);
   int nintPhi;
   double minDxy, maxDxy;
   int nintDxy;
+  double minDr, maxDr;
+  int nintDr;
   double minDz, maxDz;
   int nintDz;
   double minVertpos, maxVertpos;
@@ -694,6 +716,7 @@ h->setBinContent(j+1, 0);
 
   std::vector<MonitorElement*> h_recophi, h_recoetaphi, h_assocphi, h_assoc2phi, h_simulphi;
   std::vector<MonitorElement*> h_recodxy, h_dxyDistr, h_assocdxy, h_assoc2dxy, h_simuldxy;
+  std::vector<MonitorElement*> h_recodr, h_assocdr, h_assoc2dr, h_simuldr;
   std::vector<MonitorElement*> h_recodz, h_dzDistr, h_assocdz, h_assoc2dz, h_simuldz;
     
   std::vector<MonitorElement*> h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
@@ -729,6 +752,7 @@ h->setBinContent(j+1, 0);
   std::vector< std::vector<double> > pTintervals;
   std::vector< std::vector<double> > phiintervals;
   std::vector< std::vector<double> > dxyintervals;
+  std::vector< std::vector<double> > drintervals;
   std::vector< std::vector<double> > dzintervals;
   std::vector< std::vector<double> > vertposintervals;
   std::vector< std::vector<double> > zposintervals;
@@ -755,6 +779,7 @@ h->setBinContent(j+1, 0);
   std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
   std::vector< std::vector<int> > totSIM_phi,totREC_phi,totASS_phi,totASS2_phi;
   std::vector< std::vector<int> > totSIM_dxy,totREC_dxy,totASS_dxy,totASS2_dxy;
+  std::vector< std::vector<int> > totSIM_dr,totREC_dr,totASS_dr,totASS2_dr;
   std::vector< std::vector<int> > totSIM_dz,totREC_dz,totASS_dz,totASS2_dz;
   std::vector< std::vector<int> > totSIM_vertpos,totASS_vertpos,totSIM_zpos,totASS_zpos;
     
