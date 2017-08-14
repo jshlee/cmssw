@@ -13,6 +13,7 @@ FitSlicesYTool::FitSlicesYTool(MonitorElement* me)
   TH2F * h = me->getTH2F();
   h->FitSlicesY();
   string name(h->GetName());
+  h2D = (TH2F*)h->Clone();
   h0 = (TH1*)gDirectory->Get((name+"_0").c_str());
   h1 = (TH1*)gDirectory->Get((name+"_1").c_str());
   h2 = (TH1*)gDirectory->Get((name+"_2").c_str());
@@ -32,7 +33,9 @@ FitSlicesYTool::~FitSlicesYTool(){
   delete h0;  
   delete h1;  
   delete h2;  
-  delete h3;  
+  delete h3;
+  delete h2D;
+
 }
 void FitSlicesYTool::getFittedMean(MonitorElement * me){
   if (!(h1&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
@@ -75,6 +78,21 @@ void FitSlicesYTool::getFittedSigmaWithError(MonitorElement * me){
       me->setBinContent(bin+1,h2->GetBinContent(bin+1));
 //       me->setBinEntries(bin+1, 1.);
       me->setBinError(bin+1,h2->GetBinError(bin+1));
+    }
+  } else {
+    throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+  }
+}
+void FitSlicesYTool::getRMS(MonitorElement * me){
+  if (!(h2D&&me)) throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h2D=" << h2D << " me=" << me;
+  if (h2D->GetNbinsX()==me->getNbinsX()){
+    for (int bin=0;bin!=h2D->GetNbinsX();bin++){
+      TH1D * tmp = h2D->ProjectionY(" ", bin+1, bin+1);
+      double rms = tmp->GetRMS();
+      double rmsErr = tmp->GetRMSError();
+      tmp->Delete();
+      me->setBinContent(bin+1,rms);
+      me->setBinError(bin+1,rmsErr);
     }
   } else {
     throw cms::Exception("FitSlicesYTool") << "Different number of bins!";

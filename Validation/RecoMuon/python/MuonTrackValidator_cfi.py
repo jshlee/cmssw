@@ -4,6 +4,12 @@ from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
 muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
+    simHitSrc = cms.VInputTag(cms.InputTag('g4SimHits','MuonDTHits'),
+                              cms.InputTag('g4SimHits','MuonCSCHits'),
+                              cms.InputTag('g4SimHits','MuonRPCHits'),
+                              cms.InputTag('g4SimHits','MuonGEMHits'),
+                              cms.InputTag('g4SimHits','MuonME0Hits'),
+                             ),
     # input TrackingParticle collections
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
@@ -15,6 +21,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     #
     useGsf=cms.bool(False),
     beamSpot = cms.InputTag("offlineBeamSpot"),
+    vertexSrc = cms.InputTag("selectedVertices"),
     # set true if you do not want that MTV launch an exception
     # if the track collection is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
@@ -29,8 +36,11 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     ptMinTP = cms.double(0.9),
     minRapidityTP = cms.double(-2.4),
     maxRapidityTP = cms.double(2.4),
+    useAbsEta = cms.bool(False),
     tipTP = cms.double(3.5),
     lipTP = cms.double(30.0),
+    prodRho = cms.double(1000.0),
+    prodZ = cms.double(1000.0),
     # collision-like tracks
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),
     # cosmics tracks
@@ -43,6 +53,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     UseAssociators = cms.bool(False),
     useGEMs = cms.bool(False),
     useME0 = cms.bool(False),
+    useMCTruth = cms.untracked.bool(False),
     associators = cms.vstring('a_MuonAssociator'),
     associatormap = cms.InputTag("tpToMuonTrackAssociation"),
     #
@@ -56,10 +67,14 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     dirName = cms.string('Muons/RecoMuonV/MultiTrack/'),
     #
     # Parameters for plots                                    
-    useFabsEta = cms.bool(False),
-    min = cms.double(-2.5),
-    max = cms.double(2.5),
-    nint = cms.int32(50),
+    useFabsEta = cms.bool(True),
+    min = cms.double(0),
+    max = cms.double(2.4),
+    nint = cms.int32(24),
+    #
+    minRes = cms.double(0),
+    maxRes = cms.double(2.4),
+    nintRes = cms.int32(12),
     #
     ptRes_nbin = cms.int32(100),                                   
     ptRes_rangeMin = cms.double(-0.3),
@@ -83,10 +98,18 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     dzRes_nbin = cms.int32(150),                                   
     dzRes_rangeMin = cms.double(-0.05),
     dzRes_rangeMax = cms.double(0.05),
-    # 
-    minpT = cms.double(0.1),
-    maxpT = cms.double(1500),
-    nintpT = cms.int32(40),
+    #
+    minVtx = cms.double(0),
+    maxVtx = cms.double(250),
+    nintVtx = cms.int32(25),
+    #
+    minDen = cms.double(0),
+    maxDen = cms.double(60),
+    nintDen = cms.int32(12),
+    #
+    minpT = cms.double(0.0),
+    maxpT = cms.double(2500),
+    nintpT = cms.int32(2500),
     useLogPt=cms.untracked.bool(False),
     useInvPt = cms.bool(False),
     #                               
@@ -98,13 +121,18 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     maxPhi = cms.double(3.1416),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-3),
-    maxDxy = cms.double(3),
-    nintDxy = cms.int32(100),
+    useFabsDxy = cms.bool(True),
+    minDxy = cms.double(0),
+    maxDxy = cms.double(500),
+    nintDxy = cms.int32(500),
     #
-    minDz = cms.double(-10),
-    maxDz = cms.double(10),
-    nintDz = cms.int32(100),
+    minDr = cms.double(0),
+    maxDr = cms.double(5),
+    nintDr = cms.int32(100),
+    #
+    minDz = cms.double(-500),
+    maxDz = cms.double(500),
+    nintDz = cms.int32(1000),
     # TP originating vertical position
     minVertpos = cms.double(0),
     maxVertpos = cms.double(5),
@@ -112,7 +140,17 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     # TP originating z position
     minZpos = cms.double(-10),
     maxZpos = cms.double(10),
-    nintZpos = cms.int32(100)
+    nintZpos = cms.int32(100),
+    #
+    minLxy = cms.double(0),
+    maxLxy = cms.double(1000),
+    nintLxy = cms.int32(200),
+    minLz = cms.double(0),
+    maxLz = cms.double(1000),
+    nintLz = cms.int32(200),
+    minLr = cms.double(0),
+    maxLr = cms.double(1000),
+    nintLr = cms.int32(200),
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM

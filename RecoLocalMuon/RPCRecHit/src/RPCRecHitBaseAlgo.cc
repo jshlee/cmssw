@@ -10,8 +10,9 @@
 #include "RecoLocalMuon/RPCRecHit/src/RPCClusterizer.h"
 #include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
 
-RPCRecHitBaseAlgo::RPCRecHitBaseAlgo(const edm::ParameterSet& config) {
-  //  theSync = RPCTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
+RPCRecHitBaseAlgo::RPCRecHitBaseAlgo(const edm::ParameterSet& config):
+  stationNotToUse_(config.getUntrackedParameter<int>("stationNotToUse",3))
+{  //  theSync = RPCTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
   //config.getParameter<ParameterSet>("tTrigModeConfig"));
 }
 
@@ -41,8 +42,25 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
     const int clusterSize = cl.clusterSize();
     RPCRecHit* recHit = new RPCRecHit(rpcId,cl.bx(),firstClustStrip,clusterSize,point,tmpErr);
     if ( timeErr >= 0 ) recHit->setTimeAndError(time, timeErr);
+      
+    int station = (int) rpcId.station();
+    int ring = (int) rpcId.ring();
 
-    result.push_back(recHit);
+    switch(stationNotToUse_){
+
+	case 0: if(!((station == 3 || station == 4) && ring == 1)) result.push_back(recHit); // NO RPC UPGRADE
+		break;
+	case 1: if(!(station == 4 && ring == 1)) result.push_back(recHit); // No RE4/1
+		break;
+	case 2: if(!(station == 3 && ring == 1)) result.push_back(recHit); // No RE3/1
+		break;
+	case 3: result.push_back(recHit); // RE3/1 + RE4/1
+		break;
+	default: result.push_back(recHit); // RE3/1 + RE4/1
+		break;
+
+    }
+      
   }
 
   return result;
