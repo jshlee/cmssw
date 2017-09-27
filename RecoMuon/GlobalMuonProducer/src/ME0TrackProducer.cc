@@ -105,13 +105,12 @@ void ME0TrackProducer::produce(Event& event, const EventSetup& eventSetup) {
     if (!mu.isME0Muon()) continue;
     if (mu.isGlobalMuon()) continue;
     
-    cout << "ME0TrackProducer mu pt " << mu.pt() << " eta "<< mu.eta() << endl;
       
-    const reco::Track *globalTrack = mu.innerTrack().get();
+    const reco::Track *innerTrack = mu.innerTrack().get();
 
     TransientTrackingRecHit::ConstRecHitContainer allRecHitsTemp; // all muon rechits temp
       
-    reco::TransientTrack track(*globalTrack,&*(theService->magneticField()),theService->trackingGeometry());
+    reco::TransientTrack track(*innerTrack,&*(theService->magneticField()),theService->trackingGeometry());
   
     auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
 
@@ -123,26 +122,32 @@ void ME0TrackProducer::produce(Event& event, const EventSetup& eventSetup) {
     }
       
     //float me0SegX = 100;
-      
+    int nMe0Hits = 0;
     for (auto chamber : mu.matches()){
       for (auto segment : chamber.me0Matches){
 	if (chamber.detector() == 5){
 	  auto me0Segment = (*segment.me0SegmentRef);
 	  for ( const auto& rh : me0Segment.recHits()){
 	    allRecHitsTemp.push_back(theMuonRecHitBuilder->build(&*rh));
+	    ++nMe0Hits;
 	  }
 	}
       }
     }
-      
-    vector<Trajectory> refitted = theRefitter->transform(*globalTrack,track,allRecHitsTemp);
+    // cout << "ME0TrackProducer mu pt " << mu.pt() << " eta "<< mu.eta()
+    // 	 << " recHitsSize "<< innerTrack->recHitsSize()
+    // 	 << " numberOfValidHits "<< innerTrack->numberOfValidHits()
+    //   	 << " me0 hits "<< nMe0Hits
+    // 	 << endl;
+
+    vector<Trajectory> refitted = theRefitter->transform(*innerTrack,track,allRecHitsTemp);
 
     if (refitted.size()>0) {
       Trajectory *refit = new Trajectory(refitted.front());
       trajectories.push_back(refit);
       //std::pair<Trajectory*,reco::TrackRef> thisPair(refit,glbRef);
       //miniMap.push_back(thisPair);
-    }    
+    }
     //    cout << " Initial trajectory state: " << refitted.front().lastMeasurement().updatedState().freeState()->parameters() << endl;      
   }
   edm::OrphanHandle<reco::TrackCollection> outPut = theTrackLoader->loadTracks(trajectories, event, *tTopo, "", true);

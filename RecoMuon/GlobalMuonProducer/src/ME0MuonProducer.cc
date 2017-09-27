@@ -58,7 +58,21 @@ void ME0MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     const double energy = hypot(track.p(), 0.105658369);
     const math::XYZTLorentzVector p4(track.px(), track.py(), track.pz(), energy);
     reco::Muon mu( track.charge(), p4, track.vertex() );
-    cout << "ME0MuonProducer mu pt " << mu.pt() << " eta "<< mu.eta() << endl;
+
+    int noRecHitME0 = 0;
+    for(auto i=track.recHitsBegin(); i!=track.recHitsEnd(); i++) {
+      DetId hitId = (*i)->geographicalId();
+      if (!(*i)->isValid() ) continue;      
+      if (hitId.det()!=DetId::Muon) continue;
+      if (hitId.subdetId() == MuonSubdetId::ME0) ++noRecHitME0;
+    }
+    
+    // cout << "ME0MuonProducer mu pt " << mu.pt() << " eta "<< mu.eta()
+    // 	 << " recHitsSize "<< track.recHitsSize()
+    // 	 << " numberOfValidHits "<< track.numberOfValidHits()
+    // 	 << " noRecHitME0 "<< noRecHitME0
+    // 	 << " me0 hits "<< track.hitPattern().numberOfValidMuonME0Hits()
+    // 	 << endl;
     me0Muons.push_back(mu);
   }
   
