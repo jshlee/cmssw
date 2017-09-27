@@ -1,7 +1,7 @@
-#ifndef RecoMuon_GlobalMuonProducer_ME0MuonProducer_H
-#define RecoMuon_GlobalMuonProducer_ME0MuonProducer_H
+#ifndef RecoMuon_GlobalMuonProducer_ME0TrackProducer_H
+#define RecoMuon_GlobalMuonProducer_ME0TrackProducer_H
 
-/**  \class ME0MuonProducer
+/**  \class ME0TrackProducer
  **/
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -22,26 +22,43 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
+
+typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class ME0MuonProducer : public edm::stream::EDProducer<> {
+class ME0TrackProducer : public edm::stream::EDProducer<> {
 
  public:
   
   /// constructor with config
-  ME0MuonProducer(const edm::ParameterSet&);
+  ME0TrackProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~ME0MuonProducer(); 
+  virtual ~ME0TrackProducer(); 
   
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   
-  edm::EDGetTokenT<reco::TrackCollection > trackToken_;    
+  edm::EDGetTokenT<reco::MuonCollection > muonToken_;
+  
+  /// the event setup proxy, it takes care the services update
+  MuonServiceProxy* theService;
+  
+  GlobalMuonRefitter* theRefitter;
+
+  MuonTrackLoader* theTrackLoader;
+
+  std::string theTrackerRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  
+  std::string theMuonRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+    
 };
 #endif
