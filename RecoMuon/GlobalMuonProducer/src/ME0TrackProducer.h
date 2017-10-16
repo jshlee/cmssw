@@ -46,6 +46,7 @@ class ME0TrackProducer : public edm::stream::EDProducer<> {
  private:
   
   edm::EDGetTokenT<reco::MuonCollection > muonToken_;
+  edm::EDGetTokenT<reco::TrackCollection > trackToken_;
   
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

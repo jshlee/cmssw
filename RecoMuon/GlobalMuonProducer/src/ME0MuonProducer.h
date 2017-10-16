@@ -42,6 +42,9 @@ class ME0MuonProducer : public edm::stream::EDProducer<> {
   
  private:
   
-  edm::EDGetTokenT<reco::TrackCollection > trackToken_;    
+  edm::EDGetTokenT<reco::MuonCollection > muonToken_;    
+  edm::EDGetTokenT<reco::TrackCollection > me0TrackToken_;    
+  edm::EDGetTokenT<reco::TrackToTrackMap > trackAssoMapToken_;
+  
 };
 #endif
