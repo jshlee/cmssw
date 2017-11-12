@@ -3,7 +3,6 @@
  *  \author M. Maggi - INFN Bari
  */
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
@@ -39,144 +38,149 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
   const std::vector<DetId>& detids( rgeo.detIds());
   std::vector<GEMSuperChamber*> superChambers;
 
-  std::string name;
-  std::vector<double>::const_iterator tranStart;
-  std::vector<double>::const_iterator shapeStart;
-  std::vector<double>::const_iterator rotStart;
-  std::vector<std::string>::const_iterator strStart;
-
   for( unsigned int id = 0; id < detids.size(); ++id )
-  {  
-    GEMDetId gemid( detids[id] );
-    GEMDetId chid( gemid.region(), gemid.ring(), gemid.station(),
-		   gemid.layer(), gemid.chamber(), 0 );
-
-    tranStart = rgeo.tranStart( id );
-    shapeStart = rgeo.shapeStart( id );
-    rotStart = rgeo.rotStart( id );
-    strStart = rgeo.strStart( id );
-    name = *( strStart );
-
-    Surface::PositionType pos(*(tranStart)/cm, *(tranStart+1)/cm, *(tranStart+2)/cm );
-    // CLHEP way
-    Surface::RotationType rot(*(rotStart+0), *(rotStart+1), *(rotStart+2),
-                              *(rotStart+3), *(rotStart+4), *(rotStart+5),
-                              *(rotStart+6), *(rotStart+7), *(rotStart+8));
-    
-    float be = *(shapeStart+0)/cm;
-    float te = *(shapeStart+1)/cm;
-    float ap = *(shapeStart+2)/cm;
-    float ti = *(shapeStart+3)/cm;
-    float nstrip = *(shapeStart+4);
-    float npad = *(shapeStart+5);
-    //  TrapezoidalPlaneBounds* 
-    Bounds* bounds = new TrapezoidalPlaneBounds( be, te, ap, ti );
-
-    std::vector<float> pars;
-    pars.emplace_back(be); //b/2;
-    pars.emplace_back(te); //B/2;
-    pars.emplace_back(ap); //h/2;
-    pars.emplace_back(nstrip);
-    pars.emplace_back(npad);
-    
-    GEMEtaPartitionSpecs* epSpecs = new GEMEtaPartitionSpecs( GeomDetEnumerators::GEM, name, pars );
-      
-    //Change of axes for the forward
-    Basic3DVector<float> newX( 1., 0., 0. );
-    Basic3DVector<float> newY( 0., 0., 1. );
-    //      if (tran[2] > 0. )
-    newY *= -1;
-    Basic3DVector<float> newZ( 0., 1., 0. );
-    rot.rotateAxes( newX, newY, newZ );	
+    {  
+      GEMDetId gemid( detids[id] );
+      std::cout <<"GEMGeometryBuilderFromCondDB  " << gemid<< std::endl;
+      if (gemid.roll() == 0){
+	if (gemid.layer() == 0){
+	  GEMSuperChamber* gsc = buildSuperChamber( rgeo, id, gemid );
+	  theGeometry->add(gsc);
+	}
+	else {
+	  GEMChamber* gch = buildChamber( rgeo, id, gemid );
+	  theGeometry->add(gch);
+	}
+      }
+      else {      
+	GEMEtaPartition* gep = buildEtaPartition( rgeo, id, gemid );
+	theGeometry->add(gep);
+      }
+    }
   
-    BoundPlane* bp = new BoundPlane( pos, rot, bounds );
-    ReferenceCountingPointer<BoundPlane> surf( bp );
-    GEMEtaPartition* gep = new GEMEtaPartition( gemid, surf, epSpecs );
-    LogDebug("GEMGeometryBuilder") << "GEM Eta Partition created with id = " << gemid
-				   << " and added to the GEMGeometry" << std::endl;
-    theGeometry->add(gep);
-    
-    std::list<GEMEtaPartition *> gepList;
-    if( m_chids.find( chid ) != m_chids.end()) {
-      gepList = m_chids[chid];
-    }
-    gepList.emplace_back(gep);
-    m_chids[chid] = gepList;
-  }
-  
-  // Create the GEMChambers and store them on the Geometry 
-
-  for( const auto& ich : m_chids ) {
-    GEMDetId chid = ich.first;
-    std::list<GEMEtaPartition * > gepList = ich.second;
-
-    // compute the overall boundplane. At the moment we use just the last
-    // surface
-    BoundPlane* bp = nullptr;
-    for( const auto& gep : gepList ) {
-      const BoundPlane& bps = ( *gep ).surface();
-      bp = const_cast<BoundPlane *>( &bps );
-    }
-
-    ReferenceCountingPointer<BoundPlane> surf( bp );
-    // Create the superchamber
-    if( chid.layer() == 1 ) {
-      GEMDetId schid( chid.region(), chid.ring(), chid.station(), 0, chid.chamber(), 0 );
-      GEMSuperChamber* sch = new GEMSuperChamber( schid, surf );
-      LogDebug("GEMGeometryBuilder") << "GEM SuperChamber created with id = " << schid
-				     << " and added to the GEMGeometry" << std::endl;
-      superChambers.emplace_back( sch );
-    }
-    
-    // Create the chamber 
-    GEMChamber* ch = new GEMChamber( chid, surf ); 
-    LogDebug("GEMGeometryBuilder") << "GEM Chamber created with id = " << chid
-				   << " = " << chid.rawId() << " and added to the GEMGeometry" << std::endl;
-    LogDebug("GEMGeometryBuilder") << "GEM Chamber has following eta partitions associated: " << std::endl;
-
-    // Add the etaps to rhe chamber
-    for( const auto& gep : gepList ) {
-      ch->add(gep);
-      LogDebug("GEMGeometryBuilder") << "   --> GEM Eta Partition " << GEMDetId(( *gep ).id()) << std::endl;
-    }
-    // Add the chamber to the geometry
-    theGeometry->add( ch );
-  }
-  
-  // The super chamber is composed of 2 chambers.
-  // It's detId is layer 0, chambers are layer 1 and 2
-
   // construct the regions, stations and rings. 
-  for( int re = -1; re <= 1; re = re+2 ) {
+  for (int re = -1; re <= 1; re = re+2) {    
     GEMRegion* region = new GEMRegion( re );
     for( int st = 1; st <= GEMDetId::maxStationId; ++st ) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign( re==-1 ? "-" : "");
       std::string name("GE" + sign + std::to_string(st) + "/1");
       station->setName(name);
-      for( int ri = 1; ri <= 1; ++ri ) {
-	GEMRing* ring = new GEMRing( re, st, ri );
-	for( unsigned sch = 0; sch < superChambers.size(); ++sch ) {
-	  GEMSuperChamber* superChamber = superChambers[sch];
-	  const GEMDetId detId( superChamber->id());
-	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
-	  
-	  superChamber->add( theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 1, detId.chamber(), 0 )));
-	  superChamber->add( theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0 )));
+      // only 1 ring
+      GEMRing* ring = new GEMRing( re, st, 1 );
+
+      for (int ch = GEMDetId::minChamberId; ch<=GEMDetId::maxChamberId; ++ch) {
+
+	const GEMSuperChamber* superChamber = theGeometry->superChamber( GEMDetId( re, 1, st, 0, ch, 0 ));
+	if (superChamber){
+
+	  for (int ly = 1; ly<=2; ++ly) {
+	    const GEMChamber* chamber = theGeometry->chamber( GEMDetId( re, 1, st, ly, ch, 0 ));
+	    
+	    for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
+	      
+	      const GEMEtaPartition* etaPartition = theGeometry->etaPartition( GEMDetId( re, 1, st, ly, ch, roll ));
+	      if (etaPartition)
+		chamber->add(etaPartition);
+	    }
+	    superChamber->add(chamber);
+	  }
 	  ring->add( superChamber );
-	  theGeometry->add( superChamber );
-	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
-						<< "re " << re << " st " << st << " ri " << ri << std::endl;
 	}
-	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
-	station->add( ring );
-	theGeometry->add( ring );
       }
-      LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+      LogDebug("GEMGeometryBuilderFromCondDB") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
+      station->add( ring );
+      theGeometry->add( ring );
+      
+      LogDebug("GEMGeometryBuilderFromCondDB") << "Adding station " << st << " to region " << re << std::endl;
       region->add( station );
       theGeometry->add( station );
     }
-    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
+    LogDebug("GEMGeometryBuilderFromCondDB") << "Adding region " << re << " to the geometry " << std::endl;
     theGeometry->add( region );
   }
+}
+
+GEMSuperChamber* GEMGeometryBuilderFromCondDB::buildSuperChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const
+{
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildSuperChamber "<< detId <<std::endl;
+  
+  bool isOdd = detId.superChamber()%2;
+  RCPBoundPlane surf(boundPlane(rgeo, gid, isOdd ));
+  
+  GEMSuperChamber* superChamber = new GEMSuperChamber(detId, surf);
+  return superChamber;
+  
+}
+
+GEMChamber* GEMGeometryBuilderFromCondDB::buildChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const
+{
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildChamber "<< detId <<std::endl;
+  
+  bool isOdd = detId.chamber()%2;
+  RCPBoundPlane surf(boundPlane(rgeo, gid, isOdd ));
+  
+  GEMChamber* chamber = new GEMChamber(detId, surf);
+  return chamber;
+}
+
+GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const
+{
+  std::vector<double>::const_iterator strStart = rgeo.strStart( gid );
+  std::string name = *( strStart );
+  LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition "<< name<<" "<< detId <<std::endl;
+  
+  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );
+  float be = *(shapeStart+0)/cm;
+  float te = *(shapeStart+1)/cm;
+  float ap = *(shapeStart+2)/cm;
+  float ti = *(shapeStart+3)/cm;
+  float nstrip = *(shapeStart+4);
+  float npad = *(shapeStart+5);
+
+  std::vector<float> pars;
+  pars.emplace_back(be); 
+  pars.emplace_back(te); 
+  pars.emplace_back(ap); 
+  pars.emplace_back(nstrip);
+  pars.emplace_back(npad);
+  
+  bool isOdd = detId.chamber()%2;
+  RCPBoundPlane surf(boundPlane(rgeo, gid, isOdd ));
+  GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
+  
+  LogDebug("GEMGeometryBuilderFromCondDB") << "size "<< be << " " << te << " " << ap << " " << ti <<std::endl;
+  GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
+  return etaPartition;
+}
+
+GEMGeometryBuilderFromCondDB::RCPBoundPlane 
+GEMGeometryBuilderFromCondDB::boundPlane(const RecoIdealGeometry& rgeo, unsigned int gid, bool isOddChamber) const
+{
+  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );
+  float be = *(shapeStart+0)/cm;
+  float te = *(shapeStart+1)/cm;
+  float ap = *(shapeStart+2)/cm;
+  float ti = *(shapeStart+3)/cm;
+  //  TrapezoidalPlaneBounds* 
+  Bounds* bounds = new TrapezoidalPlaneBounds( be, te, ap, ti );
+
+  std::vector<double>::const_iterator tranStart = rgeo.tranStart( gid );
+  Surface::PositionType posResult(*(tranStart)/cm, *(tranStart+1)/cm, *(tranStart+2)/cm );
+
+  std::vector<double>::const_iterator rotStart = rgeo.rotStart( gid );
+  Surface::RotationType rotResult(*(rotStart+0), *(rotStart+1), *(rotStart+2),
+				  *(rotStart+3), *(rotStart+4), *(rotStart+5),
+				  *(rotStart+6), *(rotStart+7), *(rotStart+8));
+  
+  //Change of axes for the forward
+  Basic3DVector<float> newX(1.,0.,0.);
+  Basic3DVector<float> newY(0.,0.,1.);
+  Basic3DVector<float> newZ(0.,1.,0.);
+  // Odd chambers are inverted in gem.xml
+  if (isOddChamber) newY *= -1;
+  
+  rotResult.rotateAxes(newX, newY, newZ);
+
+  return RCPBoundPlane( new BoundPlane( posResult, rotResult, bounds));
 }

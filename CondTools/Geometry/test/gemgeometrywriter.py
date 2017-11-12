@@ -18,7 +18,8 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GEMRecoGeometryRcd'),tag = cms.string('GEMRECO_Geometry_Test01'))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GEMRecoGeometryRcd'),
+                                                                        tag = cms.string('GEMRECO_Geometry_TagXX'))
                                                             )
                                           )
 

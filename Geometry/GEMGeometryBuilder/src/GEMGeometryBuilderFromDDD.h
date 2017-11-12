@@ -34,8 +34,7 @@ class GEMGeometryBuilderFromDDD
 	     const DDCompactView* cview, const MuonDDDConstants& muonConstants);
   
  private:
-  std::map<GEMDetId,std::vector<GEMDetId>> chids;
-
+  
   typedef ReferenceCountingPointer<BoundPlane> RCPBoundPlane;
   
   RCPBoundPlane boundPlane(const DDFilteredView& fv,

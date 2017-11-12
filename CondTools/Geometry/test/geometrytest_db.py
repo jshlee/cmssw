@@ -6,7 +6,7 @@ process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = autoCond['run1_mc']
-
+z
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
