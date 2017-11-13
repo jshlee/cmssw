@@ -27,7 +27,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
 }
 
-void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+void GEMRawToDigiModule::doBeginRun_(edm::Run const& rp, edm::EventSetup const& iSetup)
 {
   edm::ESHandle<GEMEMap> gemEMap;
   iSetup.get<GEMEMapRcd>().get(gemEMap); 
@@ -35,7 +35,7 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   m_gemROMap = m_gemEMap->convert();
 }
 
-void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
+void GEMRawToDigiModule::produce(edm::StreamID, edm::Event & e, const edm::EventSetup & iSetup) const
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
 
