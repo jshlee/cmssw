@@ -1,9 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+
+process = cms.Process("Write2DB")
+
 from CondCore.CondDB.CondDB_cfi import *
+#process.CondDB.DBParameters.messageLevel = cms.untracked.int32(3)
 
 sourceConnection = "oracle://cms_orcoff_prep/CMS_GEM_APPUSER_R"
 #sourceConnection = 'oracle://cms_omds_lb/CMS_RPC_CONF'
+sourceConnection = 'oracle://cms_omds_adg/CMS_GEM_MUON_COND'
 
 options = VarParsing.VarParsing()
 options.register( 'runNumber',
@@ -29,7 +34,7 @@ options.register( 'tag',
                   VarParsing.VarParsing.varType.string,
                   "Tag written in destinationConnection and finally appended in targetConnection." )
 options.register( 'messageLevel',
-                  0, #default value
+                  0, #default value # 3 is veryverbose
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,
                   "Message level; default to 0" )
@@ -41,8 +46,13 @@ CondDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messag
 SourceDBConnection = CondDB.clone( connect = cms.string( sourceConnection ) )
 SourceDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messageLevel )
 
-process = cms.Process("Write2DB")
+#SourceDBConnection.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+# Set authentication to authenticate.xml file in the current directory
+SourceDBConnection.DBParameters.authenticationPath = cms.untracked.string('.')
+SourceDBConnection.DBParameters.authenticationSystem = cms.untracked.int32(2)
 
+
+#process.load("CondCore.CondDB.CondDB_cfi")
 process.MessageLogger = cms.Service( "MessageLogger",
                                      destinations = cms.untracked.vstring( 'cout' ),
                                      cout = cms.untracked.PSet( #default = cms.untracked.PSet( limit = cms.untracked.int32( 0 ) ),
@@ -66,11 +76,13 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
                                                                         tag = cms.string( options.tag ) ) ) )
 
 process.WriteInDB = cms.EDAnalyzer( "GEMEMapDBWriter",
+                                    Validate = cms.untracked.int32( 0 ),
                                     SinceAppendMode = cms.bool( True ),
+#                                    SinceAppendMode = cms.bool( False ),
                                     record = cms.string( 'GEMEMapRcd' ),
                                     loggingOn = cms.untracked.bool( False ),
-                                    Source = cms.PSet( SourceDBConnection,
-                                                       Validate = cms.untracked.int32( 0 ) ) )
+                                    Source = cms.PSet( SourceDBConnection )
+ )
 
 process.p = cms.Path( process.WriteInDB )
 
