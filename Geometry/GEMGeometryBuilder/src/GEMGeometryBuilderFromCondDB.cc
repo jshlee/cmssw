@@ -36,68 +36,69 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 				    const RecoIdealGeometry& rgeo )
 {
   const std::vector<DetId>& detids( rgeo.detIds());
-  std::vector<GEMSuperChamber*> superChambers;
 
-  for( unsigned int id = 0; id < detids.size(); ++id )
-    {  
-      GEMDetId gemid( detids[id] );
-      std::cout <<"GEMGeometryBuilderFromCondDB  " << gemid<< std::endl;
-      if (gemid.roll() == 0){
-	if (gemid.layer() == 0){
-	  GEMSuperChamber* gsc = buildSuperChamber( rgeo, id, gemid );
-	  theGeometry->add(gsc);
-	}
-	else {
-	  GEMChamber* gch = buildChamber( rgeo, id, gemid );
-	  theGeometry->add(gch);
-	}
+  GEMChamber* gch = nullptr;
+  for( unsigned int id = 0; id < detids.size(); ++id ){  
+    GEMDetId gemid( detids[id] );
+    if (gemid.roll() == 0){
+      if (gemid.layer() == 0){
+	GEMSuperChamber* gsc = buildSuperChamber( rgeo, id, gemid );
+	theGeometry->add(gsc);
       }
-      else {      
-	GEMEtaPartition* gep = buildEtaPartition( rgeo, id, gemid );
-	theGeometry->add(gep);
+      else {
+	gch = buildChamber( rgeo, id, gemid );
+	theGeometry->add(gch);
       }
     }
-  
+    else {
+      GEMEtaPartition* gep = buildEtaPartition( rgeo, id, gemid );
+
+      // sort out better way by using maps?
+      if (gch && gep->id().chamberId() == gch->id()){
+	// this works because chambers are always made before etaPartitions
+	std::cout <<"GEMGeometryBuilderFromCondDB  " << gemid<< std::endl;
+	gch->add(gep);
+      }
+      else {
+	std::cout <<"GEMGeometryBuilderFromCondDB GEMEtaPartition not added into chamber " << gemid<< std::endl;
+      }
+      theGeometry->add(gep);
+    }
+  }
+
+  auto& superChambers(theGeometry->superChambers());
   // construct the regions, stations and rings. 
-  for (int re = -1; re <= 1; re = re+2) {    
-    GEMRegion* region = new GEMRegion( re );
-    for( int st = 1; st <= GEMDetId::maxStationId; ++st ) {
+  for (int re = -1; re <= 1; re = re+2) {
+    GEMRegion* region = new GEMRegion(re);
+    for (int st=1; st<=GEMDetId::maxStationId; ++st) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign( re==-1 ? "-" : "");
       std::string name("GE" + sign + std::to_string(st) + "/1");
       station->setName(name);
-      // only 1 ring
-      GEMRing* ring = new GEMRing( re, st, 1 );
-
-      for (int ch = GEMDetId::minChamberId; ch<=GEMDetId::maxChamberId; ++ch) {
-
-	const GEMSuperChamber* superChamber = theGeometry->superChamber( GEMDetId( re, 1, st, 0, ch, 0 ));
-	if (superChamber){
-
-	  for (int ly = 1; ly<=2; ++ly) {
-	    const GEMChamber* chamber = theGeometry->chamber( GEMDetId( re, 1, st, ly, ch, 0 ));
-	    
-	    for (int roll = 1; roll<=GEMDetId::maxRollId; ++roll) {
-	      
-	      const GEMEtaPartition* etaPartition = theGeometry->etaPartition( GEMDetId( re, 1, st, ly, ch, roll ));
-	      if (etaPartition)
-		chamber->add(etaPartition);
-	    }
-	    superChamber->add(chamber);
-	  }
-	  ring->add( superChamber );
-	}
+      for (int ri=1; ri<=1; ++ri) {
+	GEMRing* ring = new GEMRing(re, st, ri);
+	for (auto sch : superChambers){
+	  GEMSuperChamber* superChamber = const_cast<GEMSuperChamber*>(sch);
+	  const GEMDetId detId(superChamber->id());
+	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
+	  
+	  superChamber->add( theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),1,detId.chamber(),0)));
+	  superChamber->add( theGeometry->chamber(GEMDetId(detId.region(),detId.ring(),detId.station(),2,detId.chamber(),0)));
+	  
+	  ring->add(superChamber);
+	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
+						<< "re " << re << " st " << st << " ri " << ri << std::endl;
+ 	}
+	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
+	station->add(ring);
+	theGeometry->add(ring);
       }
-      LogDebug("GEMGeometryBuilderFromCondDB") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
-      station->add( ring );
-      theGeometry->add( ring );
-      
-      LogDebug("GEMGeometryBuilderFromCondDB") << "Adding station " << st << " to region " << re << std::endl;
-      region->add( station );
-      theGeometry->add( station );
+      LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+      region->add(station);
+      theGeometry->add(station);
     }
-    LogDebug("GEMGeometryBuilderFromCondDB") << "Adding region " << re << " to the geometry " << std::endl;
-    theGeometry->add( region );
+    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
+    theGeometry->add(region);
   }
 }
 
@@ -105,7 +106,7 @@ GEMSuperChamber* GEMGeometryBuilderFromCondDB::buildSuperChamber(const RecoIdeal
 {
   LogDebug("GEMGeometryBuilderFromCondDB") << "buildSuperChamber "<< detId <<std::endl;
   
-  bool isOdd = detId.superChamber()%2;
+  bool isOdd = detId.chamber()%2;
   RCPBoundPlane surf(boundPlane(rgeo, gid, isOdd ));
   
   GEMSuperChamber* superChamber = new GEMSuperChamber(detId, surf);
@@ -126,7 +127,7 @@ GEMChamber* GEMGeometryBuilderFromCondDB::buildChamber(const RecoIdealGeometry& 
 
 GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const
 {
-  std::vector<double>::const_iterator strStart = rgeo.strStart( gid );
+  std::vector<std::string>::const_iterator strStart = rgeo.strStart( gid );
   std::string name = *( strStart );
   LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition "<< name<<" "<< detId <<std::endl;
   
