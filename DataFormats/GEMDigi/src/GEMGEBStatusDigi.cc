@@ -18,10 +18,10 @@ GEMGEBStatusDigi::GEMGEBStatusDigi(uint32_t ZeroSup,
       Vwt_(Vwt),
       InFu_(InFu),
       Stuckd_(Stuckd),
-      v_GEBflags_(v_GEBflags){};
+      v_GEBflags_(v_GEBflags){}
 
 
-  GEMGEBStatusDigi::GEMGEBStatusDigi(){};
+GEMGEBStatusDigi::GEMGEBStatusDigi(){}
 
 
 
