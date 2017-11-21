@@ -14,6 +14,10 @@
 #include "PhysicsTools/IsolationAlgos/interface/CITKIsolationConeDefinitionBase.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "RecoMuon/MuonIsolation/interface/Range.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,6 +28,8 @@
 //module to compute isolation sum weighted with PUPPI weights
 namespace citk {
   class PFIsolationSumProducerForPUPPI : public edm::stream::EDProducer<> {
+    typedef reco::TrackBase::Point BeamPoint;
+    typedef muonisolation::Range<float> Range;
     
   public:  
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
@@ -36,6 +42,8 @@ namespace citk {
     void produce(edm::Event&, const edm::EventSetup&) final;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+    bool trackSelector(const reco::Track & tk, double vtx_z, reco::TrackBase::Point beamPoint) const;
     
   private:  
     // datamembers
@@ -50,11 +58,24 @@ namespace citk {
     // indexed by pf candidate type
     std::array<IsoTypes,kNPFTypes> _isolation_types; 
     std::array<std::vector<std::string>,kNPFTypes> _product_names;
+    bool usePUPPI = true;
     bool useValueMapForPUPPI = true;
     bool usePUPPINoLepton = false;// in case puppi weights are taken from packedCandidate can take weights for puppiNoLeptons
+    // track selection
+    std::string theBeamlineOption;
+    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  
+    double theDiff_z;
+    double theDiff_r;
+    double        drMax;  //! cone size
+    BeamPoint beamPoint;  //! beam spot position
+    unsigned int       nHitsMin;  //! nValidHits >= nHitsMin
+    double  chi2NdofMax;  //! max value of normalized chi2
+    double  chi2ProbMin;  //! ChiSquaredProbability( chi2, ndf ) > chi2ProbMin
+    double        ptMin;  //! tk.pt>ptMin
+
   };
 }
-
 typedef citk::PFIsolationSumProducerForPUPPI CITKPFIsolationSumProducerForPUPPI;
 
 DEFINE_FWK_MODULE(CITKPFIsolationSumProducerForPUPPI);
@@ -62,24 +83,26 @@ DEFINE_FWK_MODULE(CITKPFIsolationSumProducerForPUPPI);
 namespace citk {
   PFIsolationSumProducerForPUPPI::PFIsolationSumProducerForPUPPI(const edm::ParameterSet& c) :
     _typeMap( { {"h+",1},
-	        {"h0",5},
-		{"gamma",4},
-		{"electron",2},
+	  {"h0",5},
+	    {"gamma",4},
+	      {"electron",2},
 		{"muon",3},
-		{"HFh",6},
-		{"HFgamma",7} } ){
+		  {"HFh",6},
+		    {"HFgamma",7} } ){
     _to_isolate = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcToIsolate"));
     _isolate_with = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcForIsolationCone"));
-      if (!c.getParameter<edm::InputTag>("puppiValueMap").label().empty()) {
-        puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
-        useValueMapForPUPPI = true;
-      }
-      else {
-	useValueMapForPUPPI = false;
-	usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
-      }
+    if (!c.getParameter<edm::InputTag>("puppiValueMap").label().empty()) {
+      puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
+      useValueMapForPUPPI = true;
+    }
+    else {
+      useValueMapForPUPPI = false;
+      usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
+    }
+    usePUPPI = c.getParameter<bool>("usePUPPI");    
+    
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
@@ -108,6 +131,19 @@ namespace citk {
       _product_names[thetype->second].emplace_back(pname);
       produces<edm::ValueMap<float> >(pname);
     }
+    const edm::ParameterSet par = c.getParameterSet("isolationTrackSelections");
+    theDiff_r = par.getParameter<double>("Diff_r");
+    theDiff_z =par.getParameter<double>("Diff_z");
+    drMax = par.getParameter<double>("DR_Max");
+
+    theBeamlineOption = par.getParameter<std::string>("BeamlineOption") ;
+    theBeamSpotToken = consumes<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"));
+
+    nHitsMin = par.getParameter<unsigned int>("NHits_Min");
+    chi2NdofMax = par.getParameter<double>("Chi2Ndof_Max");
+    chi2ProbMin = par.getParameter<double>("Chi2Prob_Min");
+    ptMin = par.getParameter<double>("Pt_Min");
+
   }
 
   void  PFIsolationSumProducerForPUPPI::
@@ -120,8 +156,7 @@ namespace citk {
     }
   }
 
-  void  PFIsolationSumProducerForPUPPI::
-  produce(edm::Event& ev, const edm::EventSetup& es) {
+  void  PFIsolationSumProducerForPUPPI::produce(edm::Event& ev, const edm::EventSetup& es) {
     typedef std::unique_ptr<edm::ValueMap<float> >  product_type;
     typedef std::vector<float> product_values;
     edm::Handle<CandView> to_isolate;
@@ -130,6 +165,19 @@ namespace citk {
     ev.getByToken(_isolate_with,isolate_with);
     if(useValueMapForPUPPI)ev.getByToken(puppiValueMapToken_, puppiValueMap);
 
+    reco::TrackBase::Point beamPoint(0,0, 0);
+    if (theBeamlineOption == "BeamSpotFromEvent"){
+      //pick beamSpot
+      reco::BeamSpot beamSpot;
+      edm::Handle<reco::BeamSpot> beamSpotH;
+
+      ev.getByToken(theBeamSpotToken,beamSpotH);
+
+      if (beamSpotH.isValid()){
+	beamPoint = beamSpotH->position();
+      }
+    }
+  
     // the list of value vectors indexed as "to_isolate"
     std::array<std::vector<product_values>,kNPFTypes> the_values;    
     // get extra event info and setup value cache
@@ -152,20 +200,36 @@ namespace citk {
 	++k;
       }
       for( size_t ic = 0; ic < isolate_with->size(); ++ic ) {
-        auto isocand = isolate_with->ptrAt(ic);
-        edm::Ptr<pat::PackedCandidate> aspackedCandidate(isocand);
-        auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
-	      const auto& isolations = _isolation_types[isotype];	
-    	   for( unsigned i = 0; i < isolations.size(); ++ i  ) {
-    	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
-          double puppiWeight = 0.;
-    	    if (!useValueMapForPUPPI && !usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
-            else if (!useValueMapForPUPPI && usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeightNoLep(); // if miniAOD, take puppiWeightNoLep directly from the object
-            else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
-          if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
-    	  }
-    	}
-    }
+	auto isocand = isolate_with->ptrAt(ic);
+	edm::Ptr<pat::PackedCandidate> aspackedCandidate(isocand);
+	auto isotype = helper.translatePdgIdToType(isocand->pdgId());	
+	const auto& isolations = _isolation_types[isotype];	
+	for( unsigned i = 0; i < isolations.size(); ++ i  ) {
+	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
+
+	    double vtx_z = isocand->vz();
+
+	    // check if it has track
+	    const reco::Track * trk = isocand->bestTrack();
+	    if (trk){
+	      if (!trackSelector(*trk, vtx_z, beamPoint))
+		continue;	      
+	    }
+	    
+	    double puppiWeight = 0.;
+	    if (!useValueMapForPUPPI && !usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+	    else if (!useValueMapForPUPPI && usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeightNoLep(); // if miniAOD, take puppiWeightNoLep directly from the object
+	    else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
+	    
+	    if (usePUPPI){
+	      if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
+	    }
+	    else {
+	      cand_values[isotype][i] += (isocand->pt());
+	    }
+	  }
+	}
+      }
       // add this candidate to isolation value list
       for( unsigned i = 0; i < kNPFTypes; ++i ) {
 	for( unsigned j = 0; j < cand_values[i].size(); ++j ) {
@@ -187,10 +251,43 @@ namespace citk {
     }
   }
 
+  bool PFIsolationSumProducerForPUPPI::trackSelector(const reco::Track & tk, double vtx_z, reco::TrackBase::Point beamPoint) const
+  {    
+    float tZ = tk.vz(); 
+    float tPt = tk.pt();
+    //float tD0 = fabs(tk.d0());  
+    float tD0Cor = fabs(tk.dxy(beamPoint));
+    //float tEta = tk.eta();
+    //float tPhi = tk.phi();
+    float tChi2Ndof = tk.normalizedChi2();
 
-// ParameterSet description for module
-void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{ 
+    Range zRange = Range(vtx_z-theDiff_z, vtx_z+theDiff_z);
+    Range rRange = Range(0,theDiff_r);
+  
+    if ( !zRange.inside( tZ ) ) return false; 
+    if ( tPt < ptMin ) return false;
+    if ( !rRange.inside( tD0Cor) ) return false;
+    //if ( dir.deltaR( reco::isodeposit::Direction(tEta, tPhi) ) > drMax ) return false;
+    if ( tChi2Ndof > chi2NdofMax ) return false;
+
+    //! skip if min Hits == 0; assumes any track has at least one valid hit
+    if (nHitsMin > 0 ){
+      unsigned int tHits = tk.numberOfValidHits();
+      if ( tHits < nHitsMin ) return false;
+    }
+
+    //! similarly here
+    if(chi2ProbMin > 0){
+      float tChi2Prob = ChiSquaredProbability(tk.chi2(), tk.ndof());
+      if ( tChi2Prob < chi2ProbMin ) return false;
+    }
+    
+    return true;
+  }
+
+  // ParameterSet description for module
+  void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+  { 
     edm::ParameterSetDescription iDesc;
     iDesc.setComment("PUPPI isolation sum producer");
 
@@ -210,16 +307,31 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
     descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
 
-
     std::vector<edm::ParameterSet> isolationConeDefinitions;
     edm::ParameterSet chargedHadrons, neutralHadrons,photons;
     isolationConeDefinitions.push_back(chargedHadrons);
     isolationConeDefinitions.push_back(neutralHadrons);
     isolationConeDefinitions.push_back(photons);
     iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
+
+    edm::ParameterSetDescription descIsoTrkSelDefinitions;
+    descIsoTrkSelDefinitions.add<double>("Diff_r",0.1);
+    descIsoTrkSelDefinitions.add<double>("Diff_z",0.2);
+    descIsoTrkSelDefinitions.add<double>("DR_Max",0.5);
+    
+    descIsoTrkSelDefinitions.add<std::string>("BeamlineOption", "BeamSpotFromEvent");
+    descIsoTrkSelDefinitions.add<edm::InputTag>("BeamSpotLabel", edm::InputTag("offlineBeamSpot"));
+
+    descIsoTrkSelDefinitions.add<unsigned int>("NHits_Min", 0);
+    descIsoTrkSelDefinitions.add<double>("Chi2Ndof_Max", 1e+64);
+    descIsoTrkSelDefinitions.add<double>("Chi2Prob_Min", -1.0);
+    descIsoTrkSelDefinitions.add<double>("Pt_Min", -1.0);
+        
+    iDesc.add("isolationTrackSelections", descIsoTrkSelDefinitions);
     iDesc.add<bool>("usePUPPINoLepton",false);
+    iDesc.add<bool>("usePUPPI",true);
 
     descriptions.add("CITKPFIsolationSumProducerForPUPPI", iDesc);
-}
+  }
 
 }
