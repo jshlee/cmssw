@@ -49,6 +49,12 @@ void GEMRawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup
   }
 }
 
+void GEMRawToDigiModule::endRun(edm::Run const&, edm::EventSetup const& iSetup)
+{
+  delete m_gemEMap;
+  delete m_gemROMap;
+}
+
 void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
@@ -62,6 +68,7 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
+    LogDebug("GEMRawToDigiModule") <<" words " << nWords;
     
     if (nWords<5) continue;
     const unsigned char * data = fedData.data();
@@ -83,30 +90,28 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
-      uint16_t amcId = amcData->BID();
+      uint16_t amcId = amcData->boardId();
 
       // Fill GEB
-      for (unsigned short j = 0; j < amcData->GDcount(); ++j){
+      for (unsigned short j = 0; j < amcData->gdCount(); ++j){
 	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
 	
-	unsigned int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
-	uint16_t gebId = gebData->InputID();
+	unsigned int m_nvb = gebData->vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
+	uint16_t gebId = gebData->inputID();
 	GEMDetId gemId(-1,1,1,1,1,0); // temp ID
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  auto vfatData = std::make_unique<VFATdata>();
 	  vfatData->read_fw(*(++word));
 	  vfatData->read_sw(*(++word));
 	  vfatData->read_tw(*(++word));
-	  gebData->v_add(*vfatData);
+	  gebData->addVFAT(*vfatData);
 	  
-	  uint16_t bc=vfatData->BC();
-	  //uint8_t ec=vfatData->EC();
+	  uint16_t bc=vfatData->bc();
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
-	  uint16_t ChipID=vfatData->ChipID();
-	  //int slot=vfatData->SlotNumber(); 
+	  uint16_t ChipID=vfatData->chipID();
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = vfatData->checkCRC();
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
@@ -141,20 +146,19 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    gemId = dc.gemDetId;
 	    GEMDigi digi(dc.stripId,bx);
 
-	    // std::cout <<"GEMRawToDigiModule vfatId "<<ec.vfatId
-	    //  	      <<" gemDetId "<< gemId
-	    //  	      <<" chan "<< ec.channelId
-	    //  	      <<" strip "<< dc.stripId
-	    //  	      <<" bx "<< digi.bx()
-	    //  	      <<std::endl;
-	    
+	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
+					   <<" gemDetId "<< gemId
+					   <<" chan "<< ec.channelId
+					   <<" strip "<< dc.stripId
+					   <<" bx "<< digi.bx();
+
 	    outGEMDigis.get()->insertDigi(gemId,digi);	    
 	  }
 
           if (unpackStatusDigis_){
 	    GEMVfatStatusDigi vfatStatus(vfatData->lsData(), vfatData->msData(),
 					 crc, vfatData->crc_calc(),
-					 b1010, b1100, b1110, vfatData->Flag(),
+					 b1010, b1100, b1110, vfatData->flag(),
 					 vfatData->isBlockGood());
             outVfatStatus.get()->insertDigi(gemId,vfatStatus);
 	  }
@@ -163,19 +167,19 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	
 	gebData->setChamberTrailer(*(++word));
         if (unpackStatusDigis_){
-          GEMGEBStatusDigi gebStatus(gebData->ZeroSup(),
-                                     gebData->Vwh(),
-                                     gebData->ErrorC(),
-                                     gebData->OHCRC(),
-                                     gebData->Vwt(),
-                                     gebData->InFu(),
-                                     gebData->InputID(),				     
-                                     gebData->Stuckd(),
-                                     gebData->GEBflag());
+          GEMGEBStatusDigi gebStatus(gebData->zeroSup(),
+                                     gebData->vwh(),
+                                     gebData->errorC(),
+                                     gebData->ohCRC(),
+                                     gebData->vwt(),
+                                     gebData->inFu(),
+                                     gebData->inputID(),				     
+                                     gebData->stuckd(),
+                                     gebData->getGEBflag());
           outGEBStatus.get()->insertDigi(gemId.chamberId(),gebStatus); 
         }
 		  	
-	amcData->g_add(*gebData);
+	amcData->addGEB(*gebData);
       }
       
       amcData->setGEMeventTrailer(*(++word));
