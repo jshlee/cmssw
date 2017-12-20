@@ -3,6 +3,7 @@
  */
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -15,13 +16,13 @@
 
 using namespace gem;
 
-GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset)
+GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset) :
+  fed_token(consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") )),
+  useDBEMap_(pset.getParameter<bool>("useDBEMap")),
+  unPackStatusDigis_(pset.getParameter<bool>("unPackStatusDigis"))
 {
-  fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") );  
-  useDBEMap_ = pset.getParameter<bool>("useDBEMap");
   produces<GEMDigiCollection>(); 
-  unpackStatusDigis_ = pset.getParameter<bool>("UnpackStatusDigis");
-  if (unpackStatusDigis_){
+  if (unPackStatusDigis_){
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
     produces<GEMGEBStatusDigiCollection>("GEBStatus");
   }
@@ -31,39 +32,42 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
-  desc.add<bool>("useDBEMap", false); 
+  desc.add<bool>("useDBEMap", false);
+  desc.add<bool>("unPackStatusDigis", false);
+  descriptions.add("muonGEMDigis", desc);  
 }
 
-void GEMRawToDigiModule::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+std::shared_ptr<GEMROmap> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
 {
   if (useDBEMap_){
-    edm::ESHandle<GEMEMap> gemEMap;
-    iSetup.get<GEMEMapRcd>().get(gemEMap);
-    m_gemEMap = std::make_unique<GEMEMap>(*(gemEMap.product()));
-    m_gemROMap = std::make_unique<GEMROmap>(*(m_gemEMap->convert()));
+    edm::ESHandle<GEMEMap> gemEMapRcd;
+    iSetup.get<GEMEMapRcd>().get(gemEMapRcd);
+    auto gemEMap = std::make_unique<GEMEMap>(*(gemEMapRcd.product()));
+    return std::make_shared<GEMROmap>(*(gemEMap->convert()));
   }
   else {
     // no eMap, using dummy
-    m_gemEMap = std::make_unique<GEMEMap>();
-    m_gemROMap = std::make_unique<GEMROmap>(*(m_gemEMap->convertDummy()));
+    auto gemEMap = std::make_unique<GEMEMap>();
+    return std::make_shared<GEMROmap>(*(gemEMap->convertDummy()));
   }
 }
 
-void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
+void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::EventSetup const&) const
 {
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVfatStatus = std::make_unique<GEMVfatStatusDigiCollection>();
   auto outGEBStatus = std::make_unique<GEMGEBStatusDigiCollection>();
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
-  e.getByToken( fed_token, fed_buffers );
+  iEvent.getByToken( fed_token, fed_buffers );
+  
+  auto gemROMap = runCache(iEvent.getRun().index());
   
   for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MINGEMFEDID; ++id){ 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") <<" words " << nWords;
-    
     if (nWords<5) continue;
     const unsigned char * data = fedData.data();
     
@@ -111,9 +115,12 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
 
 	  if (crc!=crc_check) edm::LogWarning("GEMRawToDigiModule") << "DIFFERENT CRC :"<<crc<<"   "<<crc_check;
-	  if (!Quality) edm::LogWarning("GEMRawToDigiModule") << "Quality "<< Quality;
-	  	  
-	  uint32_t vfatId = (amcId << 17) | (gebId << 12) | ChipID;
+	  if (!Quality) edm::LogWarning("GEMRawToDigiModule") << "Quality "<< Quality
+							      << " b1010 "<< int(b1010)
+							      << " b1100 "<< int(b1100)
+							      << " b1110 "<< int(b1110);
+	  
+	  uint32_t vfatId = (amcId << (VFATdata::sizeChipID+GEBdata::sizeGebID)) | (gebId << VFATdata::sizeChipID) | ChipID;
 	  //need to add gebId to DB
 	  if (useDBEMap_) vfatId = ChipID;
 	    
@@ -121,12 +128,12 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	  GEMROmap::eCoord ec;
 	  ec.vfatId = vfatId;
 	  ec.channelId = 1;
-	  if (!m_gemROMap->isValidChipID(ec)){
+	  if (!gemROMap->isValidChipID(ec)){
 	    edm::LogWarning("GEMRawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
 	  }
 	  
-	  for (int chan = 0; chan < 128; ++chan) {
+	  for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
@@ -135,7 +142,7 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    if(chan0xf==0) continue;
 
 	    ec.channelId = chan;// need to check
-	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
+	    GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
 	    int bx = bc-25;
 	    gemId = dc.gemDetId;
 	    GEMDigi digi(dc.stripId,bx);
@@ -149,7 +156,7 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	    outGEMDigis.get()->insertDigi(gemId,digi);	    
 	  }
 
-          if (unpackStatusDigis_){
+          if (unPackStatusDigis_){
 	    GEMVfatStatusDigi vfatStatus(vfatData->lsData(), vfatData->msData(),
 					 crc, vfatData->crc_calc(),
 					 b1010, b1100, b1110, vfatData->flag(),
@@ -160,7 +167,7 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
 	}
 	
 	gebData->setChamberTrailer(*(++word));
-        if (unpackStatusDigis_){
+        if (unPackStatusDigis_){
           GEMGEBStatusDigi gebStatus(gebData->zeroSup(),
                                      gebData->vwh(),
                                      gebData->errorC(),
@@ -185,9 +192,9 @@ void GEMRawToDigiModule::produce(edm::Event & e, const edm::EventSetup & iSetup)
     amc13Event->setCDFTrailer(*(++word));
   }
   
-  e.put(std::move(outGEMDigis));
-  if (unpackStatusDigis_){
-    e.put(std::move(outVfatStatus), "vfatStatus");
-    e.put(std::move(outGEBStatus), "GEBStatus");
+  iEvent.put(std::move(outGEMDigis));
+  if (unPackStatusDigis_){
+    iEvent.put(std::move(outVfatStatus), "vfatStatus");
+    iEvent.put(std::move(outGEBStatus), "GEBStatus");
   }
 }
