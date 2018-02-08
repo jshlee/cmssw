@@ -142,9 +142,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 
 	    // no hits
 	    if(chan0xf==0) continue;
-            std::cout << "check vfatMAp start" << std::endl;
+            
 	    GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
-            std::cout << "check vfatMAp end" << std::endl;
+            
 	    int bx = bc-25;
 	    gemId = dc.gemDetId;
          
