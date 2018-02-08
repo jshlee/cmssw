@@ -10,5 +10,9 @@
   <class name="GEMEMap::GEMVFatMapInPos"/>
   <class name="std::vector<GEMEMap::GEMVFatMapInPos>"/>
 
+  <class name="GEMEMap::GEMChStripMap"/>
+  <class name="std::vector<GEMEMap::GEMChStripMap>"/>
 
+
+  
 </lcgdict>
