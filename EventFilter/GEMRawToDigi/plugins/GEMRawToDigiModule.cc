@@ -127,7 +127,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	  //check if ChipID exists.
 	  GEMROmap::eCoord ec;
 	  ec.vfatId = vfatId;
-	  ec.channelId = 1;
+          ec.amcId = amcId;
+          ec.gebId = gebId;
+       
 	  if (!gemROMap->isValidChipID(ec)){
 	    edm::LogWarning("GEMRawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
@@ -140,17 +142,25 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 
 	    // no hits
 	    if(chan0xf==0) continue;
-
-	    ec.channelId = chan;// need to check
+            std::cout << "check vfatMAp start" << std::endl;
 	    GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
+            std::cout << "check vfatMAp end" << std::endl;
 	    int bx = bc-25;
 	    gemId = dc.gemDetId;
-	    GEMDigi digi(dc.stripId,bx);
+         
+            GEMROmap::channelNum chMap;
+            chMap.vfatType = dc.vfatType;
+            chMap.chNum = chan;
+            GEMROmap::stripNum stMap = gemROMap->hitPosition(chMap);
+            int maxVFat = maxVFatGE11_;
+            if (gemId.station() == 2) maxVFat = maxVFatGE21_;
+            int stripId = stMap.stNum + dc.iPhi%maxVFat*maxChan_;    
 
+	    GEMDigi digi(stripId,bx);
 	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
 					   <<" gemDetId "<< gemId
-					   <<" chan "<< ec.channelId
-					   <<" strip "<< dc.stripId
+					   <<" chan "<< chMap.chNum
+					   <<" strip "<< stripId
 					   <<" bx "<< digi.bx();
 
 	    outGEMDigis.get()->insertDigi(gemId,digi);	    

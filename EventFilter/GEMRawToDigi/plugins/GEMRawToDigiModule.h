@@ -46,6 +46,11 @@ class GEMRawToDigiModule : public edm::global::EDProducer<edm::RunCache<GEMROmap
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   bool useDBEMap_;
   bool unPackStatusDigis_;
+
+  static const int maxChan_    = 128;    // channels per vFat
+  static const int maxVFatGE11_= 3; 
+  static const int maxVFatGE21_= 6; 
+
 };
 DEFINE_FWK_MODULE(GEMRawToDigiModule);
 #endif
