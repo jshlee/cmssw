@@ -39,17 +39,21 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 
 std::shared_ptr<GEMROmap> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
 {
+  auto gemORmap = std::make_shared<GEMROmap>();
   if (useDBEMap_){
     edm::ESHandle<GEMEMap> gemEMapRcd;
     iSetup.get<GEMEMapRcd>().get(gemEMapRcd);
     auto gemEMap = std::make_unique<GEMEMap>(*(gemEMapRcd.product()));
-    return std::make_shared<GEMROmap>(*(gemEMap->convert()));
+    gemEMap->convert(*gemORmap);
+    gemEMap.reset();    
   }
   else {
-    // no eMap, using dummy
+    // no EMap in DB, using dummy
     auto gemEMap = std::make_unique<GEMEMap>();
-    return std::make_shared<GEMROmap>(*(gemEMap->convertDummy()));
+    gemEMap->convertDummy(*gemORmap);
+    gemEMap.reset();    
   }
+  return gemORmap;
 }
 
 void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::EventSetup const&) const
@@ -89,13 +93,14 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
       uint16_t amcId = amcData->boardId();
+      uint16_t amcBx = amcData->bx();
 
       // Fill GEB
       for (unsigned short j = 0; j < amcData->gdCount(); ++j){
 	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
 	
-	unsigned int m_nvb = gebData->vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
+	unsigned int m_nvb = gebData->vwh() / 3; // number of VFAT2 blocks
 	uint16_t gebId = gebData->inputID();
 	GEMDetId gemId(-1,1,1,1,1,0); // temp ID
 	for (unsigned short k = 0; k < m_nvb; k++){
@@ -109,7 +114,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
-	  uint16_t ChipID=vfatData->chipID();
+	  uint16_t vfatId=vfatData->chipID();
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = vfatData->checkCRC();
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check);
@@ -120,16 +125,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 							      << " b1100 "<< int(b1100)
 							      << " b1110 "<< int(b1110);
 	  
-	  uint32_t vfatId = (amcId << (VFATdata::sizeChipID+GEBdata::sizeGebID)) | (gebId << VFATdata::sizeChipID) | ChipID;
-	  //need to add gebId to DB
-	  if (useDBEMap_) vfatId = ChipID;
-	    
 	  //check if ChipID exists.
-	  GEMROmap::eCoord ec;
-	  ec.vfatId = vfatId;
-          ec.amcId = amcId;
-          ec.gebId = gebId;
-       
+	  GEMROmap::eCoord ec = {amcId, gebId, vfatId};
+
 	  if (!gemROMap->isValidChipID(ec)){
 	    edm::LogWarning("GEMRawToDigiModule") << "InValid ChipID :"<<ec.vfatId;
 	    continue;
@@ -142,19 +140,17 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 
 	    // no hits
 	    if(chan0xf==0) continue;
-            std::cout << "check vfatMAp start" << std::endl;
 	    GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
-            std::cout << "check vfatMAp end" << std::endl;
-	    int bx = bc-25;
+	    // strip bx = vfat bx - amc bx
+	    int bx = bc-amcBx;
 	    gemId = dc.gemDetId;
          
-            GEMROmap::channelNum chMap;
-            chMap.vfatType = dc.vfatType;
-            chMap.chNum = chan;
+            GEMROmap::channelNum chMap = {dc.vfatType, chan};
             GEMROmap::stripNum stMap = gemROMap->hitPosition(chMap);
-            int maxVFat = maxVFatGE11_;
-            if (gemId.station() == 2) maxVFat = maxVFatGE21_;
-            int stripId = stMap.stNum + dc.iPhi%maxVFat*maxChan_;    
+
+            int maxVFat = GEMEMap::maxVFatGE11_;
+            if (gemId.station() == 2) maxVFat = GEMEMap::maxVFatGE21_;
+            int stripId = stMap.stNum + (dc.iPhi-1)%maxVFat*GEMEMap::maxChan_;    
 
 	    GEMDigi digi(stripId,bx);
 	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
