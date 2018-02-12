@@ -9,6 +9,11 @@
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
 //
+
+#include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,11 +78,11 @@ namespace edm {
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
       
-      void preSourceLumi();
-      void postSourceLumi();
+      void preSourceLumi(LuminosityBlockIndex);
+      void postSourceLumi(LuminosityBlockIndex);
       
-      void preSourceRun();
-      void postSourceRun();
+      void preSourceRun(RunIndex);
+      void postSourceRun(RunIndex);
       
       void preOpenFile(std::string const&, bool);
       void postOpenFile(std::string const&, bool);
@@ -134,6 +139,8 @@ namespace edm {
       void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
       void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
+      void preModuleEventAcquire(StreamContext const&, ModuleCallingContext const&);
+      void postModuleEventAcquire(StreamContext const&, ModuleCallingContext const&);
       void preModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
       void postModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
@@ -161,13 +168,26 @@ namespace edm {
       
       void preSourceConstruction(ModuleDescription const& md);
       void postSourceConstruction(ModuleDescription const& md);
-      
+
+      void preLockEventSetupGet(eventsetup::ComponentDescription const*,
+                                eventsetup::EventSetupRecordKey const&,
+                                eventsetup::DataKey const&);
+
+      void postLockEventSetupGet(eventsetup::ComponentDescription const*,
+                                 eventsetup::EventSetupRecordKey const&,
+                                 eventsetup::DataKey const&);
+
+      void postEventSetupGet(eventsetup::ComponentDescription const*,
+                             eventsetup::EventSetupRecordKey const&,
+                             eventsetup::DataKey const&);
+
     private:
       std::string indention_;
       std::set<std::string> dumpContextForLabels_;
       bool dumpNonModuleContext_;
       bool dumpPathsAndConsumes_;
       bool printTimestamps_;
+      bool dumpEventSetupInfo_;
     };
   }
 }
@@ -200,7 +220,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   dumpContextForLabels_(),
   dumpNonModuleContext_(iPS.getUntrackedParameter<bool>("dumpNonModuleContext")),
   dumpPathsAndConsumes_(iPS.getUntrackedParameter<bool>("dumpPathsAndConsumes")),
-  printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps"))
+  printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps")),
+  dumpEventSetupInfo_(iPS.getUntrackedParameter<bool>("dumpEventSetupInfo"))
 {
   for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
     dumpContextForLabels_.insert(std::move(label));
@@ -275,6 +296,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   iRegistry.watchPostModuleEventPrefetching(this, &Tracer::postModuleEventPrefetching);
   iRegistry.watchPreModuleEvent(this, &Tracer::preModuleEvent);
   iRegistry.watchPostModuleEvent(this, &Tracer::postModuleEvent);
+  iRegistry.watchPreModuleEventAcquire(this, &Tracer::preModuleEventAcquire);
+  iRegistry.watchPostModuleEventAcquire(this, &Tracer::postModuleEventAcquire);
   iRegistry.watchPreModuleEventDelayedGet(this, &Tracer::preModuleEventDelayedGet);
   iRegistry.watchPostModuleEventDelayedGet(this, &Tracer::postModuleEventDelayedGet);
   iRegistry.watchPreEventReadFromSource(this, &Tracer::preEventReadFromSource);
@@ -302,7 +325,13 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
-  
+
+  if (dumpEventSetupInfo_) {
+    iRegistry.watchPreLockEventSetupGet(this, &Tracer::preLockEventSetupGet);
+    iRegistry.watchPostLockEventSetupGet(this, &Tracer::postLockEventSetupGet);
+    iRegistry.watchPostEventSetupGet(this, &Tracer::postEventSetupGet);
+  }
+
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
     out << TimeStamper(printTimestamps_);
@@ -352,6 +381,7 @@ Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
   desc.addUntracked<bool>("dumpPathsAndConsumes", false)->setComment("Prints information to cout about paths, endpaths, products consumed by modules and the dependencies between modules created by the products they consume");
   desc.addUntracked<bool>("printTimestamps", false)->setComment("Prints a time stamp for every transition");
+  desc.addUntracked<bool>("dumpEventSetupInfo", false)->setComment("Prints info 3 times when an event setup cache is filled, before the lock, after the lock, and after filling");
   descriptions.add("Tracer", desc);
   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
 }
@@ -471,22 +501,22 @@ Tracer::postSourceEvent(StreamID sid) {
 }
 
 void
-Tracer::preSourceLumi() {
+Tracer::preSourceLumi(LuminosityBlockIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " starting: source lumi";
 }
 
 void
-Tracer::postSourceLumi() {
+Tracer::postSourceLumi(LuminosityBlockIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: source lumi";
 }
 
 void
-Tracer::preSourceRun() {
+Tracer::preSourceRun(RunIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " starting: source run";
 }
 
 void
-Tracer::postSourceRun() {
+Tracer::postSourceRun(RunIndex index) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_ << " finished: source run";
 }
 
@@ -914,6 +944,27 @@ Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc
   }
 }
 
+void
+Tracer::preModuleEventAcquire(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: processing event acquire for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+}
+
+void
+Tracer::postModuleEventAcquire(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: processing event acquire for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+}
 
 void
 Tracer::preModuleEventDelayedGet(StreamContext const& sc, ModuleCallingContext const& mcc) {
@@ -1230,7 +1281,41 @@ Tracer::postSourceConstruction(ModuleDescription const& desc) {
   }
 }
 
+void
+Tracer::preLockEventSetupGet(eventsetup::ComponentDescription const* desc,
+                             eventsetup::EventSetupRecordKey const& recordKey,
+                             eventsetup::DataKey const& dataKey) {
+  LogAbsolute out("Tracer");
+  out << "preLockEventSetupGet  ";
+  out << desc->label_ << "  ";
+  out << recordKey.name() << "  ";
+  out << dataKey.type().name() << "  ";
+  out << dataKey.name().value();
+}
+
+void
+Tracer::postLockEventSetupGet(eventsetup::ComponentDescription const* desc,
+                              eventsetup::EventSetupRecordKey const& recordKey,
+                              eventsetup::DataKey const& dataKey) {
+  LogAbsolute out("Tracer");
+  out << "postLockEventSetupGet  ";
+  out << desc->label_ << "  ";
+  out << recordKey.name() << "  ";
+  out << dataKey.type().name() << "  ";
+  out << dataKey.name().value();
+}
+
+void
+Tracer::postEventSetupGet(eventsetup::ComponentDescription const* desc,
+                          eventsetup::EventSetupRecordKey const& recordKey,
+                          eventsetup::DataKey const& dataKey) {
+  LogAbsolute out("Tracer");
+  out << "postEventSetupGet  ";
+  out << desc->label_ << "  ";
+  out << recordKey.name() << "  ";
+  out << dataKey.type().name() << "  ";
+  out << dataKey.name().value();
+}
+
 using edm::service::Tracer;
 DEFINE_FWK_SERVICE(Tracer);
-
-

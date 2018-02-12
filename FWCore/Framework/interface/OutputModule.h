@@ -86,6 +86,9 @@ namespace edm {
     static bool wantsStreamRuns() {return false;}
     static bool wantsStreamLuminosityBlocks() {return false;};
 
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+
     bool wantAllEvents() const {return wantAllEvents_;}
 
     BranchIDLists const* branchIDLists();
@@ -179,6 +182,8 @@ namespace edm {
     std::map<BranchID, bool> keepAssociation_;
 
     SharedResourcesAcquirer resourceAcquirer_;
+    SerialTaskQueue runQueue_;
+    SerialTaskQueue luminosityBlockQueue_;
 
     //------------------------------------------------------------------
     // private member functions
@@ -225,6 +230,9 @@ namespace edm {
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
+
+    bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
 
     virtual bool isFileOpen() const { return true; }
 

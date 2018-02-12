@@ -98,9 +98,12 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                            conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
                                            conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me3141tmbParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHC")?
+                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHC"):edm::ParameterSet());
 
   const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);
   const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);
+  const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
   if (isSLHC and theRing == 1){
@@ -117,6 +120,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
     }
+    else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
+      tmbParams = me3141tmbParams;
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
+    }
   }
 
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
@@ -127,8 +135,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     tmbParams.getParameter<unsigned int>("matchTrigWindowSize");
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
-
-  lct_central_bx = 6;
 
   // configuration handle for number of early time bins
   early_tbins = tmbParams.getParameter<int>("tmbEarlyTbins");
@@ -191,7 +197,7 @@ CSCMotherboard::CSCMotherboard() :
 void CSCMotherboard::clear() {
   if (alct) alct->clear();
   if (clct) clct->clear();
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     firstLCT[bx].clear();
     secondLCT[bx].clear();
   }
@@ -298,7 +304,7 @@ void CSCMotherboard::run(
   clct->run(hs_times, ds_times); // run cathodeLCT
 
   int bx_alct_matched = 0;
-  for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
+  for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS;
        bx_clct++) {
     if (clct->bestCLCT[bx_clct].isValid()) {
       bool is_matched = false;
@@ -308,7 +314,7 @@ void CSCMotherboard::run(
       if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
 
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
           continue;
         if (alct->bestALCT[bx_alct].isValid()) {
           correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
@@ -359,7 +365,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     for (int a=0;a<20;++a) used_alct_mask[a]=0;
 
     int bx_alct_matched = 0; // bx of last matched ALCT
-    for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
+    for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS;
          bx_clct++) {
       // There should be at least one valid ALCT or CLCT for a
       // correlated LCT to be formed.  Decision on whether to reject
@@ -382,7 +388,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
 
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-          if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+          if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
             continue;
           // default: do not reuse ALCTs that were used with previous CLCTs
           if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
@@ -429,7 +435,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     }
 
     if (infoV > 0) {
-      for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+      for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
         if (firstLCT[bx].isValid())
           LogDebug("CSCMotherboard") << firstLCT[bx];
         if (secondLCT[bx].isValid())
@@ -467,12 +473,12 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
         << "; in-time LCTs are not getting read-out!!! +++" << "\n";
     }
 
-    if (late_tbins > MAX_LCT_BINS-1) {
+    if (late_tbins > CSCConstants::MAX_LCT_TBINS-1) {
       if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
         << "+++ Allowed range of time bins, [0-" << late_tbins
-        << "] exceeds max allowed, " << MAX_LCT_BINS-1 << " +++\n"
+        << "] exceeds max allowed, " << CSCConstants::MAX_LCT_TBINS-1 << " +++\n"
         << "+++ Set late_tbins to max allowed +++\n";
-      late_tbins = MAX_LCT_BINS-1;
+      late_tbins = CSCConstants::MAX_LCT_TBINS-1;
     }
     ifois = 1;
   }
@@ -530,7 +536,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
                                                           theTrigChamber)==1);
 
   // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     if (firstLCT[bx].isValid())
       if (!mpc_block_me1a || (!me11 || firstLCT[bx].getStrip() <= 127))
         tmpV.push_back(firstLCT[bx]);
@@ -541,10 +547,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   return tmpV;
 }
 
-void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
-                                   CSCALCTDigi secondALCT,
-                                   CSCCLCTDigi bestCLCT,
-                                   CSCCLCTDigi secondCLCT) {
+void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
+                                   const CSCALCTDigi& sALCT,
+                                   const CSCCLCTDigi& bCLCT,
+                                   const CSCCLCTDigi& sCLCT)
+{
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
 
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
@@ -561,16 +572,15 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 1);
     int bx = lct.getBX();
-    if (bx >= 0 && bx < MAX_LCT_BINS) {
+    if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       firstLCT[bx] = lct;
-      firstLCT[bx].setTrknmb(1);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
         << "+++ Bx of first LCT candidate, " << bx
-        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
+        << ", is not within the allowed range, [0-" << CSCConstants::MAX_LCT_TBINS-1
         << "); skipping it... +++\n";
     }
   }
@@ -579,16 +589,15 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 2);
     int bx = lct.getBX();
-    if (bx >= 0 && bx < MAX_LCT_BINS) {
+    if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       secondLCT[bx] = lct;
-      secondLCT[bx].setTrknmb(2);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
         << "+++ Bx of second LCT candidate, " << bx
-        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
+        << ", is not within the allowed range, [0-" << CSCConstants::MAX_LCT_TBINS-1
         << "); skipping it... +++\n";
     }
   }
@@ -598,7 +607,8 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    const CSCCLCTDigi& cLCT,
-                                                   int type) const {
+                                                   int type,
+                                                   int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -608,8 +618,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
-  // construct correlated LCT; temporarily assign track number of 0.
-  int trknmb = 0;
+  // construct correlated LCT
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
