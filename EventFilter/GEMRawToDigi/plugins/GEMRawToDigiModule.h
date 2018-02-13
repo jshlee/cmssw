@@ -17,6 +17,7 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMGEBStatusDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMAMCStatusDigiCollection.h"
 
 #include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
 #include "CondFormats/GEMObjects/interface/GEMEMap.h"
