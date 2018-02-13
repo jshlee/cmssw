@@ -25,6 +25,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset) :
   if (unPackStatusDigis_){
     produces<GEMVfatStatusDigiCollection>("vfatStatus");
     produces<GEMGEBStatusDigiCollection>("GEBStatus");
+    produces<GEMAMCStatusDigiCollection>("AMCStatus"); 
   }
 }
 
@@ -61,7 +62,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
   auto outVfatStatus = std::make_unique<GEMVfatStatusDigiCollection>();
   auto outGEBStatus = std::make_unique<GEMGEBStatusDigiCollection>();
-  // Take raw from the event
+  auto outAMCStatus = std::make_unique<GEMAMCStatusDigiCollection>();
+
+ // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   iEvent.getByToken( fed_token, fed_buffers );
   
@@ -167,7 +170,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 					 crc, vfatData->crc_calc(),
 					 b1010, b1100, b1110, vfatData->flag(),
 					 vfatData->isBlockGood());
-            outVfatStatus.get()->insertDigi(gemId,vfatStatus);
+            outVfatStatus.get()->insertDigi(gebData->inputID(),vfatStatus);
 	  }
 	  
 	}
@@ -183,7 +186,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
                                      gebData->inputID(),				     
                                      gebData->stuckd(),
                                      gebData->getGEBflag());
-          outGEBStatus.get()->insertDigi(gemId.chamberId(),gebStatus); 
+          outGEBStatus.get()->insertDigi(gebData->inputID(),gebStatus); 
         }
 		  	
 	amcData->addGEB(*gebData);
@@ -191,6 +194,28 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       
       amcData->setGEMeventTrailer(*(++word));
       amcData->setAMCTrailer(*(++word));
+
+      if (unPackStatusDigis_){
+        GEMAMCStatusDigi amcStatus(amcData->amcNum(),
+                                   amcData->l1A(),
+                                   amcData->bx(),
+                                   amcData->dlength(),
+                                   amcData->fv(),
+                                   amcData->runType(),
+                                   amcData->param1(),
+                                   amcData->param2(),
+                                   amcData->param3(),
+                                   amcData->orbitNum(),
+                                   amcData->boardId(),
+                                   amcData->gemDAV(),
+                                   amcData->bStatus(),
+                                   amcData->gdCount(),
+                                   amcData->ttsState(),
+                                   amcData->chamberTimeOut(),
+                                   amcData->oosGLIB());
+        outAMCStatus.get()->insertDigi(amcData->boardId(), amcStatus);
+      }
+
       amc13Event->addAMCpayload(*amcData);
     }
     
