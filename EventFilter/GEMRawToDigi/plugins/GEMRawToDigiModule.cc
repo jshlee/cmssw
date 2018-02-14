@@ -227,5 +227,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
   if (unPackStatusDigis_){
     iEvent.put(std::move(outVfatStatus), "vfatStatus");
     iEvent.put(std::move(outGEBStatus), "GEBStatus");
+    iEvent.put(std::move(outAMCStatus), "AMCStatus");
   }
 }
