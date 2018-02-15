@@ -7,6 +7,9 @@
   <class name="GEMEMap::GEMChStripMap"/>
   <class name="std::vector<GEMEMap::GEMChStripMap>"/>
 
-
+  <class name="GEMDeadStrips"/>
+  <class name="GEMDeadStrips::DeadItem"/>
+  <class name="GEMMaskedStrips"/>
+  <class name="GEMMaskedStrips::MaskItem"/>
 
 </lcgdict>
