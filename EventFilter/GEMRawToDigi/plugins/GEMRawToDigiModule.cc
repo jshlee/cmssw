@@ -42,15 +42,15 @@ std::shared_ptr<GEMROmap> GEMRawToDigiModule::globalBeginRun(edm::Run const&, ed
 {
   auto gemORmap = std::make_shared<GEMROmap>();
   if (useDBEMap_){
-    edm::ESHandle<GEMEMap> gemEMapRcd;
-    iSetup.get<GEMEMapRcd>().get(gemEMapRcd);
-    auto gemEMap = std::make_unique<GEMEMap>(*(gemEMapRcd.product()));
+    edm::ESHandle<GEMELMap> gemEMapRcd;
+    iSetup.get<GEMELMapRcd>().get(gemEMapRcd);
+    auto gemEMap = std::make_unique<GEMELMap>(*(gemEMapRcd.product()));
     gemEMap->convert(*gemORmap);
     gemEMap.reset();    
   }
   else {
     // no EMap in DB, using dummy
-    auto gemEMap = std::make_unique<GEMEMap>();
+    auto gemEMap = std::make_unique<GEMELMap>();
     gemEMap->convertDummy(*gemORmap);
     gemEMap.reset();    
   }
@@ -151,9 +151,9 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
             GEMROmap::channelNum chMap = {dc.vfatType, chan};
             GEMROmap::stripNum stMap = gemROMap->hitPosition(chMap);
 
-            int maxVFat = GEMEMap::maxVFatGE11_;
-            if (gemId.station() == 2) maxVFat = GEMEMap::maxVFatGE21_;
-            int stripId = stMap.stNum + (dc.iPhi-1)%maxVFat*GEMEMap::maxChan_;    
+            int maxVFat = GEMELMap::maxVFatGE11_;
+            if (gemId.station() == 2) maxVFat = GEMELMap::maxVFatGE21_;
+            int stripId = stMap.stNum + (dc.iPhi-1)%maxVFat*GEMELMap::maxChan_;    
 
 	    GEMDigi digi(stripId,bx);
 	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
