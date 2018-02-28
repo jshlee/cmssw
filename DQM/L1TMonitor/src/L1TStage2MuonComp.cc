@@ -86,21 +86,19 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
       errorSummaryNum->setBinLabel(i, "Ignored", 1);
     }
   }
+  // Setting canExtend to false is needed to get the correct behaviour when running multithreaded.
+  // Otherwise, when merging the histgrams of the threads, TH1::Merge sums bins that have the same label in one bin.
+  // This needs to come after the calls to setBinLabel.
+  errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 13, 1, 14); // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
-  errorSummaryDen->setBinLabel(RMUON, "# muons", 1);
-  errorSummaryDen->setBinLabel(RPT, "# muons", 1);
-  errorSummaryDen->setBinLabel(RETA, "# muons", 1);
-  errorSummaryDen->setBinLabel(RPHI, "# muons", 1);
-  errorSummaryDen->setBinLabel(RETAATVTX, "# muons", 1);
-  errorSummaryDen->setBinLabel(RPHIATVTX, "# muons", 1);
-  errorSummaryDen->setBinLabel(RCHARGE, "# muons", 1);
-  errorSummaryDen->setBinLabel(RCHARGEVAL, "# muons", 1);
-  errorSummaryDen->setBinLabel(RQUAL, "# muons", 1);
-  errorSummaryDen->setBinLabel(RISO, "# muons", 1);
-  errorSummaryDen->setBinLabel(RIDX, "# muons", 1);
+  for (int i = RMUON; i <= RIDX; ++i) {
+    errorSummaryDen->setBinLabel(i, "# muons", 1);
+  }
+  // Needed for correct histogram summing in multithreaded running.
+  errorSummaryDen->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   muColl1BxRange = ibooker.book1D("muBxRangeColl1", (muonColl1Title+" mismatching BX range").c_str(), 5, -2.5, 2.5);
   muColl1BxRange->setAxisTitle("BX range", 1);
@@ -112,12 +110,15 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl1hwEta->setAxisTitle("Hardware #eta", 1);
   muColl1hwPhi = ibooker.book1D("muHwPhiColl1", (muonColl1Title+" mismatching muon #phi").c_str(), 576, -0.5, 575.5);
   muColl1hwPhi->setAxisTitle("Hardware #phi", 1);
+  muColl1hwPhi->getTH1F()->SetMinimum(0.0);
   muColl1hwEtaAtVtx = ibooker.book1D("muHwEtaAtVtxColl1", (muonColl1Title+" mismatching muon #eta at vertex").c_str(), 461, -230.5, 230.5);
   muColl1hwEtaAtVtx->setAxisTitle("Hardware #eta at vertex", 1);
   muColl1hwPhiAtVtx = ibooker.book1D("muHwPhiAtVtxColl1", (muonColl1Title+" mismatching muon #phi at vertex").c_str(), 576, -0.5, 575.5);
   muColl1hwPhiAtVtx->setAxisTitle("Hardware #phi at vertex", 1);
+  muColl1hwPhiAtVtx->getTH1F()->SetMinimum(0.0);
   muColl1hwCharge = ibooker.book1D("muHwChargeColl1", (muonColl1Title+" mismatching muon charge").c_str(), 2, -0.5, 1.5);
   muColl1hwCharge->setAxisTitle("Hardware charge", 1);
+  muColl1hwCharge->getTH1F()->SetMinimum(0.0);
   muColl1hwChargeValid = ibooker.book1D("muHwChargeValidColl1", (muonColl1Title+" mismatching muon charge valid").c_str(), 2, -0.5, 1.5);
   muColl1hwChargeValid->setAxisTitle("Hardware charge valid", 1);
   muColl1hwQual = ibooker.book1D("muHwQualColl1", (muonColl1Title+" mismatching muon quality").c_str(), 16, -0.5, 15.5);
@@ -137,12 +138,15 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl2hwEta->setAxisTitle("Hardware #eta", 1);
   muColl2hwPhi = ibooker.book1D("muHwPhiColl2", (muonColl2Title+" mismatching muon #phi").c_str(), 576, -0.5, 575.5);
   muColl2hwPhi->setAxisTitle("Hardware #phi", 1);
+  muColl2hwPhi->getTH1F()->SetMinimum(0.0);
   muColl2hwEtaAtVtx = ibooker.book1D("muHwEtaAtVtxColl2", (muonColl2Title+" mismatching muon #eta at vertex").c_str(), 461, -230.5, 230.5);
   muColl2hwEtaAtVtx->setAxisTitle("Hardware #eta at vertex", 1);
   muColl2hwPhiAtVtx = ibooker.book1D("muHwPhiAtVtxColl2", (muonColl2Title+" mismatching muon #phi at vertex").c_str(), 576, -0.5, 575.5);
   muColl2hwPhiAtVtx->setAxisTitle("Hardware #phi at vertex", 1);
+  muColl2hwPhiAtVtx->getTH1F()->SetMinimum(0.0);
   muColl2hwCharge = ibooker.book1D("muHwChargeColl2", (muonColl2Title+" mismatching muon charge").c_str(), 2, -0.5, 1.5);
   muColl2hwCharge->setAxisTitle("Hardware charge", 1);
+  muColl2hwCharge->getTH1F()->SetMinimum(0.0);
   muColl2hwChargeValid = ibooker.book1D("muHwChargeValidColl2", (muonColl2Title+" mismatching muon charge valid").c_str(), 2, -0.5, 1.5);
   muColl2hwChargeValid->setAxisTitle("Hardware charge valid", 1);
   muColl2hwQual = ibooker.book1D("muHwQualColl2", (muonColl2Title+" mismatching muon quality").c_str(), 16, -0.5, 15.5);

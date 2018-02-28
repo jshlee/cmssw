@@ -12,7 +12,7 @@ upgradeKeys[2017] = [
     '2018',
     '2018PU',
     '2018Design',
-#    '2018DesignPU',
+    '2018DesignPU',
     '2019',
 #    '2019PU',
     '2019Design',
@@ -37,7 +37,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11400,11600],[11800,12000],[12200,12400],[25000,26000],[50000,51000]]
+numWFConflict = [[11800,12000],[12200,12400],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [],
     2023: []
@@ -94,11 +94,47 @@ upgradeSteps['trackingOnly'] = {
     'suffix' : '_trackingOnly',
     'offset' : 0.1,
 }
+upgradeSteps['trackingRun2'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingRun2',
+    'offset' : 0.2,
+}
+upgradeSteps['trackingOnlyRun2'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingOnlyRun2',
+    'offset' : 0.3,
+}
+upgradeSteps['trackingLowPU'] = {
+    'steps' : [
+        'RecoFull',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingLowPU',
+    'offset' : 0.4,
+}
+upgradeSteps['pixelTrackingOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnly',
+    'offset' : 0.5,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
     'suffix' : '_Timing',
-    'offset' : 0.2,
+    'offset' : 0.11,
 }
 upgradeSteps['Neutron'] = {
     'steps' : [
@@ -113,7 +149,23 @@ upgradeSteps['Neutron'] = {
         'DigiFullTrigger',
     ],
     'suffix' : '_Neutron',
-    'offset' : 0.3,
+    'offset' : 0.12,
+}
+upgradeSteps['heCollapse'] = {
+    'steps' : [
+        'GenSimFull',
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+        'ALCAFull',
+    ],
+    'PU' : [
+        'DigiFull',
+        'RecoFull',
+        'HARVESTFull',
+    ],
+    'suffix' : '_heCollapse',
+    'offset' : 0.6,
 }
 
 upgradeProperties = {}
@@ -137,14 +189,14 @@ upgradeProperties[2017] = {
     '2018' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -337,7 +389,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'DoubleMuPt10Extended_pythia8_cfi':Kby(25,100),
            'DoubleMuPt100Extended_pythia8_cfi':Kby(9,100),
            'DoubleMuPt1000Extended_pythia8_cfi':Kby(9,100),
-           'SinglePiE50HCAL_pythia8_cfi':Kby(10,100),
+           'SinglePiE50HCAL_pythia8_cfi':Kby(50,500),
            'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'Wjet_Pt_80_120_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'Wjet_Pt_3000_3500_14TeV_TuneCUETP8M1_cfi':Kby(9,50),

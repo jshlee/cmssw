@@ -2,7 +2,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
-nanoDQM = cms.EDAnalyzer("NanoAODDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+nanoDQM = DQMEDAnalyzer("NanoAODDQM",
     vplots = cms.PSet(
         CaloMET = cms.PSet(
             sels = cms.PSet(),
@@ -75,6 +76,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('btagDeepB', 'btagDeepB', 20, -1, 1, 'Deep B+BB btag discriminator'),
                 Plot1D('btagHbb', 'btagHbb', 20, -1, 1, 'Higgs to BB tagger discriminator'),
                 Plot1D('eta', 'eta', 20, -4, 4, 'eta'),
+                Plot1D('jetId', 'jetId', 1, 2.5, 3.5, 'Jet ID flags bit1 is loose, bit2 is tight'),
                 Plot1D('mass', 'mass', 20, 0, 300, 'mass'),
                 Plot1D('msoftdrop', 'msoftdrop', 20, -300, 300, 'Soft drop mass'),
                 Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
@@ -106,6 +108,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('HcalStripHaloFilter', 'HcalStripHaloFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('METFilters', 'METFilters', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('chargedHadronTrackResolutionFilter', 'chargedHadronTrackResolutionFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
+                Plot1D('ecalBadCalibFilter', 'ecalBadCalibFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('ecalLaserCorrFilter', 'ecalLaserCorrFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('eeBadScFilter', 'eeBadScFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('globalSuperTightHalo2016Filter', 'globalSuperTightHalo2016Filter', 2, -0.5, 1.5, 'Trigger/flag bit'),
@@ -172,6 +175,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
                 Plot1D('status', 'status', 20, 0, 100, 'Particle status. 1=stable'),
+                Plot1D('statusFlags', 'statusFlags', 32768, 0, 32768, 'gen status flags stored bitwise, bits are: 0 : isPrompt, 1 : isDecayedLeptonHadron, 2 : isTauDecayProduct, 3 : isPromptTauDecayProduct, 4 : isDirectTauDecayProduct, 5 : isDirectPromptTauDecayProduct, 6 : isDirectHadronDecayProduct, 7 : isHardProcess, 8 : fromHardProcess, 9 : isHardProcessTauDecayProduct, 10 : isDirectHardProcessTauDecayProduct, 11 : fromHardProcessBeforeFSR, 12 : isFirstCopy, 13 : isLastCopy, 14 : isLastCopyBeforeFSR, '),
             )
         ),
         GenVisTau = cms.PSet(
@@ -312,6 +316,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('chi2', 'chi2', 20, 0.5, 3, 'main primary vertex reduced chi2'),
                 Plot1D('ndof', 'ndof', 20, 0, 500, 'main primary vertex number of degree of freedom'),
                 Plot1D('npvs', 'npvs', 20, 0, 60, 'total number of reconstructed primary vertices'),
+                Plot1D('npvsGood', 'npvsGood', 20, 0, 60, 'total number of Good primary vertices'),
                 Plot1D('score', 'score', 20, 0, 300000, 'main primary vertex score, i.e. sum pt2 of clustered objects'),
                 Plot1D('x', 'x', 20, -0.3, 0.3, 'main primary vertex position x coordinate'),
                 Plot1D('y', 'y', 20, -0.3, 0.3, 'main primary vertex position y coordinate'),
@@ -354,6 +359,8 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Plot1D('nPU', 'nPU', 20, 0, 60, 'the number of pileup interactions that have been added to the event in the current bunch crossing'),
                 Plot1D('nTrueInt', 'nTrueInt', 20, 0, 60, 'the true mean number of the poisson distribution for this event from which the number of interactions each bunch crossing has been sampled'),
+                Plot1D('sumEOOT', 'sumEOOT', 20, 0, 800, 'number of early out of time pileup'),
+                Plot1D('sumLOOT', 'sumLOOT', 20, 0, 300, 'number of late out of time pileup'),
             )
         ),
         PuppiMET = cms.PSet(
@@ -479,9 +486,12 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Count1D('_size', 28, -0.5, 27.5),
                 Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
-                Plot1D('filterBits', 'filterBits', 16, -0.5, 15.5, 'extra bits of associated information: 1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight for Electron (PixelMatched e/gamma); 1 = TrkIsoVVL, 2 = Iso for Muon; '),
+                Plot1D('filterBits', 'filterBits', 512, -0.5, 511.5, 'extra bits of associated information: 1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau for Electron (PixelMatched e/gamma); 1 = TrkIsoVVL, 2 = Iso, 4 = OverlapFilter PFTau for Muon; 1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = TightID OOSC photons, 16 = L2p5 pixel iso, 32 = OverlapFilter IsoMu, 64 = OverlapFilter IsoEle, 128 = L1-HLT matched, 256 = Dz for Tau; 1 = VBF cross-cleaned from loose iso PFTau for Jet'),
                 Plot1D('id', 'id', 20, 0, 30, 'ID of the object: 11 = Electron (PixelMatched e/gamma), 22 = Photon (PixelMatch-vetoed e/gamma), 13 = Muon, 14 = Tau, 1 = Jet, 2 = MET, 3 = HT, 4 = MHT'),
+                Plot1D('l1charge', 'l1charge', 3, -1.5, 1.5, 'charge of associated L1 seed'),
+                Plot1D('l1iso', 'l1iso', 4, -0.5, 3.5, 'iso of associated L1 seed'),
                 Plot1D('l1pt', 'l1pt', 20, 0, 200, 'pt of associated L1 seed'),
+                Plot1D('l1pt_2', 'l1pt_2', 20, 0, 200, 'pt of associated secondary L1 seed'),
                 Plot1D('l2pt', 'l2pt', 20, 0, 200, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)"),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 40, 0, 400, 'pt'),

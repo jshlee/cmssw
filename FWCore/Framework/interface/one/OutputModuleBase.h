@@ -100,6 +100,9 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
+      SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+      SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+
       bool wantAllEvents() const {return wantAllEvents_;}
       
       BranchIDLists const* branchIDLists();
@@ -191,6 +194,8 @@ namespace edm {
       std::map<BranchID, bool> keepAssociation_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
+      SerialTaskQueue runQueue_;
+      SerialTaskQueue luminosityBlockQueue_;
 
       //------------------------------------------------------------------
       // private member functions
@@ -245,7 +250,10 @@ namespace edm {
       virtual void doEndLuminosityBlock_(LuminosityBlockForOutput const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
-      
+
+      bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
+
       void keepThisBranch(BranchDescription const& desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                           std::set<BranchID>& keptProductsInEvent);
