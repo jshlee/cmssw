@@ -76,21 +76,28 @@ void ME0MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       iEnd = trackAssoMap->end();
       iii = trackAssoMap->find(muTrk);
       if (iii != iEnd ) newMuTrk = (*trackAssoMap)[muTrk];
-
-      //const reco::Track* track = muTrk.get();
       
       if (newMuTrk.isNonnull()){
 	const reco::Track* newTrack = newMuTrk.get();
-	newMu.setCombined( newMuTrk );
 	newMu.setGlobalTrack( newMuTrk );
+	newMu.setType( reco::Muon::ME0Muon );
 	newMu.setBestTrack(reco::Muon::CombinedTrack);
 	const double energy = hypot(newTrack->p(), 0.105658369);
 	const math::XYZTLorentzVector p4(newTrack->px(), newTrack->py(), newTrack->pz(), energy);	
 	newMu.setP4(p4);
+	
 	cout << "ME0MuonProducer mu  pt " << mu.pt() << " eta "<< mu.eta()<<endl;
 	cout << "                new pt " << newMu.pt() << " eta "<< newMu.eta()
 	     << " me0 hits "<< newTrack->hitPattern().numberOfValidMuonME0Hits()
+	  //<< " mu chi2 "<< newMu.chi2()
+	     << " chi2 "<< newTrack->chi2()
 	     <<endl;
+	
+	if (newMu.isGlobalMuon()){
+	  cout << " isGlobalMuon "<< newMu.isGlobalMuon()
+	       << " isME0Muon "<< newMu.isME0Muon()
+	       <<endl;
+	}
       }
       
       // int noRecHitME0 = 0;
@@ -101,8 +108,7 @@ void ME0MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       // 	if (hitId.subdetId() == MuonSubdetId::ME0) ++noRecHitME0;
       // }
     }
-    
-    
+        
     // cout << "ME0MuonProducer mu pt " << mu.pt() << " eta "<< mu.eta()
     // 	 << " recHitsSize "<< track.recHitsSize()
     // 	 << " numberOfValidHits "<< track.numberOfValidHits()
@@ -111,6 +117,10 @@ void ME0MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     // 	 << endl;
     me0Muons->push_back(newMu);
     ntrk++;
+  }
+  if (muons->size() != me0Muons->size()){
+    cout << "muons->size() " << muons->size() <<endl;
+    cout << "me0Muons->size() " << me0Muons->size() <<endl;
   }
   event.put(std::move(me0Muons));
 
