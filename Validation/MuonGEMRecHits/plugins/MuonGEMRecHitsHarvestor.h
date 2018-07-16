@@ -1,5 +1,5 @@
-#ifndef MuonGEMDigisHarvestor_H
-#define MuonGEMDigisHarvestor_H
+#ifndef VALIDATION_MUONGEMRECHITS_PLUGINS_MUONGEMRECHITSHARVESTOR_H_
+#define VALIDATION_MUONGEMRECHITS_PLUGINS_MUONGEMRECHITSHARVESTOR_H_
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -7,13 +7,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "Validation/MuonGEMRecHits/interface/GEMRecHitsValidation.h"
-#include <TEfficiency.h>
-#include <TGraphAsymmErrors.h>
-#include <TProfile.h>
+#include "TProfile.h"
 
 class MuonGEMRecHitsHarvestor : public DQMEDHarvester
 {
@@ -25,9 +21,16 @@ public:
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, const char* label, TString suffix, TH1F* track_hist, TH1F* sh_hist );
-  TProfile* ComputeEff(TH1F* num, TH1F* denum );
+  TProfile* computeEff(const TH1F & passed, const TH1F & total);
 
 private:
-  std::string dbe_path_,outputFile_;
+  std::string dbe_path_;
+  std::vector<int> region_ids_, station_ids_, layer_ids_;
+
+
+  // Coonst
+  const std::string kLogCategory_ = "MuonGEMRecHitsHarvestor";
+  const std::vector<const char*> kAxes_ = {"eta", "phi"};
 };
-#endif
+
+#endif // VALIDATION_MUONGEMRECHITS_PLUGINS_MUONGEMRECHITSHARVESTOR_H_

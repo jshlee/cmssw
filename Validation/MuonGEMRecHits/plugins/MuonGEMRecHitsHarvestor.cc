@@ -1,5 +1,8 @@
+#include "Validation/MuonGEMRecHits/plugins/MuonGEMRecHitsHarvestor.h"
+
 // system include files
 #include <memory>
+
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -9,11 +12,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "TTree.h"
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "TH1F.h"
+#include "TEfficiency.h"
+#include "TProfile.h"
+#include "TAxis.h"
+#include "TSystem.h"
+
 
 ///Data Format
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
@@ -43,132 +53,129 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMRecHits/plugins/MuonGEMRecHitsHarvestor.h"
-#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
+#include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
 
-MuonGEMRecHitsHarvestor::MuonGEMRecHitsHarvestor(const edm::ParameterSet& ps)
-{
-  dbe_path_ = std::string("MuonGEMRecHitsV/GEMRecHitsTask/");
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+
+MuonGEMRecHitsHarvestor::MuonGEMRecHitsHarvestor(const edm::ParameterSet& ps) {
+  dbe_path_ = "MuonGEMRecHitsV/GEMRecHitsTask/";
+
+  region_ids_ = ps.getUntrackedParameter< std::vector<int> >("regionIds");
+  station_ids_ = ps.getUntrackedParameter< std::vector<int> >("stationIds");
+  layer_ids_ = ps.getUntrackedParameter< std::vector<int> >("layerIds");
 }
 
 
-MuonGEMRecHitsHarvestor::~MuonGEMRecHitsHarvestor()
-{
-}
-TProfile* MuonGEMRecHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
-{
-  std::string name  = "eff_"+std::string(num->GetName());
-  std::string title = "Eff. "+std::string(num->GetTitle());
-  TProfile * efficHist = new TProfile(name.c_str(), title.c_str(),denum->GetXaxis()->GetNbins(), denum->GetXaxis()->GetXmin(),denum->GetXaxis()->GetXmax());
-
-  for (int i=1; i <= denum->GetNbinsX(); i++) {
-
-    double nNum = num->GetBinContent(i);
-    double nDenum = denum->GetBinContent(i);
-    if ( nDenum == 0 || nNum ==0  ) {
-      continue;
-    }
-    if ( nNum > nDenum ) {
-      double temp = nDenum;
-      nDenum = nNum;
-      nNum = temp;
-      std::cout<<"Alert! specific bin's num is bigger than denum"<<std::endl;
-    }
-    const double effVal = nNum/nDenum;
-    efficHist->SetBinContent(i, effVal);
-    efficHist->SetBinEntries(i,1);
-    efficHist->SetBinError(i,0);
-    const double errLo = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,false);
-    const double errUp = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,true);
-    const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
-    efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
-  }
-  return efficHist;
-}
-
-void MuonGEMRecHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, const char* label, TString suffix, TH1F* track_hist, TH1F* sh_hist )
-{
-  TString dbe_label = TString(dbe_path_)+label+suffix;
-  if( ig.get(dbe_label.Data()) != nullptr && sh_hist !=nullptr && track_hist !=nullptr ) {
-    TH1F* hist =    (TH1F*)ig.get( dbe_label.Data() )->getTH1F()->Clone();
-    TProfile* profile = ComputeEff( hist, track_hist);
-    TProfile* profile_sh = ComputeEff( hist, sh_hist );
-    profile_sh->SetName( (profile->GetName()+std::string("_sh")).c_str());
-    TString x_axis_title = TString(hist->GetXaxis()->GetTitle());
-    TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM RecHits in %s;%s;Eff.",suffix.Data(),x_axis_title.Data());
-    TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM RecHits in %s with a matched SimHit;%s;Eff.",suffix.Data(),x_axis_title.Data() );
-    profile->SetTitle( title.Data());
-    profile_sh->SetTitle( title2.Data() );
-    ibooker.bookProfile( profile->GetName(),profile); 
-    ibooker.bookProfile( profile_sh->GetName(),profile_sh); 
-  }
-  else {
-    std::cout<<"Can not found histogram of "<<dbe_label<<std::endl; 
-    if ( track_hist == nullptr) std::cout<<"track not found"<<std::endl;
-    if ( sh_hist    == nullptr) std::cout<<"sh_hist not found"<<std::endl;
-  }
-  return;
+MuonGEMRecHitsHarvestor::~MuonGEMRecHitsHarvestor() {
 }
 
 
-void 
-MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
-{
-  ig.setCurrentFolder(dbe_path_);
+TProfile* MuonGEMRecHitsHarvestor::computeEff(const TH1F & passed,
+                                              const TH1F & total) {
+  std::string name  = "eff_" + std::string(passed.GetName());
+  std::string title = "Eff. " + std::string(passed.GetTitle());
+  TProfile * eff_profile = new TProfile(name.c_str(),
+                                        title.c_str(),
+                                        total.GetXaxis()->GetNbins(),
+                                        total.GetXaxis()->GetXmin(),
+                                        total.GetXaxis()->GetXmax());
 
-  using namespace GEMDetLabel;
- 
-  TH1F* gem_trk_eta[s_suffix.size()];
-  TH1F* gem_trk_phi[s_suffix.size()][c_suffix.size()];  
 
-  TH1F* sh_eta[s_suffix.size()][l_suffix.size()];
-  TH1F* sh_phi[s_suffix.size()][l_suffix.size()][c_suffix.size()];
-  
-  for( unsigned int i = 0 ; i < s_suffix.size() ; i++) {
-    TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
-    TString phi_label;
-    if ( ig.get(eta_label.Data()) != nullptr ) {
-      gem_trk_eta[i] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
-      gem_trk_eta[i]->Sumw2();
-    }
-    else std::cout<<"Can not found track_eta"<<std::endl;
-    for ( unsigned int k=0 ; k < c_suffix.size() ; k++) {
-      phi_label = TString(dbe_path_.c_str())+"track_phi"+s_suffix[i]+c_suffix[k];
-      if ( ig.get(phi_label.Data()) !=nullptr ) {
-        gem_trk_phi[i][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
-        gem_trk_phi[i][k]->Sumw2();
+  if(TEfficiency::CheckConsistency(passed, total)) {
+    TEfficiency        eff(passed, total);
+    TGraphAsymmErrors* eff_graph = eff.CreateGraph();
+    auto x_axis = passed.GetXaxis();
+    // TH1F* eff_hist = dynamic_cast<TH1F*>(eff_graph->GetHistogram()->Clone());
+
+    // for (int bin = 1; bin <= eff_hist->GetNbinsX(); bin++)
+    for(int i = 0; i < eff_graph->GetN(); ++i) {
+
+      double x, y, error;
+      bool invalid_request = eff_graph->GetPoint(i, x, y) == -1;
+
+      if(invalid_request) {
+        edm::LogError("MuonGEMRecHitsHarvestor") << "GetPoint failed" << std::endl;
+        continue;
       }
-      else std::cout<<"Can not found track_phi"<<std::endl;
+
+      error = eff_graph->GetErrorY(i);
+      int bin = x_axis->FindBin(x);
+      eff_profile->SetBinContent(bin, y);
+      eff_profile->SetBinError(bin, error);
+      eff_profile->SetBinEntries(bin, 1);
     }
-    
-    if ( ig.get(eta_label.Data()) != nullptr && ig.get(phi_label.Data()) !=nullptr ) {
-      for( unsigned int j = 0; j < l_suffix.size() ; j++) { 
-        TString suffix = TString( s_suffix[i] )+TString( l_suffix[j]);
-        TString eta_label = TString(dbe_path_)+"rh_sh_eta"+suffix;
-        if( ig.get(eta_label.Data()) !=nullptr ) {
-          sh_eta[i][j] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
-          sh_eta[i][j]->Sumw2();
-        }
-        else std::cout<<"Can not found eta histogram : "<<eta_label<<std::endl;
-        ProcessBooking( ibooker, ig, "rh_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        for ( unsigned int k= 0 ; k < c_suffix.size() ; k++) {
-          suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
-          TString phi_label = TString(dbe_path_)+"rh_sh_phi"+suffix;
-          if( ig.get(phi_label.Data()) !=nullptr ) {
-           sh_phi[i][j][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
-           sh_phi[i][j][k]->Sumw2();
+  } else {
+    edm::LogError("MuonGEMRecHitsHarvestor") << "TEfficiency Inconsistency Error" << std::endl;
+    std::cout << passed.GetName() << std::endl;
+    std::cout << total.GetName() << std::endl;
+
+    name += "_inconsistent";
+    title += " inconsistent";
+    eff_profile->SetName(name.c_str());
+    eff_profile->SetTitle(title.c_str());
+  }
+
+  return eff_profile;
+}
+
+
+void MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker,
+                                        DQMStore::IGetter& ig) {
+  // ig.setCurrentFolder(dbe_path_);
+  ig.cd(dbe_path_);
+
+  for(Int_t region_id : region_ids_) {
+    for(Int_t station_id : station_ids_) {
+      for(Int_t layer_id : layer_ids_) {
+        for(const char* axis : kAxes_) {
+          TString name_suffix = GEMUtils::getSuffixName(region_id, station_id, layer_id);
+          TString title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
+
+          TString sim_name = TString::Format("simhit_occ_%s%s", axis, name_suffix.Data());
+          TString rec_name = TString::Format("rechit_occ_%s%s", axis, name_suffix.Data());
+
+          const std::string sim_path = gSystem->ConcatFileName(dbe_path_.c_str(), sim_name);
+          const std::string rec_path = gSystem->ConcatFileName(dbe_path_.c_str(), rec_name);
+
+          TH1F* sim_occupancy;
+          if(auto tmp_me = ig.get(sim_path)) {
+            sim_occupancy = dynamic_cast<TH1F*>(tmp_me->getTH1F()->Clone());
+          } else {
+            edm::LogError(kLogCategory_) << "failed to get " << sim_name << std::endl;
+            continue;
           }
-          else { std::cout<<"Can not found phi plots : "<<phi_label<<std::endl; continue; }
-          ProcessBooking( ibooker, ig, "rh_phi",suffix, gem_trk_phi[i][k], sh_phi[i][j][k]);
-        }
-      }
-    }
-    else std::cout<<"Can not find eta or phi of all track"<<std::endl;
-  }
+          // XXX reason ?
+          sim_occupancy->Sumw2();
+
+          TH1F* rec_occupancy;
+          if(auto tmp_me = ig.getElement(rec_path)) {
+            rec_occupancy = dynamic_cast<TH1F*>(tmp_me->getTH1F()->Clone());
+          } else {
+            edm::LogError("MuonGEMRecHitsHarvestor") << "failed to get "
+                                                     << rec_name
+                                                     << std::endl;
+            continue;
+          }
+          rec_occupancy->Sumw2();
+
+          TProfile* eff = computeEff(*rec_occupancy, *sim_occupancy);
+
+          TString title = TString::Format("Efficiency %s :%s", axis, title_suffix.Data());
+          TString x_title = TString::Format("#%s", axis);
+
+          eff->SetTitle(title);
+          eff->SetXTitle(x_title);
+
+          TString name = TString::Format("eff_%s%s", axis, name_suffix.Data());
+
+          ibooker.bookProfile(name, eff);
+        } // axis loop
+      } // Layer Id END
+    } // Station Id END
+  } // Region Id END
 }
 
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonGEMRecHitsHarvestor);
+

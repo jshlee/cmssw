@@ -1,7 +1,8 @@
-#ifndef GEMRecHitsValidation_H
-#define GEMRecHitsValidation_H
+#ifndef VALIDATION_MUONGEMRECHITS_INTERFACE_GEMRECHITSVALIDATION_H_
+#define VALIDATION_MUONGEMRECHITS_INTERFACE_GEMRECHITSVALIDATION_H_
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
@@ -13,30 +14,37 @@ public:
   ~GEMRecHitsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
-  MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax);
-  MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax);
 
 private:
+  //Simple Plots
+  MEMap1Key me_occ_zr_; // [# of region]
+  MEMap2Key me_occ_det_; // [# of region][# of station]
+  MonitorElement* me_cls_;
+  MEMap1Key me_pull_x_; // key: region
+  MEMap1Key me_pull_y_; // key: region
 
   //Detaile Plots
-  MonitorElement* gem_rh_xy[2][3][2];
-  MonitorElement* gem_rh_zr[2][3][2];
-  MonitorElement* gem_cls[2][3][2];
-  MonitorElement* gem_pullX[2][3][2];
-  MonitorElement* gem_pullY[2][3][2];
+  // key = (region_id, station_id, layer_id)
+  MEMap3Key me_detail_occ_xy_;
+  MEMap3Key me_detail_occ_zr_;
+  MEMap3Key me_detail_occ_polar_;
+  MEMap3Key me_detail_cls_;
+  MEMap3Key me_detail_pull_x_;
+  MEMap3Key me_detail_pull_y_;
+  // moved from GEMRecHitTrackMatch
+  MEMap3Key me_detail_sim_occ_eta_;
+  MEMap3Key me_detail_rec_occ_eta_; // matched rechit
+  MEMap3Key me_detail_sim_occ_phi_;
+  MEMap3Key me_detail_rec_occ_phi_;
 
 
-  //Simple Plots
-  MonitorElement* gem_cls_tot;
-  std::unordered_map< UInt_t , MonitorElement* > recHits_dcEta;
-  std::unordered_map< UInt_t , MonitorElement* > recHits_simple_zr;
-  MonitorElement* gem_region_pullX[2];
-  MonitorElement* gem_region_pullY[2];
+  edm::EDGetToken sim_hit_token_, rec_hit_token_;
+  Int_t nBinXY_;
+  Bool_t detailPlot_;
+  std::string folder_;
 
-  edm::EDGetToken InputTagToken_, InputTagToken_RH;
-  int nBinXY_;
-  bool detailPlot_;
-
+  // Constatns
+  std::string kLogCategory_ = "GEMRecHitsValidation";
 };
 
-#endif
+#endif // VALIDATION_MUONGEMRECHITS_INTERFACE_GEMRECHITSVALIDATION_H_

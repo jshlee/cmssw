@@ -1,5 +1,5 @@
-#ifndef MuonGEMDigisHarvestor_H
-#define MuonGEMDigisHarvestor_H
+#ifndef VALIDATION_MUONGEMDIGIS_PLUGINS_MUONGEMDIGISHARVESTOR_H_
+#define VALIDATION_MUONGEMDIGIS_PLUGINS_MUONGEMDIGISHARVESTOR_H_
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,4 +34,4 @@ private:
   std::string dbe_path_,dbe_hist_prefix_,compareable_dbe_path_,compareable_dbe_hist_prefix_ ,outputFile_;
 //  std::string dbe_strip_prefix_, dbe_pad_prefix_, dbe_copad_prefix_;
 };
-#endif
+#endif // VALIDATION_MUONGEMDIGIS_PLUGINS_MUONGEMDIGISHARVESTOR_H_

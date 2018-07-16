@@ -1,3 +1,5 @@
+#include "Validation/MuonGEMHits/plugins/MuonGEMHitsHarvestor.h"
+
 // system include files
 #include <memory>
 
@@ -9,9 +11,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "TTree.h"
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
+#include "TEfficiency.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -42,23 +47,45 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMHits/plugins/MuonGEMHitsHarvestor.h"
-#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
-using namespace GEMDetLabel;
-using namespace std;
 MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps)
 {
   dbe_path_ = std::string("MuonGEMHitsV/GEMHitsTask/");
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
 
 MuonGEMHitsHarvestor::~MuonGEMHitsHarvestor()
 {
 }
-TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
+
+
+TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* passed, TH1F* total)
 {
+
+  TEfficiency eff(*passed, *total);
+  TGraphAsymmErrors* eff_graph = eff.CreateGraph();
+
+  std::string name  = "eff_" + std::string(passed->GetName());
+  std::string title = "Eff. " + std::string(passed->GetTitle());
+  TProfile * eff_profile = new TProfile(name.c_str(),
+                                        title.c_str(),
+                                        total->GetXaxis()->GetNbins(),
+                                        total->GetXaxis()->GetXmin(),
+                                        total->GetXaxis()->GetXmax());
+
+  for (int bin = 1; bin <= eff_graph->GetN(); bin++)
+  {
+    double x, y;
+    eff_graph->GetPoint(bin, x, y);
+    double error = eff_graph->GetErrorY(bin);
+
+    eff_profile->SetBinContent(bin, y);
+    eff_profile->SetBinEntries(bin, 1);
+    eff_profile->SetBinError(bin, error);
+  }
+  return eff_profile;
+
+  /*
   if ( num==nullptr || denum==nullptr) { std::cout<<"num or denum are missing"<<std::endl; } 
   std::string name = "eff_"+std::string(num->GetName());
   std::string title = "Eff. "+std::string(num->GetTitle());
@@ -78,7 +105,10 @@ TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
     efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
   }
   return efficHist;
+  */
 }
+
+
 void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string label_suffix, TH1F* track_hist, TH1F* sh_hist )
 {
   TString dbe_label = TString(dbe_path_)+label_suffix;
@@ -101,40 +131,9 @@ void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore:
   return;
 }
 
-void 
-MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
-{
+void MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker,
+                                     DQMStore::IGetter &ig ) {
   ig.setCurrentFolder(dbe_path_);
-  TH1F* track_eta[3];
-  TH1F* track_phi[3][3];
-
-  for (unsigned int i = 0; i < 3; i++) {
-    track_eta[i]=nullptr;
-    for (unsigned int j=0; j < 3; j++) {
-      track_phi[i][j]=nullptr;
-    }
-  }
-
-  for (unsigned int i = 0; i < s_suffix.size(); i++) {
-    string suffix = s_suffix[i];
-    string track_eta_name = dbe_path_+"track_eta"+suffix;
-    if ( ig.get(track_eta_name) != nullptr) track_eta[i] = (TH1F*)ig.get(track_eta_name)->getTH1F()->Clone();
-    for (unsigned int j = 0; j < l_suffix.size(); j++) {
-      suffix = s_suffix[i]+l_suffix[j];
-      ProcessBooking( ibooker, ig, "sh_eta"+suffix,track_eta[i]);
-    }
-  }
-  for (unsigned int i = 0; i < s_suffix.size(); i++) {
-    for (unsigned int j = 0 ; j < c_suffix.size(); j++) {
-      string suffix = s_suffix[i]+c_suffix[j];
-      string track_phi_name = dbe_path_+"track_phi"+suffix;
-      if ( ig.get(track_phi_name) != nullptr) track_phi[i][j] = (TH1F*)ig.get(track_phi_name)->getTH1F()->Clone();
-      for (unsigned int k = 0; k < l_suffix.size(); k++) {
-        suffix = s_suffix[i]+l_suffix[k]+c_suffix[j];
-        ProcessBooking( ibooker, ig, "sh_phi"+suffix,track_phi[i][j]);
-      }
-    }
-  }
 }
 
 

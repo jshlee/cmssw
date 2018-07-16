@@ -1,34 +1,42 @@
-#ifndef GEMCoPadDigiValidation_H
-#define GEMCoPadDigiValidation_H
+#ifndef VALIDATION_MUONGEMDIGIS_GEMCOPADDIGIVALIDATION_H_
+#define VALIDATION_MUONGEMDIGIS_GEMCOPADDIGIVALIDATION_H_
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 
 class GEMCoPadDigiValidation : public GEMBaseValidation
 {
 public:
-  explicit GEMCoPadDigiValidation( const edm::ParameterSet& );
+  explicit GEMCoPadDigiValidation(const edm::ParameterSet& );
   ~GEMCoPadDigiValidation() override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
- private:
 
-  MonitorElement* theCSCCoPad_xy[2][3];
-  MonitorElement* theCSCCoPad_phipad[2][3];
-  MonitorElement* theCSCCoPad[2][3];
-  MonitorElement* theCSCCoPad_bx[2][3];
-  MonitorElement* theCSCCoPad_zr[2][3];
-	std::unordered_map< UInt_t , MonitorElement* > theCSCCoPad_xy_ch;
-
-
+private:
   // Simple plots
-  std::unordered_map< UInt_t , MonitorElement* > theCoPad_dcEta;
-  std::unordered_map< UInt_t , MonitorElement* > theCoPad_simple_zr;
+  MEMap1Key me_occ_zr_; // key = region_id
+  MEMap2Key me_occ_det_; // key(region_id, station_id)
+
+  // DetailPlots
+  // key(region_id, station_id)
+  MEMap2Key me_detail_occ_xy_;
+  MEMap2Key me_detail_occ_zr_;
+  // key(region_id, station_id)
+  MEMap2Key me_detail_occ_phi_pad_;
+  MEMap2Key me_detail_occ_pad_;
+  MEMap2Key me_detail_bx_;
+
+  // ParameterSet
   int minBXGEM_, maxBXGEM_;
   edm::EDGetToken InputTagToken_;
   int nBinXY_;
   bool detailPlot_;
+  std::string folder_;
+
+  // Custom Constants
+  std::string kLogCategory_ = "GEMCoPadDigiValidation";
 };
 
-#endif
+#endif // VALIDATION_MUONGEMDIGIS_GEMCOPADDIGIVALIDATION_H_

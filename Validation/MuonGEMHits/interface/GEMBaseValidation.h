@@ -1,6 +1,6 @@
-#ifndef GEMBaseValidation_H
-#define GEMBaseValidation_H
-
+#ifndef VALIDATION_MUONGEMHITS_INTERFACE_GEMBASEVALIDATION_H_
+#define VALIDATION_MUONGEMHITS_INTERFACE_GEMBASEVALIDATION_H_
+// FIXME 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -13,47 +13,82 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <unordered_map>
+
+#include "TDatabasePDG.h"
 
 class GEMBaseValidation : public DQMEDAnalyzer
 {
 public:
-  explicit GEMBaseValidation( const edm::ParameterSet& ps );
+  explicit GEMBaseValidation(const edm::ParameterSet& ps);
   ~GEMBaseValidation() override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override = 0 ;
-  MonitorElement* BookHistZR( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =99 ); 
-  MonitorElement* BookHistXY( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =99 );
-  std::string getSuffixName(int region, int station, int layer);
-  std::string getSuffixName(int region, int station);
-  std::string getSuffixName(int region);
 
-  std::string getSuffixTitle(int region, int station, int layer);
-  std::string getSuffixTitle(int region, int station);
-  std::string getSuffixTitle(int region);
-
-  std::string getStationLabel(int i);
+protected:
   const GEMGeometry* initGeometry(const edm::EventSetup&);
 
-  MonitorElement* getSimpleZR( DQMStore::IBooker &, TString, TString) ;
-  MonitorElement* getDCEta(DQMStore::IBooker& , const GEMStation*, TString, TString) ;
 
-  unsigned int nRegion() { return nregion;  }
-  unsigned int nStation() { return nstation;  }
-  unsigned int nStationForLabel() { return nstationForLabel;  }
-  unsigned int nPart() { return npart;  }
+  // MonitorElement
+  MonitorElement* bookZROccupancy(DQMStore::IBooker & ibooker,
+                                  Int_t region_id,
+                                  const char* name_prfix,
+                                  const char* title_prefix);
 
-  void setNStationForLabel(unsigned int number) { nstationForLabel = number; } 
-protected:
-  int nBinXY_;
-  std::vector<double> nBinZR_;
-  std::vector<double> RangeZR_;
+  template <typename MEMapKey>
+  MonitorElement* bookZROccupancy(DQMStore::IBooker & ibooker,
+                                  const MEMapKey & key,
+                                  const char* name_prfix,
+                                  const char* title_prefix);
 
-private :
-  std::vector< std::string > regionLabel;
-  std::vector< std::string > layerLabel;
-  edm::EDGetToken InputTagToken_;
-  unsigned int nregion, nstation, nstationForLabel, npart;
-  bool detailPlot_;
+  template <typename MEMapKey>
+  MonitorElement* bookXYOccupancy(DQMStore::IBooker & ibooker,
+                                  const MEMapKey & key,
+                                  const char* name_prefix,
+                                  const char* title_prefix);
+
+  template <typename MEMapKey>
+  MonitorElement* bookPolarOccupancy(DQMStore::IBooker & ibooker,
+                                     const MEMapKey & key,
+                                     const char* name_prefix,
+                                     const char* title_prefix);
+
+  template <typename MEMapKey>
+  MonitorElement* bookDetectorOccupancy(DQMStore::IBooker& ibooker,
+                                        const MEMapKey & key,
+                                        const GEMStation* station,
+                                        const char* name_prfix,
+                                        const char* title_prefix);
+
+  template <typename MEMapKey>
+  MonitorElement* bookHist1D(DQMStore::IBooker& ibooker,
+                             const MEMapKey & key,
+                             const char* name, const char* title,
+                             Int_t nbinsx, Double_t xlow, Double_t xup,
+                             const char* x_title="", const char* y_title="Entries");
+
+  template <typename MEMapKey>
+  MonitorElement* bookHist2D(DQMStore::IBooker& ibooker,
+                             const MEMapKey & key,
+                             const char* name, const char* title,
+                             Int_t nbinsx, Double_t xlow, Double_t xup,
+                             Int_t nbinsy, Double_t ylow, Double_t yup,
+                             const char* x_title="", const char* y_title="Entries");
+
+
+
+  inline Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id) {
+    return 2 * chamber_id + layer_id - 2;
+  }
+
+  // Parameters
+  Int_t nBinXY_;
+  std::vector<Double_t> nBinZR_;
+  std::vector<Double_t> RangeZR_;
+
+  // Cosntants
+  // const Int_t kMuonPDGId_ = TDatabasePDG().GetParticle("mu-")->PdgCode();
+  const Int_t kMuonPDGId_ = 13;
+
 };
 
-#endif
+#include "Validation/MuonGEMHits/src/GEMBaseValidation.tpp"
+#endif // VALIDATION_MUONGEMHITS_INTERFACE_GEMBASEVALIDATION_H_

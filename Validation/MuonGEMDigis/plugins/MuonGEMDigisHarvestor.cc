@@ -44,7 +44,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMDigis/plugins/MuonGEMDigisHarvestor.h"
-#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
 MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
@@ -53,7 +52,6 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
   compareable_dbe_path_ = ps.getParameter<std::string>("compareDBEPath");
   compareable_dbe_hist_prefix_ = ps.getParameter<std::string>("compareDBEHistPrefix");
 
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
 
@@ -116,99 +114,10 @@ void MuonGEMDigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
 }
 
 
-void 
-MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
+void  MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
   ig.setCurrentFolder(dbe_path_);
-  TH1F* gem_trk_eta[3];
-  TH1F* gem_trk_phi[3][2];  
-
-  TH1F* sh_eta[3][4];
-  TH1F* sh_phi[3][4][3];
-
-
-
-  // simplePlots
-  /*
-  for( int region = -1 ; region <= 1 ; region = region+2) {
-    for ( int station = 0 ; station <2 ; station++) {
-      if ( station ==1 ) station=2 ;
-      TString dcEta_label = TString::Format("%s%s_r%d%s",dbe_path_.c_str(),dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
-      TString denum_dcEta_label = TString::Format("%s%s_r%d%s",compareable_dbe_path_.c_str(),compareable_dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
-
- 
-        if ( ig.get( dcEta_label.Data()) != nullptr && ig.get( denum_dcEta_label.Data()) != nullptr) {
-        TH2F* dcEta = (TH2F*)ig.get( dcEta_label.Data())->getTH2F()->Clone();
-        TH2F* denum_dcEta = (TH2F*)ig.get( denum_dcEta_label.Data())->getTH2F()->Clone();
-        dcEta->Divide(denum_dcEta);
-        TH2F* eff_dcEta = (TH2F*)dcEta->Clone();
-
-        TString eff_dcEta_title = TString::Format("Hits Efficiency on detector component at r%d%s",region,s_suffix[station].c_str());
-        TString eff_dcEta_label = TString::Format("eff_DigiHit_r%d%s",region,s_suffix[station].c_str());
-
-     
-        eff_dcEta->SetName( eff_dcEta_label.Data());
-        eff_dcEta->SetTitle( eff_dcEta_title.Data());
-
-        ibooker.book2D(eff_dcEta->GetName(), eff_dcEta);
-      }
-      else {
-        std::cout<<"Failed to get histograms"<<std::endl;
-        std::cout<<dcEta_label<<std::endl;
-        std::cout<<denum_dcEta_label<<std::endl;
-      }
-    }
-  }
-  */
-
-  using namespace GEMDetLabel;
-
-  // detailPlots
-  for( unsigned int i = 0 ; i < s_suffix.size() ; i++) {
-    TString eta_label = TString(dbe_path_)+"track_eta"+s_suffix[i];
-    TString phi_label;
-    if ( ig.get(eta_label.Data()) != nullptr ) {
-      gem_trk_eta[i] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
-      gem_trk_eta[i]->Sumw2();
-    }
-    else LogDebug("MuonGEMDigisHarvestor")<<"Can not found track_eta";
-    for ( unsigned int k=0 ; k < c_suffix.size() ; k++) {
-      phi_label = TString(dbe_path_.c_str())+"track_phi"+s_suffix[i]+c_suffix[k];
-      if ( ig.get(phi_label.Data()) !=nullptr ) {
-        gem_trk_phi[i][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
-        gem_trk_phi[i][k]->Sumw2();
-      }
-      else LogDebug("MuonGEMDigisHarvestor")<<"Can not found track_phi";
-    }
-
-    if ( ig.get(eta_label.Data()) != nullptr && ig.get(phi_label.Data()) !=nullptr ) {
-      for( unsigned int j = 0; j < l_suffix.size() ; j++) { 
-        TString suffix = TString( s_suffix[i] )+TString( l_suffix[j]);
-        TString eta_label = TString(dbe_path_)+"dg_sh_eta"+suffix;
-        if( ig.get(eta_label.Data()) !=nullptr ) {
-          sh_eta[i][j] = (TH1F*)ig.get(eta_label.Data())->getTH1F()->Clone();
-          sh_eta[i][j]->Sumw2();
-        }
-        else LogDebug("MuonGEMDigisHarvestor")<<"Can not found eta histogram : "<<eta_label;
-        ProcessBooking( ibooker, ig, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        ProcessBooking( ibooker, ig, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        ProcessBooking( ibooker, ig, "copad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
-        for ( unsigned int k = 0 ; k < c_suffix.size() ; k++) {
-          suffix = TString( s_suffix[i])+TString( l_suffix[j]) +TString(c_suffix[k]);
-          TString phi_label = TString(dbe_path_)+"dg_sh_phi"+suffix;
-          if( ig.get(phi_label.Data()) !=nullptr ) {
-            sh_phi[i][j][k] = (TH1F*)ig.get(phi_label.Data())->getTH1F()->Clone();
-            sh_phi[i][j][k]->Sumw2();
-          }
-          else { LogDebug("MuonGEMDigisHarvestor")<<"Can not found phi plots : "<<phi_label; continue; }
-          ProcessBooking( ibooker, ig, "dg_phi",suffix, gem_trk_phi[i][k], sh_phi[i][j][k]);      
-          ProcessBooking( ibooker, ig, "pad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
-          ProcessBooking( ibooker, ig, "copad_phi",suffix,gem_trk_phi[i][k], sh_phi[i][j][k]);
-        }
-      }
-    }
-    else LogDebug("MuonGEMDigisHarvestor")<<"Can not find eta or phi of all track";
-  }
+  LogDebug("MuonGEMDigisHarvestor")<<":D\n";
 }
 
 

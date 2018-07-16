@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-gemRecHitHarvesting = DQMEDHarvester("MuonGEMRecHitsHarvestor")
-MuonGEMRecHitsPostProcessors = cms.Sequence( gemRecHitHarvesting ) 
+gemRecHitHarvesting = DQMEDHarvester("MuonGEMRecHitsHarvestor",
+    regionIds = cms.untracked.vint32(-1),                                           
+    stationIds = cms.untracked.vint32(1),                                           
+    layerIds = cms.untracked.vint32(1, 2),
+)
+MuonGEMRecHitsPostProcessors = cms.Sequence(gemRecHitHarvesting) 
