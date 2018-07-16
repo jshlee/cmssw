@@ -199,9 +199,6 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
         LocalPoint rec_local = rechit->localPosition();
         GlobalPoint rec_global = kGEMGeometry->idToDet(kSimDetUnitId)->surface().toGlobal(rec_local);
 
-
-        Float_t 
-
         // XXX
         Float_t  resolution_x = std::sqrt(rechit->localPositionError().xx());
         Float_t  resolution_y = std::sqrt(rechit->localPositionError().yy());
