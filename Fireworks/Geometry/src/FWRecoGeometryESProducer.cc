@@ -122,7 +122,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     addTOBGeometry();
     addTECGeometry();
     writeTrackerParametersXML();
-    return m_fwGeometry; //AMT
+    //return m_fwGeometry; //AMT
   }
   if( m_muon )
   {
@@ -303,7 +303,6 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-    
     // add in superChambers - gem Segments are based on superChambers
     for(auto sc : gemGeom->superChambers())
     { 
