@@ -29,6 +29,12 @@ void GEMELMap::convert(GEMROmap & romap) {
       dc.vfatType = imap.vfatType[ix]; 
       dc.iPhi = imap.iPhi[ix];
 
+      std::cout <<" vfatType " << imap.vfatType[ix]
+      		<<" iEta " << imap.iEta[ix]
+      		<<" iPhi " << imap.iPhi[ix]
+      		<<" depth " << imap.depth[ix]
+		<< std::endl;
+
       romap.add(ec,dc);
       romap.add(dc,ec);
     }
@@ -42,8 +48,13 @@ void GEMELMap::convert(GEMROmap & romap) {
 
       GEMROmap::stripNum sMap;
       sMap.vfatType = imap.vfatType[ix];
-      sMap.stNum = imap.vfatStrip[ix];
-
+      //sMap.stNum = imap.vfatStrip[ix];
+      sMap.stNum = 129-imap.vfatStrip[ix];
+      std::cout <<" vfatType " << imap.vfatType[ix]
+		<<" ch " << imap.vfatCh[ix]
+		<<" st " << sMap.stNum
+		<< std::endl;
+	
       romap.add(cMap, sMap);
       romap.add(sMap, cMap);
     }
