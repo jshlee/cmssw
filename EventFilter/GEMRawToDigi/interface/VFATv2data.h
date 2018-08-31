@@ -1,15 +1,15 @@
-#ifndef EventFilter_GEMRawToDigi_VFATdata_h
-#define EventFilter_GEMRawToDigi_VFATdata_h
+#ifndef EventFilter_GEMRawToDigi_VFATv2data_h
+#define EventFilter_GEMRawToDigi_VFATv2data_h
 
 #include <stdint.h>
 
 namespace gem {
-  class VFATdata 
+  class VFATv2data 
   {
   public:    
-    VFATdata(){}
-    ~VFATdata(){}
-  VFATdata(const uint8_t b1010_, 
+    VFATv2data(){}
+    ~VFATv2data(){}
+  VFATv2data(const uint8_t b1010_, 
 	   const uint16_t BC_,
 	   const uint8_t b1100_,
 	   const uint8_t EC_,
@@ -168,7 +168,7 @@ namespace gem {
       return(crc_fin);
     }
     
-    uint16_t checkCRC(const VFATdata * vfatData)
+    uint16_t checkCRC(const VFATv2data * vfatData)
     {
       uint16_t vfatBlockWords[12]; 
       vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->bc();

@@ -1,7 +1,8 @@
 #ifndef EventFilter_GEMRawToDigi_GEBdata_h
 #define EventFilter_GEMRawToDigi_GEBdata_h
 #include <vector>
-#include "VFATdata.h"
+#include "VFATv2data.h"
+#include "VFATv3data.h"
 //!A class for GEB data
 /**
    The number after the ":" indicates how many bits a certain item consists of. 
@@ -94,15 +95,21 @@ namespace gem {
     uint16_t ohBC()     const {return m_OHBC;}      ///<Returns Optohybrid BC
     uint32_t ohEC()     const {return m_OHEC;}      ///<Returns Optohybrid EC
 
-    //!Adds VFAT data to the vector
-    void addVFAT(VFATdata v){m_vfatd.push_back(v);}
-    //!Returns the vector of FVAT data
-    const std::vector<VFATdata> * vFATs() const {return &m_vfatd;}  
+    //!Adds VFAT v2 data to the vector
+    void addVFAT(VFATv2data v){m_vfatd.push_back(v);}
+    //!Returns the vector of VFAT v2 data
+    const std::vector<VFATv2data> * vFATs() const {return &m_vfatd;}  
 
+    //!Adds VFAT v3 data to the vector
+    void addVFATv3(VFATv3data v){m_vfatdv3.push_back(v);}
+    //!Returns the vector of VFAT v3 data
+    const std::vector<VFATv3data> * vFATv3s() const {return &m_vfatdv3;}  
+    
     static const int sizeGebID = 5;
     
   private:
-    std::vector<VFATdata> m_vfatd;     ///<Vector of VFAT data
+    std::vector<VFATv2data> m_vfatd;     ///<Vector of VFAT data v2
+    std::vector<VFATv3data> m_vfatdv3;   ///<Vector of VFAT data v3
     std::vector<uint8_t> m_GEBflags;   ///<Vector for thirteen flags in GEM Chamber Header
 
     //GEM chamber header

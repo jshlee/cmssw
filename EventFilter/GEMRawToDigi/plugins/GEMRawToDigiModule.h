@@ -23,7 +23,7 @@
 #include "CondFormats/GEMObjects/interface/GEMELMap.h"
 #include "CondFormats/GEMObjects/interface/GEMROmap.h"
 #include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
-#include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
+#include "EventFilter/GEMRawToDigi/interface/VFATv2data.h"
 
 namespace edm {
    class ConfigurationDescriptions;

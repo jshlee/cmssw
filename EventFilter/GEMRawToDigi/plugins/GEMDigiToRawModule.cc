@@ -146,7 +146,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       
 	if (!hasDigi) continue;
 	// only make vfat with hits
-	auto vfatData = std::make_unique<VFATdata>(b1010, BC, b1100, EC, Flag, b1110, vfatId, lsData, msData,
+	auto vfatData = std::make_unique<VFATv2data>(b1010, BC, b1100, EC, Flag, b1110, vfatId, lsData, msData,
 						   crc, crc_calc, SlotNumber, isBlockGood);
 	gebData->addVFAT(*vfatData);
       }

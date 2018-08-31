@@ -107,7 +107,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	uint16_t gebId = gebData->inputID();
 	GEMDetId gemId(-1,1,1,1,1,0); // temp ID
 	for (unsigned short k = 0; k < m_nvb; k++){
-	  auto vfatData = std::make_unique<VFATdata>();
+	  auto vfatData = std::make_unique<VFATv2data>();
 	  vfatData->read_fw(*(++word));
 	  vfatData->read_sw(*(++word));
 	  vfatData->read_tw(*(++word));
@@ -136,7 +136,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	    continue;
 	  }
 	  
-	  for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
+	  for (int chan = 0; chan < VFATv2data::nChannels; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
