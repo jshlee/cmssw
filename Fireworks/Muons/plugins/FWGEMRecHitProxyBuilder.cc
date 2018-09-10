@@ -68,9 +68,11 @@ FWGEMRecHitProxyBuilder::buildViewType(const GEMRecHit& iData,
   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
   recHitSet->SetLineWidth(3);
 
-  if( type == FWViewType::k3D || type == FWViewType::kISpy ) 
+  //if( type == FWViewType::k3D || type == FWViewType::kISpy ) 
   {
-    TEveGeoShape* shape = geom->getEveShape( rawid );
+    unsigned int chrawid = gemId.superChamberId().rawId();
+    
+    TEveGeoShape* shape = geom->getEveShape( chrawid );
     shape->SetMainTransparency( 75 );
     shape->SetMainColor( item()->defaultDisplayProperties().color());
     recHitSet->AddElement( shape );

@@ -83,8 +83,8 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const Geo
 
 namespace {
   const std::array<std::string,3> hgcal_geom_names =  { { "HGCalEESensitive",
-							  "HGCalHESiliconSensitive",
-							  "HGCalHEScintillatorSensitive" } };
+                                                                 "HGCalHESiliconSensitive",
+                                                                 "HGCalHEScintillatorSensitive" } };
 }
 									  
 FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pset )
@@ -122,6 +122,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     addTOBGeometry();
     addTECGeometry();
     writeTrackerParametersXML();
+    //return m_fwGeometry; //AMT
   }
   if( m_muon )
   {
@@ -302,7 +303,6 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-    
     // add in superChambers - gem Segments are based on superChambers
     for(auto sc : gemGeom->superChambers())
     { 
@@ -537,8 +537,7 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 	 end = vid.end();
        it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    if( !((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) ||
-	  (DetId::HGCalHSi == it->det()) || (DetId::HGCalHSc == it->det())) ) {
+    if( DetId::Forward != it->det() ) {
       const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
@@ -588,7 +587,7 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
-    assert( index < 35 );
+    assert( index < 23 );
     m_fwGeometry->idToName[id].points[index] = i->x();
     m_fwGeometry->idToName[id].points[++index] = i->y();
     m_fwGeometry->idToName[id].points[++index] = i->z();
