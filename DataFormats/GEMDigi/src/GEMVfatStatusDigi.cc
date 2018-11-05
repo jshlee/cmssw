@@ -1,17 +1,11 @@
 #include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
 #include <iostream>
 
-GEMVfatStatusDigi::GEMVfatStatusDigi(gem::VFATdata vfat)
+GEMVfatStatusDigi::GEMVfatStatusDigi(gem::VFATdata &vfat)
 {
-  quality_ = 0;
-  if (vfat.crc() != vfat.checkCRC()) quality_ |= 1UL << 1;
-  if (vfat.b1010() != 10) quality_ |= 1UL << 2;
-  if (vfat.b1100() != 12) quality_ |= 1UL << 3;
-  if (vfat.b1110() != 14) quality_ |= 1UL << 4;
-    
-  flag_        = vfat.flag();
-  isBlockGood_ = vfat.isBlockGood();
-  position_    = vfat.phiPos();
-  ec_          = vfat.ec();
-  bc_          = vfat.bc();
+  quality_  = vfat.quality();
+  flag_     = vfat.flag();
+  position_ = vfat.phiPos();
+  ec_       = vfat.ec();
+  bc_       = vfat.bc();
 };

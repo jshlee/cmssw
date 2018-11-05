@@ -28,11 +28,8 @@
 #include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
 
-#include "DataFormats/GEMDigi/interface/GEMGEBStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMGEBStatusDigiCollection.h"
-
-#include "DataFormats/GEMDigi/interface/GEMAMCStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCStatusDigiCollection.h"
+#include "EventFilter/GEMRawToDigi/interface/GEBdata.h"
+#include "DataFormats/GEMDigi/interface/GEMGEBdataCollection.h"
 
 #include "EventFilter/GEMRawToDigi/interface/AMCdata.h"
 #include "DataFormats/GEMDigi/interface/GEMAMCdataCollection.h"
@@ -58,11 +55,11 @@ namespace DataFormats_GEMDigi {
     GEMVfatStatusDigiCollection gvscol;
     edm::Wrapper<GEMVfatStatusDigiCollection> wgvs;
 
-    GEMAMCStatusDigi ggs;
-    std::vector<GEMAMCStatusDigi> vggs;
-    std::vector<std::vector<GEMAMCStatusDigi> > vvggs;
-    GEMAMCStatusDigiCollection ggscol;
-    edm::Wrapper<GEMAMCStatusDigiCollection> wggs;
+    gem::GEBdata ggs;
+    std::vector<gem::GEBdata> vggs;
+    std::vector<std::vector<gem::GEBdata> > vvggs;
+    GEMGEBdataCollection ggscol;
+    edm::Wrapper<GEMGEBdataCollection> wggs;
 
     gem::AMCdata gas;
     std::vector<gem::AMCdata> vgas;

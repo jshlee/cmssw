@@ -76,15 +76,15 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
       for (int ch = 1; ch<=GEMDetId::maxChamberId; ++ch) {
 	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
 	  // 1 geb per chamber
-	  gebId++;	  	  	  
-	  uint16_t chipId = 0;	 	  
+	  gebId++;
+	  uint16_t chipPos = 0;	 	  
 	  for (int nphi = 1+(ch-1)*maxVFat; nphi <= ch*maxVFat; ++nphi){
 	    for (int roll = 1; roll<=maxEtaPartition_; ++roll) {
 	    
 	      GEMDetId gemId(re, 1, st, ly, ch, roll);
 	      
 	      GEMROmap::eCoord ec;
-	      ec.vfatId = chipId;
+	      ec.vfatId = chipPos;
 	      ec.gebId = gebId;
 	      ec.amcId = amcId;
 	      
@@ -95,8 +95,8 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
 
 	      romap.add(ec,dc);
 	      romap.add(dc,ec);
-	      
-	      chipId++;
+	      //std::cout <<gemId << " " << chipPos<<std::endl;
+	      chipPos++;
 	    }
 	  }
 	  // 5 bits for geb

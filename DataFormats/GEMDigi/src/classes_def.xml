@@ -9,32 +9,32 @@
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
 
-<class name="GEMVfatStatusDigi" ClassVersion="-1">
- <version ClassVersion="-1" checksum="3180401203"/>
+<class name="GEMVfatStatusDigi" ClassVersion="0">
+ <version ClassVersion="0" checksum="3111800910"/>
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMVfatStatusDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVfatStatusDigi> >" splitLevel="0"/> 
 
-<class name="GEMGEBStatusDigi" ClassVersion="-1">
- <version ClassVersion="-1" checksum="4274485964"/>
+<class name="gem::GEBdata" ClassVersion="0">
+ <version ClassVersion="0" checksum="2998892386"/>
 </class>
-<class name="std::vector<GEMGEBStatusDigi>"/>
-<class name="std::map<GEMDetId,std::vector<GEMGEBStatusDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId, GEMGEBStatusDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId, GEMGEBStatusDigi> >" splitLevel="0"/>
+<class name="std::vector<gem::GEBdata>"/>
+<class name="std::map<GEMDetId,std::vector<gem::GEBdata> >"/>
+<class name="MuonDigiCollection<GEMDetId, gem::GEBdata>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId, gem::GEBdata> >" splitLevel="0"/>
 
-<class name="gem::AMCdata" ClassVersion="-1">
- <version ClassVersion="-1" checksum="113079174"/>
+<class name="gem::AMCdata" ClassVersion="0">
+ <version ClassVersion="0" checksum="1484989566"/>
 </class>
 <class name="std::vector<gem::AMCdata>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMCdata> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMCdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMCdata> >" splitLevel="0"/>
 
-<class name="gem::AMC13Event" ClassVersion="-1">
- <version ClassVersion="-1" checksum="3208186112"/>
+<class name="gem::AMC13Event" ClassVersion="0">
+ <version ClassVersion="0" checksum="1596241556"/>
 </class>
 <class name="std::vector<gem::AMC13Event>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMC13Event> >"/>
