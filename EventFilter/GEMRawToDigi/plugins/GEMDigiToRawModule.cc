@@ -99,8 +99,6 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       GEMDetId gemId   = dc.gemDetId;
       uint8_t  EC      = 0;             ///<Event Counter, 8 bits
       uint8_t  chipPos = ec.vfatId;     ///<Calculated chip position
-      int maxVFat = GEMELMap::maxVFatGE11_;
-      if (gemId.station() == 2) maxVFat = GEMELMap::maxVFatGE21_;	
 
       for (uint16_t bc = 0; bc < 2*GEMELMap::amcBX_; ++bc){
 	bool hasDigi = false;
@@ -114,7 +112,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	  const GEMDigi & digi = (*digiIt);
 	  if (digi.bx() != bc-GEMELMap::amcBX_) continue;
 	  
-	  int localStrip = digi.strip() - ((dc.iPhi-1)%maxVFat)*GEMELMap::maxChan_;	  
+	  int localStrip = digi.strip() - dc.locPhi*GEMELMap::maxChan_;	  
 	  // skip strips not in current vFat
 
 	  if (localStrip < 0 || localStrip > GEMELMap::maxChan_ -1) continue;

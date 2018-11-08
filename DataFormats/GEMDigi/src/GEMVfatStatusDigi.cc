@@ -5,7 +5,7 @@ GEMVfatStatusDigi::GEMVfatStatusDigi(gem::VFATdata &vfat)
 {
   quality_  = vfat.quality();
   flag_     = vfat.flag();
-  position_ = vfat.phiPos();
+  phi_ = vfat.phi();
   ec_       = vfat.ec();
   bc_       = vfat.bc();
 };

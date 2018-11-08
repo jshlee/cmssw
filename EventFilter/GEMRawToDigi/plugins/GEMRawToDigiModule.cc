@@ -113,8 +113,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	GEMROmap::eCoord geb_ec = {amcId, gebId, vfatId};
 	GEMROmap::dCoord geb_dc = gemROMap->hitPosition(geb_ec);
 	GEMDetId gemId = geb_dc.gemDetId;
-	int maxVFat = GEMELMap::maxVFatGE11_;
-	if (gemId.station() == 2) maxVFat = GEMELMap::maxVFatGE21_;	  
 
 	for (uint16_t k = 0; k < gebData->vfatWordCnt()/3; k++) {
 	  auto vfatData = std::make_unique<VFATdata>();
@@ -159,9 +157,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 
 	  GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
 	  gemId = dc.gemDetId;
-	  vfatData->setPhiPos((dc.iPhi-1)%maxVFat);
+	  vfatData->setPhi(dc.locPhi);
 
-	  int nFiredStrips = 0;
 	  for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
@@ -169,13 +166,11 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 
 	    // no hits
 	    if (chan0xf==0) continue;
-	    
-	    ++nFiredStrips;
-	             
+	    	             
             GEMROmap::channelNum chMap = {dc.vfatType, chan};
             GEMROmap::stripNum stMap = gemROMap->hitPosition(chMap);
 
-            int stripId = stMap.stNum + vfatData->phiPos()*GEMELMap::maxChan_;    
+            int stripId = stMap.stNum + vfatData->phi()*GEMELMap::maxChan_;    
 
 	    GEMDigi digi(stripId,bx);
 	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
@@ -195,9 +190,6 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	} // end of vfat loop
 	
 	gebData->setChamberTrailer(*(++word));
-
-        std::cout<<"gebData inputStatus " << std::bitset<13>(gebData->inputStatus()) <<std::endl;
-        std::cout<<"gebData fillerH     " << std::bitset<13>(gebData->fillerH()) <<std::endl;
 	
         if (unPackStatusDigis_) {
 	  outGEBStatus.get()->insertDigi(gemId.chamberId(), (*gebData)); 

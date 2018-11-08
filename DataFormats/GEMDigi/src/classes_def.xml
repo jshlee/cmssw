@@ -10,7 +10,7 @@
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
 
 <class name="GEMVfatStatusDigi" ClassVersion="0">
- <version ClassVersion="0" checksum="3111800910"/>
+ <version ClassVersion="0" checksum="1981269550"/>
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>

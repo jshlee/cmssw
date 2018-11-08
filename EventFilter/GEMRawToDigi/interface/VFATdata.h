@@ -68,8 +68,9 @@ namespace gem {
     void read_tw(uint64_t word) { tw_.word = word;}
     uint64_t get_tw() const { return tw_.word;}
 
-    void setPhiPos(int i) {phiPos_ = i;}
-    int phiPos() const {return phiPos_;}
+    // local phi in chamber
+    void setPhi(int i) {phiPos_ = i;}
+    int phi() const {return phiPos_;}
     
     uint64_t lsData() const {
       return uint64_t(sw_.lsData1) << 48 | tw_.lsData2;

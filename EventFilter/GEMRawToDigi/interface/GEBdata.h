@@ -11,14 +11,7 @@ namespace gem {
   union GEBchamberHeader {      
     uint64_t word;
     struct {
-      /* uint64_t fillerH         : 10; // Not used */
-      /* uint64_t inputStatus     : 13; // Input status (critical) */
-      /* uint64_t vfatWordCnt     : 12; // Size of VFAT payload in 64bit words expected to send to AMC13 */
-      /* uint64_t inputID         : 5 ; // GLIB input ID (starting at 0) */
-      /* uint64_t zeroSupWordsCnt : 24; // Bitmask indicating if certain VFAT blocks have been zero suppressed */
-	
-      uint64_t inputStatus     : 13; // Input status (critical)
-      uint64_t fillerH         : 10; // Not used
+      uint64_t inputStatus     : 23; // Input status (critical) only first 13 bits used
       uint64_t vfatWordCnt     : 12; // Size of VFAT payload in 64bit words expected to send to AMC13
       uint64_t inputID         : 5 ; // GLIB input ID (starting at 0)
       uint64_t zeroSupWordsCnt : 24; // Bitmask indicating if certain VFAT blocks have been zero suppressed
@@ -52,8 +45,7 @@ namespace gem {
     void setChamberTrailer(uint64_t word) { ct_.word = word;}
     uint64_t getChamberTrailer() const { return ct_.word;}
 
-    uint16_t inputStatus()     const {return ch_.inputStatus;}
-    uint16_t fillerH()     const {return ch_.fillerH;}
+    uint32_t inputStatus()     const {return ch_.inputStatus;}
     uint16_t vfatWordCnt()     const {return ch_.vfatWordCnt;}
     uint8_t  inputID()         const {return ch_.inputID;}
     uint16_t zeroSupWordsCnt() const {return ch_.zeroSupWordsCnt;}

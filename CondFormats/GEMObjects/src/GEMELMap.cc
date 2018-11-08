@@ -17,31 +17,58 @@ const std::string & GEMELMap::version() const{
 void GEMELMap::convert(GEMROmap & romap) {
   // amc->geb->vfat mapping to GEMDetId
   for (auto imap : theVFatMap_){
-    for (unsigned int ix=0;ix<imap.vfatId.size();ix++){
-      GEMROmap::eCoord ec;
-      ec.vfatId = imap.vfatId[ix] & chipIdMask_;
-      ec.gebId = imap.gebId[ix];
-      ec.amcId = imap.amcId[ix];
+    for (unsigned int ix=0;ix<imap.vfatId.size();ix++) {
+      if (imap.vfatType[ix] < 10) {
+	// vfat v2
+	GEMROmap::eCoord ec;
+	ec.vfatId = imap.vfatId[ix] & chipIdMask_;
+	ec.gebId = imap.gebId[ix];
+	ec.amcId = imap.amcId[ix];
 
-      int st = std::abs(imap.z_direction[ix]);
-      GEMROmap::dCoord dc;
-      dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, st, imap.depth[ix], imap.sec[ix], imap.iEta[ix]);
-      dc.vfatType = imap.vfatType[ix]; 
-      dc.iPhi = imap.iPhi[ix];
-      //dc.pos = imap.vfat_position[ix];
-      romap.add(ec,dc);
-      romap.add(dc,ec);
+	int st = std::abs(imap.z_direction[ix]);
+	GEMROmap::dCoord dc;
+	dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, st, imap.depth[ix], imap.sec[ix], imap.iEta[ix]);
+	dc.vfatType = imap.vfatType[ix];
+	dc.locPhi = (imap.iPhi[ix]-1)%maxVFatGE11_;
+	romap.add(ec,dc);
+	romap.add(dc,ec);
 
-      GEMROmap::eCoord ecGEB;
-      ecGEB.vfatId = 0;
-      ecGEB.gebId = ec.gebId;
-      ecGEB.amcId = ec.amcId;      
-      GEMROmap::dCoord dcGEB;
-      dcGEB.gemDetId = dc.gemDetId.chamberId();
-      dcGEB.vfatType = dc.vfatType;
-      romap.add(ecGEB,dcGEB);
-      romap.add(dcGEB,ecGEB);
+	std::cout <<dc.gemDetId << " locPhi " << dc.locPhi
+		  << " pos " << imap.vfat_position[ix]
+		  << " vfatType " << imap.vfatType[ix]
+		  <<std::endl;
+	
+	GEMROmap::eCoord ecGEB;
+	ecGEB.vfatId = 0;
+	ecGEB.gebId = ec.gebId;
+	ecGEB.amcId = ec.amcId;
+	// this is for backward compatablity for v2
+	if (!romap.isValidChipID(ecGEB)) {
+	  GEMROmap::dCoord dcGEB;
+	  dcGEB.gemDetId = dc.gemDetId.chamberId();
+	  dcGEB.vfatType = dc.vfatType;
+	  romap.add(ecGEB,dcGEB);
+	  romap.add(dcGEB,ecGEB);
+	}
+      }
+      else {
+	// vfat v3
+	GEMROmap::eCoord ec;
+	ec.vfatId = imap.vfatId[ix]; // vfatId is chip position in v3
+	ec.gebId = imap.gebId[ix];
+	ec.amcId = imap.amcId[ix];
 
+	int st = std::abs(imap.z_direction[ix]);
+	GEMROmap::dCoord dc;
+	dc.gemDetId = GEMDetId(imap.z_direction[ix], 1, st, imap.depth[ix], imap.sec[ix], imap.iEta[ix]);
+	dc.vfatType = imap.vfatType[ix];
+	int maxVFat = maxVFatGE11_;
+	if (st == 2) maxVFat = maxVFatGE21_;      
+	if (st == 0) maxVFat = maxVFatGE0_;
+	dc.locPhi = (imap.iPhi[ix]-1)%maxVFat;
+	romap.add(ec,dc);
+	romap.add(dc,ec);
+      }
     }
   }
 
@@ -77,29 +104,29 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
 	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
 	  // 1 geb per chamber
 	  gebId++;
-	  uint16_t chipPos = 0;	 	  
-	  for (int nphi = 1+(ch-1)*maxVFat; nphi <= ch*maxVFat; ++nphi){
+	  uint16_t chipPos = 0;
+	  for (int lphi = 0; lphi < maxVFat; ++lphi) {
 	    for (int roll = 1; roll<=maxEtaPartition_; ++roll) {
 	    
 	      GEMDetId gemId(re, 1, st, ly, ch, roll);
-	      
+		
 	      GEMROmap::eCoord ec;
 	      ec.vfatId = chipPos;
 	      ec.gebId = gebId;
 	      ec.amcId = amcId;
-	      
+		
 	      GEMROmap::dCoord dc;
 	      dc.gemDetId = gemId;
 	      dc.vfatType = 11;// > 10 is vfat v3
-	      dc.iPhi = nphi;
-
+	      dc.locPhi = lphi;
+		
 	      romap.add(ec,dc);
 	      romap.add(dc,ec);
-	      //std::cout <<gemId << " " << chipPos<<std::endl;
 	      chipPos++;
 	    }
 	  }
-	  // 5 bits for geb
+	
+	  // 5 bits for gebId 
 	  if (gebId == maxGEBs_){
 	    // 24 gebs per amc
 	    gebId = 0;
@@ -109,8 +136,8 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
       }
     }
   }
-
-  for (int i = 0; i < maxChan_; ++i){
+  
+  for (int i = 0; i < maxChan_; ++i) {
     // only 1 vfat type for dummy map
     GEMROmap::channelNum cMap;
     cMap.vfatType = 11;
