@@ -32,11 +32,6 @@ void GEMELMap::convert(GEMROmap & romap) {
 	dc.locPhi = (imap.iPhi[ix]-1)%maxVFatGE11_;
 	romap.add(ec,dc);
 	romap.add(dc,ec);
-
-	std::cout <<dc.gemDetId << " locPhi " << dc.locPhi
-		  << " pos " << imap.vfat_position[ix]
-		  << " vfatType " << imap.vfatType[ix]
-		  <<std::endl;
 	
 	GEMROmap::eCoord ecGEB;
 	ecGEB.vfatId = 0;

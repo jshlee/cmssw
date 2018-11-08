@@ -208,7 +208,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
     
     amc13Event->setAMC13Trailer(*(++word));
     amc13Event->setCDFTrailer(*(++word));
-    
+     
     if (unPackStatusDigis_) {
       outAMC13Event.get()->insertDigi(amc13Event->bxId(), AMC13Event(*amc13Event));
     }

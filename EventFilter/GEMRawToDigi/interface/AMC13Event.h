@@ -33,21 +33,17 @@ namespace gem {
       uint64_t bxIdT     : 12; // bx id
       uint64_t lv1IdT    : 8;  // level 1 id
       uint64_t blkN      : 8;  // block number
-      uint64_t filler1   : 4;  // not used
-      uint64_t crc32     : 32; // Overall CRC
+      uint64_t crc32     : 36; // Overall CRC (first 34 bits)
     };
   };
   union CDFTrailer {
     uint64_t word;
     struct {
-      uint64_t filler2   : 4;  // not used
-      uint64_t tts       : 4;  // tts
+      uint64_t tts       : 8;  // tts (first 4 bits)
       uint64_t evtStat   : 4;  // event status
-      uint64_t filler3   : 4;  // not used
-      uint64_t crcCDF    : 16; // CDF crc
+      uint64_t crcCDF    : 20; // CDF crc (first 16 bits)
       uint64_t evtLength : 24; // event length
-      uint64_t filler4   : 4;  // not used
-      uint64_t cbA       : 4;  // 0xA
+      uint64_t cbA       : 8;  // 0xA (first 4 bits)
     };
   };
 

@@ -31,8 +31,7 @@ namespace gem {
     uint64_t word;
     struct {
       uint64_t dataLengthT: 20; // Overall size of this FED event fragment 
-      uint64_t filler     : 4;  // not used
-      uint64_t l1AIDT     : 8;  // 8bit long GLIB serial number 
+      uint64_t l1AIDT     : 12; // 8bit long GLIB serial number (first 8 bits)
       uint64_t crc        : 32;
     };
   };
@@ -48,8 +47,7 @@ namespace gem {
   union EventTrailer {
     uint64_t word;
     struct {
-      uint64_t fillerT    : 39; // not used
-      uint64_t oosGlib    : 1;  // GLIB is out‐of‐sync (critical): L1A ID is different for different chambers in this event
+      uint64_t oosGlib    : 40; // GLIB is out‐of‐sync (critical): L1A ID is different for different chambers in this event (1 bit)
       uint64_t chTimeOut  : 24; // GLIB did not receive data from a particular input for this L1A 
     };
   };

@@ -15,7 +15,6 @@ namespace gem {
       uint64_t vfatWordCnt     : 12; // Size of VFAT payload in 64bit words expected to send to AMC13
       uint64_t inputID         : 5 ; // GLIB input ID (starting at 0)
       uint64_t zeroSupWordsCnt : 24; // Bitmask indicating if certain VFAT blocks have been zero suppressed
-      //uint64_t fillerH1 : 12; // Bitmask indicating if certain VFAT blocks have been zero suppressed
     };
   };
   union GEBchamberTrailer {      
