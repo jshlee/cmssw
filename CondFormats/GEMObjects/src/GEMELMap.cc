@@ -10,7 +10,7 @@ GEMELMap::GEMELMap(const std::string & version):
 
 GEMELMap::~GEMELMap() {}
 
-const std::string & GEMELMap::version() const{
+const std::string & GEMELMap::version() const {
   return theVersion;
 }
 
@@ -18,9 +18,9 @@ void GEMELMap::convert(GEMROmap & romap) {
   // amc->geb->vfat mapping to GEMDetId
   for (auto imap : theVFatMap_){
     for (unsigned int ix=0;ix<imap.vfatId.size();ix++) {
-      if (imap.vfatType[ix] < 10) {
-	// vfat v2
-	GEMROmap::eCoord ec;
+      if (imap.vfatType[ix] < vfatTypeV3_) {
+        // vfat v2
+        GEMROmap::eCoord ec;
 	ec.vfatId = imap.vfatId[ix] & chipIdMask_;
 	ec.gebId = imap.gebId[ix];
 	ec.amcId = imap.amcId[ix];
@@ -47,8 +47,8 @@ void GEMELMap::convert(GEMROmap & romap) {
 	}
       }
       else {
-	// vfat v3
-	GEMROmap::eCoord ec;
+        // vfat v3
+        GEMROmap::eCoord ec;
 	ec.vfatId = imap.vfatId[ix]; // vfatId is chip position in v3
 	ec.gebId = imap.gebId[ix];
 	ec.amcId = imap.amcId[ix];
@@ -68,8 +68,8 @@ void GEMELMap::convert(GEMROmap & romap) {
   }
 
   // channel mapping
-  for (auto imap : theStripMap_){
-    for (unsigned int ix=0;ix<imap.vfatType.size();ix++){
+  for (auto imap : theStripMap_) {
+    for (unsigned int ix=0;ix<imap.vfatType.size();ix++) {
       GEMROmap::channelNum cMap;
       cMap.vfatType = imap.vfatType[ix];
       cMap.chNum = imap.vfatCh[ix];
@@ -112,7 +112,7 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
 		
 	      GEMROmap::dCoord dc;
 	      dc.gemDetId = gemId;
-	      dc.vfatType = 11;// > 10 is vfat v3
+	      dc.vfatType = vfatTypeV3_;// > 10 is vfat v3
 	      dc.locPhi = lphi;
 		
 	      romap.add(ec,dc);
@@ -122,7 +122,7 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
 	  }
 	
 	  // 5 bits for gebId 
-	  if (gebId == maxGEBs_){
+	  if (gebId == maxGEBs_) {
 	    // 24 gebs per amc
 	    gebId = 0;
 	    amcId++;
@@ -135,11 +135,11 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
   for (int i = 0; i < maxChan_; ++i) {
     // only 1 vfat type for dummy map
     GEMROmap::channelNum cMap;
-    cMap.vfatType = 11;
+    cMap.vfatType = vfatTypeV3_;
     cMap.chNum = i;
 
     GEMROmap::stripNum sMap;
-    sMap.vfatType = 11;
+    sMap.vfatType = vfatTypeV3_;
     sMap.stNum = i;
 
     romap.add(cMap, sMap);

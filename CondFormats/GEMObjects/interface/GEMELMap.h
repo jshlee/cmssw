@@ -51,6 +51,7 @@ class GEMELMap {
   
  public:
   // size of ID bits
+  static const int vfatTypeV3_ = 11;     // ID size from VFat
   static const int chipIdBits_ = 12;     // ID size from VFat
   static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
   static const int gebIdBits_  = 5;      // ID size from GEB

@@ -9,32 +9,32 @@
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
 
-<class name="GEMVfatStatusDigi" ClassVersion="0">
- <version ClassVersion="0" checksum="1981269550"/>
+<class name="GEMVfatStatusDigi" ClassVersion="4">
+ <version ClassVersion="4" checksum="1981269550"/>
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVfatStatusDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMVfatStatusDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVfatStatusDigi> >" splitLevel="0"/> 
 
-<class name="gem::GEBdata" ClassVersion="0">
- <version ClassVersion="0" checksum="2998892386"/>
+<class name="gem::GEBdata" ClassVersion="3">
+ <version ClassVersion="3" checksum="2998892386"/>
 </class>
 <class name="std::vector<gem::GEBdata>"/>
 <class name="std::map<GEMDetId,std::vector<gem::GEBdata> >"/>
 <class name="MuonDigiCollection<GEMDetId, gem::GEBdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId, gem::GEBdata> >" splitLevel="0"/>
 
-<class name="gem::AMCdata" ClassVersion="0">
- <version ClassVersion="0" checksum="1484989566"/>
+<class name="gem::AMCdata" ClassVersion="3">
+ <version ClassVersion="3" checksum="1484989566"/>
 </class>
 <class name="std::vector<gem::AMCdata>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMCdata> >"/>
 <class name="MuonDigiCollection<uint16_t,gem::AMCdata>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,gem::AMCdata> >" splitLevel="0"/>
 
-<class name="gem::AMC13Event" ClassVersion="0">
- <version ClassVersion="0" checksum="1596241556"/>
+<class name="gem::AMC13Event" ClassVersion="3">
+ <version ClassVersion="3" checksum="1596241556"/>
 </class>
 <class name="std::vector<gem::AMC13Event>"/>
 <class name="std::map<uint16_t,std::vector<gem::AMC13Event> >"/>
