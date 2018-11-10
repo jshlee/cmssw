@@ -54,7 +54,7 @@ namespace gem {
 	     const uint8_t Pos,
 	     const uint64_t lsDatas,
 	     const uint64_t msDatas);
-    ~VFATdata(){}
+    ~VFATdata() {}
 
     //!Read first word from the block.
     void read_fw(uint64_t word) { fw_.word = word;}

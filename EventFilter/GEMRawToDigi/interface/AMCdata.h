@@ -56,8 +56,8 @@ namespace gem {
   {
     
   public:
-  AMCdata() {};
-    ~AMCdata(){gebd_.clear();}
+    AMCdata() {};
+    ~AMCdata() {gebd_.clear();}
 
     void setAMCheader1(uint64_t word) { amch1_.word = word;}
     uint64_t getAMCheader1() const { return amch1_.word;}
@@ -109,7 +109,7 @@ namespace gem {
     void setdavList(uint64_t n) {eh_.davList = n;}
     
     //!Adds GEB data to vector
-    void addGEB(GEBdata g){gebd_.push_back(g);}
+    void addGEB(GEBdata g) {gebd_.push_back(g);}
     //!Returns a vector of GEB data
     const std::vector<GEBdata> * gebs() const {return &gebd_;}
   

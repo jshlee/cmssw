@@ -51,8 +51,8 @@ namespace gem {
   {
     
   public:
-  AMC13Event(){}
-    ~AMC13Event(){amcHeaders_.clear(); amcs_.clear();}
+    AMC13Event() {}
+    ~AMC13Event() {amcHeaders_.clear(); amcs_.clear();}
 
     void setCDFHeader(uint64_t word) { cdfh_.word = word;}
     void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
@@ -81,7 +81,7 @@ namespace gem {
     void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
 
     const std::vector<AMCdata> * getAMCpayloads() const {return &amcs_;}   
-    void addAMCpayload(const AMCdata& a){amcs_.push_back(a);}
+    void addAMCpayload(const AMCdata& a) {amcs_.push_back(a);}
     
   private:
     // AMC headers

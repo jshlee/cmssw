@@ -34,7 +34,7 @@ namespace gem {
   public:
     
     GEBdata() {};
-    ~GEBdata(){vfatd_.clear();}
+    ~GEBdata() {vfatd_.clear();}
 
     //!Read chamberHeader from the block.
     void setChamberHeader(uint64_t word) { ch_.word = word;}
@@ -56,11 +56,11 @@ namespace gem {
     uint16_t vfatWordCntT()    const {return ct_.vfatWordCntT;}
     uint16_t ohcrc()           const {return ct_.ohcrc;}
 
-    void setVfatWordCnt(uint16_t n){ch_.vfatWordCnt = n; ct_.vfatWordCntT = n;}
-    void setInputID(uint8_t n){ch_.inputID = n;}
+    void setVfatWordCnt(uint16_t n) {ch_.vfatWordCnt = n; ct_.vfatWordCntT = n;}
+    void setInputID(uint8_t n) {ch_.inputID = n;}
 
     //!Adds VFAT data to the vector
-    void addVFAT(VFATdata v){vfatd_.push_back(v);}
+    void addVFAT(VFATdata v) {vfatd_.push_back(v);}
     //!Returns the vector of FVAT data
     const std::vector<VFATdata> * vFATs() const {return &vfatd_;}  
 
