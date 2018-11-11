@@ -2,13 +2,14 @@
 
 using namespace gem;
 
-VFATdata::VFATdata(){
+VFATdata::VFATdata() {
   ver_ = 1;
 }    
 
-VFATdata::VFATdata(const uint16_t BC,
+VFATdata::VFATdata(const int vfatType,
+                   const uint16_t BC,
 		   const uint8_t EC,
-		   const uint8_t Pos,
+		   const uint16_t chipID,
 		   const uint64_t lsDatas,
 		   const uint64_t msDatas)
 {
@@ -17,18 +18,28 @@ VFATdata::VFATdata(const uint16_t BC,
   sw_.word = 0;
   tw_.word = 0;  
   fw_.header = 0x1E;
+
+  if (vfatType == 3) {
+    fw_.bc = BC;
+    fw_.ec = EC;
+    fw_.pos = chipID;
+  }
+  else {
+    fw_.chipID = chipID;
+    fw_.b1110 = 14;
+    fw_.b1100 = 12;
+    fw_.b1010 = 10;
+    fw_.ecV2  = EC;
+    fw_.bcV2  = BC;    
+  }
   
-  fw_.bc = BC;
-  fw_.ec = EC;
-  fw_.pos = Pos;
-	
   sw_.lsData1 = lsDatas >> 48;
   tw_.lsData2 = lsDatas & 0x0000ffffffffffff;
   
   fw_.msData1 = msDatas >> 48;
   sw_.msData2 = msDatas & 0x0000ffffffffffff;
-  ver_ = 3;
-	
+  ver_ = vfatType;
+  
   tw_.crc = checkCRC();// crc check not yet implemented for v3
 }
 
@@ -51,7 +62,7 @@ uint16_t VFATdata::crc_cal(uint16_t crc_in, uint16_t dato)
   uint16_t d=0x0000;
   uint16_t crc_temp = crc_in;
   unsigned char datalen = 16;
-  for (int i=0; i<datalen; i++){
+  for (int i=0; i<datalen; i++) {
     if (dato & v) d = 0x0001;
     else d = 0x0000;
     if ((crc_temp & mask)^d) crc_temp = crc_temp>>1 ^ 0x8408;
@@ -77,7 +88,7 @@ uint16_t VFATdata::checkCRC()
   vfatBlockWords[1]  = (0x000000000000ffff & lsData());
 
   uint16_t crc_fin = 0xffff;
-  for (int i = 11; i >= 1; i--){
+  for (int i = 11; i >= 1; i--) {
     crc_fin = crc_cal(crc_fin, vfatBlockWords[i]);
   }
   return crc_fin;

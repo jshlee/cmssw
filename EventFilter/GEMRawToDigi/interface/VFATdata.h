@@ -5,7 +5,7 @@
 
 namespace gem {
   /// VFAT data structure - 3 words of 64 bits each
-  union VFATfirst{
+  union VFATfirst {
     uint64_t word;
     // v3 dataformat
     struct {
@@ -28,14 +28,14 @@ namespace gem {
       uint64_t b1010    : 4;  ///<1010:4 Control bits, shoud be 1010
     };
   };
-  union VFATsecond{
+  union VFATsecond {
     uint64_t word;
     struct {
       uint64_t lsData1  : 16; ///<channels from 1to64 
       uint64_t msData2  : 48; ///<channels from 65to128
     };
   };
-  union VFATthird{
+  union VFATthird {
     uint64_t word;
     struct {
       uint64_t crc      : 16; ///<Check Sum value, 16 bits
@@ -49,11 +49,12 @@ namespace gem {
     
     VFATdata();
     // this constructor only used for packing sim digis
-    VFATdata(const uint16_t BC,
-	     const uint8_t EC,
-	     const uint8_t Pos,
-	     const uint64_t lsDatas,
-	     const uint64_t msDatas);
+    VFATdata(const int vfatType,
+             const uint16_t BC,
+             const uint8_t EC,
+             const uint16_t chipID,
+             const uint64_t lsDatas,
+             const uint64_t msDatas);
     ~VFATdata() {}
 
     //!Read first word from the block.
