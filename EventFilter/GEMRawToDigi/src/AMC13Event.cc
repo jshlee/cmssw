@@ -5,32 +5,40 @@ using namespace gem;
 
 void AMC13Event::setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id)
 {
-  cdfh_.cb5 = 0x5;
-  cdfh_.eventType = Evt_ty;
-  cdfh_.lv1Id = LV1_id;
-  cdfh_.bxId = BX_id;
-  cdfh_.sourceId = Source_id;
+  CDFHeader u;  
+  u.cb5 = 0x5;
+  u.eventType = Evt_ty;
+  u.lv1Id = LV1_id;
+  u.bxId = BX_id;
+  u.sourceId = Source_id;
+  cdfh_ = u.word;
 }
 
 void AMC13Event::setAMC13Header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN)
 {
-  amc13h_.cb0 = 0x0;
-  amc13h_.calType = CalTyp;
-  amc13h_.nAMC = nAMC;
-  amc13h_.orbitN = OrN;
+  AMC13Header u;
+  u.cb0 = 0x0;
+  u.calType = CalTyp;
+  u.nAMC = nAMC;
+  u.orbitN = OrN;
+  amc13h_ = u.word;
 }
 
 void AMC13Event::setAMC13Trailer(uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT)
 {
-  amc13t_.blkN = Blk_NoT;
-  amc13t_.lv1IdT = LV1_idT;
-  amc13t_.bxIdT = BX_idT;
+  AMC13Trailer u;
+  u.blkN = Blk_NoT;
+  u.lv1IdT = LV1_idT;
+  u.bxIdT = BX_idT;
+  amc13t_ = u.word;
 }
 
 void AMC13Event::setCDFTrailer(uint32_t EvtLength)
 {
-  cdft_.cbA = 0xA;
-  cdft_.evtLength = EvtLength;
+  CDFTrailer u;
+  u.cbA = 0xA;
+  u.evtLength = EvtLength;
+  cdft_ = u.word;
 }
 
 void AMC13Event::addAMCheader(uint64_t word)

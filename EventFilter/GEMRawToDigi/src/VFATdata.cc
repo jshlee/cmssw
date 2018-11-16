@@ -14,42 +14,50 @@ VFATdata::VFATdata(const int vfatType,
 		   const uint64_t msDatas)
 {
   // this constructor only used for packing sim digis
-  fw_.word = 0;
-  sw_.word = 0;
-  tw_.word = 0;  
-  fw_.header = 0x1E;
+  VFATfirst fw;
+  VFATsecond sw;
+  VFATthird tw;
+
+  fw.word = 0;
+  sw.word = 0;
+  tw.word = 0;  
+  fw.header = 0x1E;
 
   if (vfatType == 3) {
-    fw_.bc = BC;
-    fw_.ec = EC;
-    fw_.pos = chipID;
+    fw.bc = BC;
+    fw.ec = EC;
+    fw.pos = chipID;
   }
   else {
-    fw_.chipID = chipID;
-    fw_.b1110 = 14;
-    fw_.b1100 = 12;
-    fw_.b1010 = 10;
-    fw_.ecV2  = EC;
-    fw_.bcV2  = BC;    
+    fw.chipID = chipID;
+    fw.b1110 = 14;
+    fw.b1100 = 12;
+    fw.b1010 = 10;
+    fw.ecV2  = EC;
+    fw.bcV2  = BC;    
   }
   
-  sw_.lsData1 = lsDatas >> 48;
-  tw_.lsData2 = lsDatas & 0x0000ffffffffffff;
+  sw.lsData1 = lsDatas >> 48;
+  tw.lsData2 = lsDatas & 0x0000ffffffffffff;
   
-  fw_.msData1 = msDatas >> 48;
-  sw_.msData2 = msDatas & 0x0000ffffffffffff;
+  fw.msData1 = msDatas >> 48;
+  sw.msData2 = msDatas & 0x0000ffffffffffff;
   ver_ = vfatType;
   
-  tw_.crc = checkCRC();// crc check not yet implemented for v3
+  tw.crc = checkCRC();// crc check not yet implemented for v3
+  
+  fw_ = fw.word;
+  sw_ = sw.word;
+  tw_ = tw.word;
 }
 
 uint8_t VFATdata::quality() {  
   uint8_t q = 0;  
   if (ver_ == 2) {
-    if (tw_.crc != checkCRC()) q |= 1UL << 1;
-    if (fw_.b1010 != 10) q |= 1UL << 2;
-    if (fw_.b1100 != 12) q |= 1UL << 3;
-    if (fw_.b1110 != 14) q |= 1UL << 4;
+    if (VFATthird{tw_}.crc != checkCRC()) q |= 1UL << 1;
+    if (VFATfirst{fw_}.b1010 != 10) q |= 1UL << 2;
+    if (VFATfirst{fw_}.b1100 != 12) q |= 1UL << 3;
+    if (VFATfirst{fw_}.b1110 != 14) q |= 1UL << 4;
   }
   // quality test not yet implemented in v3  
   return q;
@@ -75,9 +83,9 @@ uint16_t VFATdata::crc_cal(uint16_t crc_in, uint16_t dato)
 uint16_t VFATdata::checkCRC()
 {
   uint16_t vfatBlockWords[12];
-  vfatBlockWords[11] = ((0x000f & fw_.b1010)<<12) | bc();
-  vfatBlockWords[10] = ((0x000f & fw_.b1100)<<12) | ((0x00ff & ec()) <<4) | (0x000f & fw_.flag);
-  vfatBlockWords[9]  = ((0x000f & fw_.b1110)<<12) | fw_.chipID;
+  vfatBlockWords[11] = ((0x000f & VFATfirst{fw_}.b1010)<<12) | bc();
+  vfatBlockWords[10] = ((0x000f & VFATfirst{fw_}.b1100)<<12) | ((0x00ff & ec()) <<4) | (0x000f & VFATfirst{fw_}.flag);
+  vfatBlockWords[9]  = ((0x000f & VFATfirst{fw_}.b1110)<<12) | VFATfirst{fw_}.chipID;
   vfatBlockWords[8]  = (0xffff000000000000 & msData()) >> 48;
   vfatBlockWords[7]  = (0x0000ffff00000000 & msData()) >> 32;
   vfatBlockWords[6]  = (0x00000000ffff0000 & msData()) >> 16;

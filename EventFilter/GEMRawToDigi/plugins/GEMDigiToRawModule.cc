@@ -18,8 +18,6 @@
 
 #include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
 
-#include <bitset>
-
 using namespace gem;
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset):
@@ -86,14 +84,11 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       if (amcId != ec.amcId || !amcData) {
 	amcId = ec.amcId;
 	amcData = std::make_unique<AMCdata>();
-	amcData->setboardId(amcId);
- 	amcData->setbx(GEMELMap::amcBX_);
       }
       
       if (gebId != ec.gebId || !gebData) {
 	gebId = ec.gebId;
 	gebData = std::make_unique<GEBdata>();
-	gebData->setInputID(gebId);	
       }
             
       GEMDetId  gemId  = dc.gemDetId;
@@ -159,11 +154,20 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       }
       
       if (!gebData->vFATs()->empty() && saveGeb) {
-	gebData->setVfatWordCnt(gebData->vFATs()->size()*3);
+	// gebData->setVfatWordCnt(gebData->vFATs()->size()*3);
+	// gebData->setInputID(gebId);	
+        gebData->setChamberHeader(gebData->vFATs()->size()*3, gebId);
+        gebData->setChamberTrailer(0, 0, gebData->vFATs()->size()*3);
 	amcData->addGEB(*gebData);
       }
       if (!amcData->gebs()->empty() && saveAMC) {
-	amcData->setdavCnt(amcData->gebs()->size());
+	// amcData->setboardId(amcId);
+ 	// amcData->setbx(GEMELMap::amcBX_);
+	// amcData->setdavCnt(amcData->gebs()->size());
+        amcData->setAMCheader1(0, GEMELMap::amcBX_, 0, 0);
+        amcData->setAMCheader2(amcId, 0, 1);
+        amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
+        
 	amc13Event->addAMCpayload(*amcData);
       }
     }

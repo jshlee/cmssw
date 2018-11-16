@@ -37,27 +37,42 @@ namespace gem {
     ~GEBdata() {vfatd_.clear();}
 
     //!Read chamberHeader from the block.
-    void setChamberHeader(uint64_t word) { ch_.word = word;}
-    uint64_t getChamberHeader() const { return ch_.word;}
+    void setChamberHeader(uint64_t word) { ch_ = word;}
+    void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID)
+    {
+      GEBchamberHeader u;  
+      u.vfatWordCnt = vfatWordCnt;
+      u.inputID = inputID;
+      ch_ = u.word;
+    }
+    uint64_t getChamberHeader() const { return ch_;}
 
     //!Read chamberTrailer from the block.
-    void setChamberTrailer(uint64_t word) { ct_.word = word;}
-    uint64_t getChamberTrailer() const { return ct_.word;}
+    void setChamberTrailer(uint64_t word) { ct_ = word;}
+    void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT)
+    {
+      GEBchamberTrailer u;  
+      u.ecOH = ecOH;
+      u.bcOH = bcOH;
+      u.vfatWordCntT = vfatWordCntT;      
+      ct_ = u.word;
+    }
+    uint64_t getChamberTrailer() const { return ct_;}
 
-    uint32_t inputStatus()     const {return ch_.inputStatus;}
-    uint16_t vfatWordCnt()     const {return ch_.vfatWordCnt;}
-    uint8_t  inputID()         const {return ch_.inputID;}
-    uint16_t zeroSupWordsCnt() const {return ch_.zeroSupWordsCnt;}
+    uint32_t inputStatus()     const {return GEBchamberHeader{ch_}.inputStatus;}
+    uint16_t vfatWordCnt()     const {return GEBchamberHeader{ch_}.vfatWordCnt;}
+    uint8_t  inputID()         const {return GEBchamberHeader{ch_}.inputID;}
+    uint16_t zeroSupWordsCnt() const {return GEBchamberHeader{ch_}.zeroSupWordsCnt;}
 
-    uint32_t ecOH()            const {return ct_.ecOH;}
-    uint16_t bcOH()            const {return ct_.bcOH;}
-    uint8_t  stuckData()       const {return ct_.stuckData;}
-    uint8_t  inFIFOund()       const {return ct_.inFIFOund;}
-    uint16_t vfatWordCntT()    const {return ct_.vfatWordCntT;}
-    uint16_t ohcrc()           const {return ct_.ohcrc;}
+    uint32_t ecOH()            const {return GEBchamberTrailer{ct_}.ecOH;}
+    uint16_t bcOH()            const {return GEBchamberTrailer{ct_}.bcOH;}
+    uint8_t  stuckData()       const {return GEBchamberTrailer{ct_}.stuckData;}
+    uint8_t  inFIFOund()       const {return GEBchamberTrailer{ct_}.inFIFOund;}
+    uint16_t vfatWordCntT()    const {return GEBchamberTrailer{ct_}.vfatWordCntT;}
+    uint16_t ohcrc()           const {return GEBchamberTrailer{ct_}.ohcrc;}
 
-    void setVfatWordCnt(uint16_t n) {ch_.vfatWordCnt = n; ct_.vfatWordCntT = n;}
-    void setInputID(uint8_t n) {ch_.inputID = n;}
+    /* void setVfatWordCnt(uint16_t n) {ch_.vfatWordCnt = n; ct_.vfatWordCntT = n;} */
+    /* void setInputID(uint8_t n) {ch_.inputID = n;} */
 
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v) {vfatd_.push_back(v);}
@@ -67,9 +82,12 @@ namespace gem {
     static const int sizeGebID = 5;
     
   private:
-    std::vector<VFATdata> vfatd_;     ///<Vector of VFAT data
-    GEBchamberHeader ch_;
-    GEBchamberTrailer ct_;
+    /* GEBchamberHeader ch_; */
+    /* GEBchamberTrailer ct_; */
+    uint64_t ch_;
+    uint64_t ct_;
+
+    std::vector<VFATdata> vfatd_;
   };
 }
 #endif

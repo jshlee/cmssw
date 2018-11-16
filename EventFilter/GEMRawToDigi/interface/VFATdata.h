@@ -58,35 +58,35 @@ namespace gem {
     ~VFATdata() {}
 
     //!Read first word from the block.
-    void read_fw(uint64_t word) { fw_.word = word;}
-    uint64_t get_fw() const { return fw_.word;}
+    void read_fw(uint64_t word) { fw_ = word;}
+    uint64_t get_fw() const { return fw_;}
 
     //!Read second word from the block.
-    void read_sw(uint64_t word) { sw_.word = word;}
-    uint64_t get_sw() const { return sw_.word;}
+    void read_sw(uint64_t word) { sw_ = word;}
+    uint64_t get_sw() const { return sw_;}
 
     //!Read third word from the block.
-    void read_tw(uint64_t word) { tw_.word = word;}
-    uint64_t get_tw() const { return tw_.word;}
+    void read_tw(uint64_t word) { tw_ = word;}
+    uint64_t get_tw() const { return tw_;}
 
     // local phi in chamber
     void setPhi(int i) {phiPos_ = i;}
     int phi() const {return phiPos_;}
     
     uint64_t lsData() const {
-      return uint64_t(sw_.lsData1) << 48 | tw_.lsData2;
+      return uint64_t(VFATsecond{sw_}.lsData1) << 48 | VFATthird{tw_}.lsData2;
     }
     uint64_t msData() const {
-      return uint64_t(fw_.msData1) << 48 | sw_.msData2;
+      return uint64_t(VFATfirst{fw_}.msData1) << 48 | VFATsecond{sw_}.msData2;
     }
     
     uint16_t bc() const {
-      if (ver_==2) return fw_.bcV2;
-      return fw_.bc;
+      if (ver_==2) return VFATfirst{fw_}.bcV2;
+      return VFATfirst{fw_}.bc;
     }
     uint8_t  ec() const {
-      if (ver_==2) return fw_.ecV2;
-      return fw_.ec;
+      if (ver_==2) return VFATfirst{fw_}.ecV2;
+      return VFATfirst{fw_}.ec;
     }
 
     void setVersion(int i) {ver_ = i;}
@@ -96,17 +96,17 @@ namespace gem {
     uint8_t quality();
 
     /// v3
-    uint8_t   header     () const {return fw_.header;      }
-    uint8_t   crcCheck   () const {return fw_.crcCheck;    }
-    uint8_t   position   () const {return fw_.pos;         }
+    uint8_t   header     () const {return VFATfirst{fw_}.header;      }
+    uint8_t   crcCheck   () const {return VFATfirst{fw_}.crcCheck;    }
+    uint8_t   position   () const {return VFATfirst{fw_}.pos;         }
 
     /// v2
-    uint8_t   b1010      () const { return fw_.b1010;      }
-    uint8_t   b1100      () const { return fw_.b1100;      }
-    uint8_t   b1110      () const { return fw_.b1110;      }
-    uint8_t   flag       () const { return fw_.flag;       }
-    uint16_t  chipID     () const { return fw_.chipID;     }
-    uint16_t  crc        () const { return tw_.crc;        }
+    uint8_t   b1010      () const { return VFATfirst{fw_}.b1010;      }
+    uint8_t   b1100      () const { return VFATfirst{fw_}.b1100;      }
+    uint8_t   b1110      () const { return VFATfirst{fw_}.b1110;      }
+    uint8_t   flag       () const { return VFATfirst{fw_}.flag;       }
+    uint16_t  chipID     () const { return VFATfirst{fw_}.chipID;     }
+    uint16_t  crc        () const { return VFATthird{tw_}.crc;        }
     
     uint16_t crc_cal(uint16_t crc_in, uint16_t dato);    
     uint16_t checkCRC();
@@ -114,14 +114,16 @@ namespace gem {
     static const int nChannels = 128;
     static const int sizeChipID = 12;
     
-  private:
-    
+  private:    
     int      ver_;        /// vfat version
     int      phiPos_;     /// phi position of vfat in chamber
     
-    VFATfirst  fw_;
-    VFATsecond sw_;
-    VFATthird  tw_;
+    /* VFATfirst  fw_; */
+    /* VFATsecond sw_; */
+    /* VFATthird  tw_; */
+    uint64_t  fw_;
+    uint64_t sw_;
+    uint64_t  tw_;
   };
 }
 #endif

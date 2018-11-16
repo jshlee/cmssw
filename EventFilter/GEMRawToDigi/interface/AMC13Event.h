@@ -54,27 +54,27 @@ namespace gem {
     AMC13Event() {}
     ~AMC13Event() {amcHeaders_.clear(); amcs_.clear();}
 
-    void setCDFHeader(uint64_t word) { cdfh_.word = word;}
+    void setCDFHeader(uint64_t word) { cdfh_ = word;}
     void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
-    uint64_t getCDFHeader() const { return cdfh_.word;}
+    uint64_t getCDFHeader() const { return cdfh_;}
 
-    void setAMC13Header(uint64_t word) { amc13h_.word = word;}
+    void setAMC13Header(uint64_t word) { amc13h_ = word;}
     void setAMC13Header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN);
-    uint64_t getAMC13Header() const { return amc13h_.word;}
+    uint64_t getAMC13Header() const { return amc13h_;}
 
-    void setAMC13Trailer(uint64_t word) { amc13t_.word = word;}
+    void setAMC13Trailer(uint64_t word) { amc13t_ = word;}
     void setAMC13Trailer(uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
-    uint64_t getAMC13Trailer() const { return amc13t_.word;}
+    uint64_t getAMC13Trailer() const { return amc13t_;}
 
-    void setCDFTrailer(uint64_t word) { cdft_.word = word;}
+    void setCDFTrailer(uint64_t word) { cdft_ = word;}
     void setCDFTrailer(uint32_t EvtLength);
-    uint64_t getCDFTrailer() const { return cdft_.word;}
+    uint64_t getCDFTrailer() const { return cdft_;}
 
-    uint16_t bxId() const {return cdfh_.bxId;}
-    uint32_t lv1Id() const {return cdfh_.lv1Id;}
-    uint16_t sourceId() const {return cdfh_.sourceId;}
+    uint16_t bxId() const {return CDFHeader{cdfh_}.bxId;}
+    uint32_t lv1Id() const {return CDFHeader{cdfh_}.lv1Id;}
+    uint16_t sourceId() const {return CDFHeader{cdfh_}.sourceId;}
 
-    uint8_t  nAMC() const {return amc13h_.nAMC;}
+    uint8_t  nAMC() const {return AMC13Header{amc13h_}.nAMC;}
     
     const std::vector<uint64_t> * getAMCheaders() const {return &amcHeaders_;}
     void addAMCheader(uint64_t word);
@@ -84,16 +84,20 @@ namespace gem {
     void addAMCpayload(const AMCdata& a) {amcs_.push_back(a);}
     
   private:
+    uint64_t cdfh_;
+    uint64_t amc13h_;
+    uint64_t amc13t_;
+    uint64_t cdft_;
+     
     // AMC headers
     std::vector<uint64_t> amcHeaders_;    
     // AMCs payload
     std::vector<AMCdata> amcs_;
 
-    CDFHeader cdfh_;
-    AMC13Header amc13h_;
-    AMC13Trailer amc13t_;
-    CDFTrailer cdft_;
-      
+    /* CDFHeader cdfh_; */
+    /* AMC13Header amc13h_; */
+    /* AMC13Trailer amc13t_; */
+    /* CDFTrailer cdft_; */
   };
 }
 #endif

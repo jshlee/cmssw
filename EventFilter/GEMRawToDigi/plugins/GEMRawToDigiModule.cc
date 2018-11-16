@@ -14,8 +14,6 @@
 
 #include "EventFilter/GEMRawToDigi/plugins/GEMRawToDigiModule.h"
 
-#include <bitset>
-
 using namespace gem;
 
 GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset) :
