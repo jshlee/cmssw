@@ -6,7 +6,7 @@ VFATdata::VFATdata() {
   ver_ = 1;
 }    
 
-VFATdata::VFATdata(const int vfatType,
+VFATdata::VFATdata(const int vfatVer,
                    const uint16_t BC,
 		   const uint8_t EC,
 		   const uint16_t chipID,
@@ -23,7 +23,7 @@ VFATdata::VFATdata(const int vfatType,
   tw.word = 0;  
   fw.header = 0x1E;
 
-  if (vfatType == 3) {
+  if (vfatVer == 3) {
     fw.bc = BC;
     fw.ec = EC;
     fw.pos = chipID;
@@ -42,7 +42,7 @@ VFATdata::VFATdata(const int vfatType,
   
   fw.msData1 = msDatas >> 48;
   sw.msData2 = msDatas & 0x0000ffffffffffff;
-  ver_ = vfatType;
+  ver_ = vfatVer;
   
   tw.crc = checkCRC();// crc check not yet implemented for v3
   

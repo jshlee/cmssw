@@ -6,40 +6,70 @@
 class GEMROmap{
  public:
   
-  struct eCoord{
-    uint16_t amcId;
-    uint16_t gebId;
-    uint16_t vfatId;
-    bool operator < (const eCoord& r) const{
-      if (amcId == r.amcId){
-        if ( gebId == r.gebId){
-          return vfatId < r.vfatId;
+  struct chamEC{
+    unsigned int fedId;
+    uint8_t amcNum;
+    uint8_t gebId;
+    bool operator < (const chamEC& r) const{
+      if (fedId == r.fedId){
+        if ( amcNum == r.amcNum){
+          return gebId < r.gebId;
         }
 	else{
-          return gebId < r.gebId;
+          return amcNum < r.amcNum;
 	}
       }
       else{
-	return amcId < r.amcId;
+	return fedId < r.fedId;
       }
     }
   };
   
-  struct dCoord{
+  struct chamDC{
+    GEMDetId detId;
+    int vfatVer;
+    bool operator < (const chamDC& r) const{
+      // vfatVer is not needed
+      return  detId <  r.detId;
+
+      /* if (detId == r.detId){ */
+      /*   return  vfatVer < r.vfatVer; */
+      /* } */
+      /* else{ */
+      /*   return  detId <  r.detId; */
+      /* } */
+      
+    }
+  };
+
+  struct vfatEC{
+    uint16_t vfatAdd;
+    GEMDetId detId;
+    bool operator < (const vfatEC& r) const{
+      if (vfatAdd == r.vfatAdd){
+        return detId < r.detId;
+      }
+      else{
+        return vfatAdd  < r.vfatAdd;
+      }
+    }
+  };
+
+  struct vfatDC{
     int vfatType;
-    GEMDetId gemDetId;
-    int locPhi;
-    bool operator < (const dCoord& r) const{
+    GEMDetId detId;
+    int localPhi;
+    bool operator < (const vfatDC& r)  const{
       if (vfatType == r.vfatType){
-        if (gemDetId == r.gemDetId){
-	  return locPhi < r.locPhi;
+        if (detId == r.detId){
+           return localPhi < r.localPhi;
         }
-	else{
-          return gemDetId < r.gemDetId;
+        else{
+          return detId < r.detId;
         }
       }
       else{
-	return vfatType < r.vfatType;
+        return vfatType < r.vfatType;
       }
     }
   };
@@ -68,26 +98,38 @@ class GEMROmap{
 
   GEMROmap(){};
   
-  bool isValidChipID(const eCoord& r) const {
-    return roMapED_.find(r) != roMapED_.end();
+  bool isValidChipID(const vfatEC& r) const {
+    return vMapED_.find(r) != vMapED_.end();
   }
-  const dCoord& hitPosition(const eCoord& r) const {return roMapED_.at(r);}
-  const eCoord& hitPosition(const dCoord& r) const {return roMapDE_.at(r);}
+  const chamDC& chamberPos(const chamEC& r) const {return chamED_.at(r);}
+  const chamEC& chamberPos(const chamDC& r) const {return chamDE_.at(r);}
+  const chamEC& chamberPos(const GEMDetId& r) const {return chamDE_.at( chamDC{r.chamberId(),0} ); }
   
-  void add(eCoord e,dCoord d) {roMapED_[e]=d;}
-  void add(dCoord d,eCoord e) {roMapDE_[d]=e;}
+  void add(chamEC e,chamDC d) {chamED_[e]=d;}
+  void add(chamDC d,chamEC e) {chamDE_[d]=e;}
   
-  const std::map<eCoord, dCoord> * getRoMap() const {return &roMapED_;}
+  const std::map<chamEC, chamDC> * getChamMap() const {return &chamED_;}
 
+  void add(vfatEC e,vfatDC d) {vMapED_[e]=d;}
+  void add(vfatDC d,vfatEC e) {vMapDE_[d]=e;}
+
+  const vfatDC& vfatPos(const vfatEC& r) const {return vMapED_.at(r);}
+  const vfatEC& vfatPos(const vfatDC& r) const {return vMapDE_.at(r);}
+
+  const std::map<vfatEC, vfatDC> * getVfatMap() const {return &vMapED_;}
+  
   void add(channelNum c, stripNum s) {chStMap_[c]=s;} 
   void add(stripNum s, channelNum c) {stChMap_[s]=c;} 
  
-  const channelNum& hitPosition(const stripNum& s) const {return stChMap_.at(s);}
-  const stripNum& hitPosition(const channelNum& c) const {return chStMap_.at(c);}
+  const channelNum& hitPos(const stripNum& s) const {return stChMap_.at(s);}
+  const stripNum& hitPos(const channelNum& c) const {return chStMap_.at(c);}
 
  private:
-  std::map<eCoord,dCoord> roMapED_;
-  std::map<dCoord,eCoord> roMapDE_;
+  std::map<chamEC,chamDC> chamED_;
+  std::map<chamDC,chamEC> chamDE_;
+
+  std::map<vfatEC, vfatDC> vMapED_;
+  std::map<vfatDC, vfatEC> vMapDE_;
 
   std::map<channelNum, stripNum> chStMap_;
   std::map<stripNum, channelNum> stChMap_;

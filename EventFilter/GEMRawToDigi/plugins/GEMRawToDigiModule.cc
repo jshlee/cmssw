@@ -98,19 +98,18 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       amcData->setAMCheader1(*(++word));      
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
-      uint16_t amcId = amcData->boardId();
       uint16_t amcBx = amcData->bx();
+      uint8_t amcNum = amcData->amcNum();
 
       // Fill GEB
       for (uint8_t j = 0; j < amcData->davCnt(); ++j) {
 	auto gebData = std::make_unique<GEBdata>();
 	gebData->setChamberHeader(*(++word));
 	
-	uint16_t gebId = gebData->inputID();
-	uint16_t vfatId=0;
-	GEMROmap::eCoord geb_ec = {amcId, gebId, vfatId};
-	GEMROmap::dCoord geb_dc = gemROMap->hitPosition(geb_ec);
-	GEMDetId gemId = geb_dc.gemDetId;
+	uint8_t gebId = gebData->inputID();
+	GEMROmap::chamEC geb_ec = {id, amcNum, gebId};
+	GEMROmap::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
+	GEMDetId gemChId = geb_dc.detId;
 
 	for (uint16_t k = 0; k < gebData->vfatWordCnt()/3; k++) {
 	  auto vfatData = std::make_unique<VFATdata>();
@@ -118,21 +117,19 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	  vfatData->read_sw(*(++word));
 	  vfatData->read_tw(*(++word));
 	  
-	  if (geb_dc.vfatType < 10) {
-	    // vfat v2
-	    vfatId = vfatData->chipID();
-	    vfatData->setVersion(2);
+          vfatData->setVersion(geb_dc.vfatVer);
+          uint16_t vfatId = vfatData->vfatId();
+          GEMROmap::vfatEC vfat_ec = {vfatId, gemChId};
+
+	  // check if ChipID exists.
+	  if (!gemROMap->isValidChipID(vfat_ec)) {
+	    edm::LogWarning("GEMRawToDigiModule") << "InValid: amcNum "<< amcNum
+						  << " gebId "<< gebId
+						  << " vfatId "<< vfatId
+						  << " vfat Pos "<< int(vfatData->position());
+	    continue;
 	  }
-	  else {
-	    // vfat v3
-	    vfatId = vfatData->position();
-	    vfatData->setVersion(3);
-	  }
-	  
-	  uint16_t bc=vfatData->bc();
-	  // strip bx = vfat bx - amc bx
-	  int bx = bc-amcBx;
-	  
+          // check vfat data
 	  if (vfatData->quality()) {
 	    edm::LogWarning("GEMRawToDigiModule") << "Quality "<< vfatData->quality()
 						  << " b1010 "<< int(vfatData->b1010())
@@ -143,20 +140,15 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 						    <<vfatData->crc()<<"   "<<vfatData->checkCRC();	      
 	    }
 	  }
-	  
-	  //check if ChipID exists.
-	  GEMROmap::eCoord ec = {amcId, gebId, vfatId};
-	  if (!gemROMap->isValidChipID(ec)) {
-	    edm::LogWarning("GEMRawToDigiModule") << "InValid: amcId "<<ec.amcId
-						  << " gebId "<< ec.gebId
-						  << " vfatId "<< ec.vfatId;
-	    continue;
-	  }
+	            
+          GEMROmap::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
 
-	  GEMROmap::dCoord dc = gemROMap->hitPosition(ec);
-	  gemId = dc.gemDetId;
-	  vfatData->setPhi(dc.locPhi);
-
+	  vfatData->setPhi(vfat_dc.localPhi);
+          GEMDetId gemId = vfat_dc.detId;
+	  uint16_t bc=vfatData->bc();
+	  // strip bx = vfat bx - amc bx
+	  int bx = bc-amcBx;
+          
 	  for (int chan = 0; chan < VFATdata::nChannels; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
@@ -165,18 +157,18 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	    // no hits
 	    if (chan0xf==0) continue;
 	    	             
-            GEMROmap::channelNum chMap = {dc.vfatType, chan};
-            GEMROmap::stripNum stMap = gemROMap->hitPosition(chMap);
+            GEMROmap::channelNum chMap = {vfat_dc.vfatType, chan};
+            GEMROmap::stripNum stMap = gemROMap->hitPos(chMap);
 
             int stripId = stMap.stNum + vfatData->phi()*GEMELMap::maxChan_;    
-
+            
 	    GEMDigi digi(stripId,bx);
-	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<ec.vfatId
+	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<vfat_ec.vfatAdd
 					   <<" gemDetId "<< gemId
 					   <<" chan "<< chMap.chNum
 					   <<" strip "<< stripId
 					   <<" bx "<< digi.bx();
-	    
+
 	    outGEMDigis.get()->insertDigi(gemId,digi);
 	    
 	  }// end of channel loop
@@ -190,7 +182,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	gebData->setChamberTrailer(*(++word));
 	
         if (unPackStatusDigis_) {
-	  outGEBStatus.get()->insertDigi(gemId.chamberId(), (*gebData)); 
+	  outGEBStatus.get()->insertDigi(gemChId.chamberId(), (*gebData)); 
         }
 	
       } // end of geb loop

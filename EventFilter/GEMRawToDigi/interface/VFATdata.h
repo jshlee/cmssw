@@ -49,7 +49,7 @@ namespace gem {
     
     VFATdata();
     // this constructor only used for packing sim digis
-    VFATdata(const int vfatType,
+    VFATdata(const int vfatVer,
              const uint16_t BC,
              const uint8_t EC,
              const uint16_t chipID,
@@ -87,6 +87,10 @@ namespace gem {
     uint8_t  ec() const {
       if (ver_==2) return VFATfirst{fw_}.ecV2;
       return VFATfirst{fw_}.ec;
+    }
+    uint16_t vfatId() const {
+      if (ver_==2) return VFATfirst{fw_}.chipID;
+      return VFATfirst{fw_}.pos;
     }
 
     void setVersion(int i) {ver_ = i;}
