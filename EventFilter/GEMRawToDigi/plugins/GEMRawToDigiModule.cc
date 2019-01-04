@@ -72,8 +72,8 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
   
   auto gemROMap = runCache(iEvent.getRun().index());
   
-  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id) { 
-    const FEDRawData& fedData = fed_buffers->FEDData(id);
+  for (unsigned int fedId=FEDNumbering::MINGEMFEDID; fedId<=FEDNumbering::MAXGEMFEDID; ++fedId) { 
+    const FEDRawData& fedData = fed_buffers->FEDData(fedId);
     
     int nWords = fedData.size()/sizeof(uint64_t);
     LogDebug("GEMRawToDigiModule") <<" words " << nWords;
@@ -107,7 +107,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	gebData->setChamberHeader(*(++word));
 	
 	uint8_t gebId = gebData->inputID();
-	GEMROmap::chamEC geb_ec = {id, amcNum, gebId};
+	GEMROmap::chamEC geb_ec = {fedId, amcNum, gebId};        
 	GEMROmap::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
 	GEMDetId gemChId = geb_dc.detId;
 
@@ -120,12 +120,12 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
           vfatData->setVersion(geb_dc.vfatVer);
           uint16_t vfatId = vfatData->vfatId();
           GEMROmap::vfatEC vfat_ec = {vfatId, gemChId};
-
+          
 	  // check if ChipID exists.
 	  if (!gemROMap->isValidChipID(vfat_ec)) {
-	    edm::LogWarning("GEMRawToDigiModule") << "InValid: amcNum "<< amcNum
-						  << " gebId "<< gebId
-						  << " vfatId "<< vfatId
+	    edm::LogWarning("GEMRawToDigiModule") << "InValid: amcNum "<< int(amcNum)
+						  << " gebId "<< int(gebId)
+						  << " vfatId "<< int(vfatId)
 						  << " vfat Pos "<< int(vfatData->position());
 	    continue;
 	  }
@@ -163,11 +163,29 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
             int stripId = stMap.stNum + vfatData->phi()*GEMELMap::maxChan_;    
             
 	    GEMDigi digi(stripId,bx);
-	    LogDebug("GEMRawToDigiModule") <<" vfatId "<<vfat_ec.vfatAdd
-					   <<" gemDetId "<< gemId
-					   <<" chan "<< chMap.chNum
-					   <<" strip "<< stripId
-					   <<" bx "<< digi.bx();
+
+            LogDebug("GEMRawToDigiModule")
+              << " fed: " << fedId
+              << " amc:" << int(amcNum)
+              << " geb:" << int(gebId)
+              << " vfat:"<< vfat_dc.localPhi
+              << ",type: "<< vfat_dc.vfatType
+              << " id:"<< gemId
+              << " ch:"<< chMap.chNum
+              << " st:"<< digi.strip()
+              << " bx:"<< digi.bx();
+            
+            std::cout << "GEMRawToDigiModule: "
+                      << " fed: " << fedId
+                      << " amc:" << int(amcNum)
+                      << " geb:" << int(gebId)
+                      << " vfat:"<< vfat_dc.localPhi
+                      << ",type: "<< vfat_dc.vfatType
+                      << " id:"<< gemId
+                      << " ch:"<< chMap.chNum
+                      << " st:"<< digi.strip()
+                      << " bx:"<< digi.bx()
+                      <<std::endl;
 
 	    outGEMDigis.get()->insertDigi(gemId,digi);
 	    

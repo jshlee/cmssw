@@ -29,16 +29,7 @@ class GEMROmap{
     GEMDetId detId;
     int vfatVer;
     bool operator < (const chamDC& r) const{
-      // vfatVer is not needed
       return  detId <  r.detId;
-
-      /* if (detId == r.detId){ */
-      /*   return  vfatVer < r.vfatVer; */
-      /* } */
-      /* else{ */
-      /*   return  detId <  r.detId; */
-      /* } */
-      
     }
   };
 
@@ -62,7 +53,7 @@ class GEMROmap{
     bool operator < (const vfatDC& r)  const{
       if (vfatType == r.vfatType){
         if (detId == r.detId){
-           return localPhi < r.localPhi;
+          return localPhi < r.localPhi;
         }
         else{
           return detId < r.detId;
@@ -101,35 +92,31 @@ class GEMROmap{
   bool isValidChipID(const vfatEC& r) const {
     return vMapED_.find(r) != vMapED_.end();
   }
-  const chamDC& chamberPos(const chamEC& r) const {return chamED_.at(r);}
-  const chamEC& chamberPos(const chamDC& r) const {return chamDE_.at(r);}
-  const chamEC& chamberPos(const GEMDetId& r) const {return chamDE_.at( chamDC{r.chamberId(),0} ); }
-  
-  void add(chamEC e,chamDC d) {chamED_[e]=d;}
-  void add(chamDC d,chamEC e) {chamDE_[d]=e;}
-  
-  const std::map<chamEC, chamDC> * getChamMap() const {return &chamED_;}
+  bool isValidChamber(const chamEC& r) const {
+    return chamED_.find(r) != chamED_.end();
+  }
 
-  void add(vfatEC e,vfatDC d) {vMapED_[e]=d;}
-  void add(vfatDC d,vfatEC e) {vMapDE_[d]=e;}
+  const chamDC& chamberPos(const chamEC& r) const {return chamED_.at(r);}
+  void add(chamEC e,chamDC d) {chamED_[e]=d;}
+
+  const std::vector<vfatEC> getVfats(const GEMDetId& r) const {return chamVfats_.at(r);}
+  void add(GEMDetId e,vfatEC d) {chamVfats_[e].push_back(d);}
 
   const vfatDC& vfatPos(const vfatEC& r) const {return vMapED_.at(r);}
-  const vfatEC& vfatPos(const vfatDC& r) const {return vMapDE_.at(r);}
-
-  const std::map<vfatEC, vfatDC> * getVfatMap() const {return &vMapED_;}
-  
-  void add(channelNum c, stripNum s) {chStMap_[c]=s;} 
-  void add(stripNum s, channelNum c) {stChMap_[s]=c;} 
- 
+  void add(vfatEC e,vfatDC d) {vMapED_[e]=d;}
+   
   const channelNum& hitPos(const stripNum& s) const {return stChMap_.at(s);}
   const stripNum& hitPos(const channelNum& c) const {return chStMap_.at(c);}
 
+  void add(channelNum c, stripNum s) {chStMap_[c]=s;} 
+  void add(stripNum s, channelNum c) {stChMap_[s]=c;} 
+  
  private:
   std::map<chamEC,chamDC> chamED_;
-  std::map<chamDC,chamEC> chamDE_;
 
+  std::map<GEMDetId,std::vector<vfatEC>> chamVfats_;
+  
   std::map<vfatEC, vfatDC> vMapED_;
-  std::map<vfatDC, vfatEC> vMapDE_;
 
   std::map<channelNum, stripNum> chStMap_;
   std::map<stripNum, channelNum> stChMap_;

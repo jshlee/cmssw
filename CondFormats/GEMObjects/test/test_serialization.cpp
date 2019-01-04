@@ -4,6 +4,8 @@
 int main()
 {
   testSerialization<GEMELMap>();
+  testSerialization<GEMELMap::GEMChamberMap>();
+  testSerialization<std::vector<GEMELMap::GEMChamberMap>>();  
   testSerialization<GEMELMap::GEMVFatMap>();
   testSerialization<std::vector<GEMELMap::GEMVFatMap>>();
   testSerialization<GEMELMap::GEMStripMap>();

@@ -27,25 +27,39 @@ void GEMELMap::convert(GEMROmap & romap) {
       GEMROmap::chamDC dc;
       dc.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1:-1, 1, abs(imap.gemNum[ix]/1000), abs(imap.gemNum[ix]/100%10), abs(imap.gemNum[ix]%100), 0);
       dc.vfatVer = imap.vfatVer[ix];
-      
+
+      // std::cout << " fedId " << ec.fedId
+      //           << " amcNum " << ec.amcNum
+      //           << " gebId " << ec.gebId
+      //           << " vfatVer " << dc.vfatVer
+      //           << " id " << dc.detId
+      //           << std::endl;
       romap.add(ec, dc);
-      romap.add(dc, ec);
     }
   }
   // chamberType to vfatType
   for (auto imap : theVFatMap_) {
     for (unsigned int ix=0;ix<imap.vfatAdd.size();ix++) {
+      GEMDetId gemId((imap.gemNum[ix] > 0) ? 1:-1, 1, abs(imap.gemNum[ix]/1000), abs(imap.gemNum[ix]/100%10), abs(imap.gemNum[ix]%100), imap.iEta[ix]);
+      
       GEMROmap::vfatEC ec;
-      ec.detId = GEMDetId((imap.gemNum[ix] > 0) ? 1:-1, 1, abs(imap.gemNum[ix]/1000), abs(imap.gemNum[ix]/100%10), abs(imap.gemNum[ix]%100), 0);
+      ec.detId = gemId.chamberId();
       ec.vfatAdd = imap.vfatAdd[ix] & chipIdMask_;
       
       GEMROmap::vfatDC dc;
       dc.vfatType = imap.vfatType[ix];
-      dc.detId = GEMDetId(ec.detId.region(), 1, ec.detId.station(), ec.detId.layer(), ec.detId.chamber(), imap.iEta[ix]);
+      dc.detId = gemId;
       dc.localPhi = imap.localPhi[ix];
-  
+
+      std::cout << " vfatAdd " << ec.vfatAdd
+                << " vfatType " << dc.vfatType
+                << " localPhi " << dc.localPhi
+                << " id " << dc.detId
+                << std::endl;
+      
       romap.add(ec, dc);
-      romap.add(dc, ec);
+      romap.add(gemId.chamberId(),ec);
+
     }
   }
   // channel mapping
@@ -63,12 +77,15 @@ void GEMELMap::convert(GEMROmap & romap) {
       romap.add(sMap, cMap);
     }
   }
+  std::cout << " GEMELMap finished "
+            << std::endl;
+
 }
 
 void GEMELMap::convertDummy(GEMROmap & romap) {
   // 12 bits for vfat, 5 bits for geb, 8 bit long GLIB serial number
   unsigned int fedId = FEDNumbering::MINGEMFEDID;
-  uint8_t amcNum = 1; //amc
+  uint8_t amcNum = 0; //amc
   uint8_t gebId = 0; 
 
   for (int re = -1; re <= 1; re = re+2) {
@@ -91,9 +108,6 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
           dc.vfatVer = vfatVerV3_;
      
           romap.add(ec, dc);
-          romap.add(dc, ec);
-          // 1 geb per chamber
-          gebId++;
 
           uint16_t chipPos = 0;
           for (int lphi = 0; lphi < maxVFat; ++lphi) {
@@ -108,16 +122,31 @@ void GEMELMap::convertDummy(GEMROmap & romap) {
               vdc.localPhi = lphi;
     
               romap.add(vec,vdc);
-              romap.add(vdc,vec);
+              romap.add(gemId.chamberId(),vec);
+              
               chipPos++;
+              // std::cout << " fedId " << fedId
+              //           << " amcNum " << int(amcNum)
+              //           << " gebId " << int(gebId)
+              //           << " localPhi " << vdc.localPhi
+              //           << " id " << vdc.detId
+              //           << std::endl;
+              
             }
           }
 
+          // 1 geb per chamber
+          gebId++;          
           // 5 bits for gebId 
           if (gebId == maxGEBs_) {
             // 24 gebs per amc
             gebId = 0;
             amcNum++;
+          }
+          if (amcNum == maxAMCs_) {
+            gebId = 0;
+            amcNum = 0;
+            fedId++;
           }
         }
       }

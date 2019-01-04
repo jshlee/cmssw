@@ -146,12 +146,12 @@ if (options.debug):
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_Prompt_v11', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
-        connect = cms.string('sqlite_fip:MuonPerformance/MuonAnalyser/data/GEMELMap.db'),
+        #connect = cms.string('sqlite_fip:EventFilter/GEMRawToDigi/test/GEMELMap.db'),
+        connect = cms.string('sqlite_file:./GEMELMap.db'),
         record = cms.string('GEMELMapRcd'),
         tag = cms.string('GEMELMap_v4')
     ))
@@ -168,7 +168,7 @@ process.tmtFilter.mpList = cms.untracked.vint32(options.mps)
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     token = cms.untracked.InputTag("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1467 ),
+    feds = cms.untracked.vint32 ( 1467,1468 ),
     dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
@@ -217,9 +217,6 @@ if (options.edm):
     process.output = cms.OutputModule(
         "PoolOutputModule",
         outputCommands = cms.untracked.vstring("keep *"),
-        SelectEvents = cms.untracked.PSet(
-            SelectEvents = cms.vstring('path')
-        ),
         fileName = cms.untracked.string('gem_EDM.root')
     )
 
