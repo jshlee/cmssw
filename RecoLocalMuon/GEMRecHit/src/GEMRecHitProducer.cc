@@ -87,6 +87,7 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
       inputFile.close();
     }
   }
+  */
 }
 
 
