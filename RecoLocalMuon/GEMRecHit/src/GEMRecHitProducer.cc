@@ -5,7 +5,6 @@
 
 #include "GEMRecHitProducer.h"
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,16 +31,11 @@
 using namespace edm;
 using namespace std;
 
-
 GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
   // Get the concrete reconstruction algo from the factory
   theAlgo{GEMRecHitAlgoFactory::get()->create(config.getParameter<string>("recAlgo"),
                                               config.getParameter<ParameterSet>("recAlgoConfig"))}
 {
-
-
-  // Set verbose output
-
   produces<GEMRecHitCollection>();
 
   theGEMDigiToken = consumes<GEMDigiCollection>(config.getParameter<edm::InputTag>("gemDigiLabel"));  
@@ -87,9 +81,7 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config):
       inputFile.close();
     }
   }
-  */
 }
-
 
 GEMRecHitProducer::~GEMRecHitProducer() = default;
 
@@ -138,8 +130,6 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
   
 }
 
-
-
 void GEMRecHitProducer::produce(Event& event, const EventSetup& setup)
 {
   // Get the digis from the event
@@ -184,5 +174,4 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup)
   }
 
   event.put(std::move(recHitCollection));
-
 }
