@@ -464,6 +464,7 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
                       commonParam = dict(gangedME1a = False),
                       )
 
+"""
 ## GEM-CSC ILT in ME1/1
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
@@ -497,3 +498,4 @@ phase2_muon.toModify( cscTriggerPrimitiveDigis,
                       copadParamGE11 = copadParamGE11,
                       copadParamGE21 = copadParamGE21
 )
+"""
